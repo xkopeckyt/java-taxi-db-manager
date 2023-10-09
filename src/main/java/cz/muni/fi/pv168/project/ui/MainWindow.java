@@ -40,8 +40,8 @@ public class MainWindow {
         importDataAction = new ImportDataAction();
         exportDataAction = new ExportDataAction();
         editTechnicalLicenceAction = new EditTechnicalLicenceAction();
-        editCategoriesAction = new EditCategories();
-        aboutApplicationAction = new AboutApplication();
+        editCategoriesAction = new EditCategoriesAction();
+        aboutApplicationAction = new AboutApplicationAction();
         //deleteAction.setEnabled(false);
         //frame.add(createToolbar(), BorderLayout.BEFORE_FIRST_LINE);
 

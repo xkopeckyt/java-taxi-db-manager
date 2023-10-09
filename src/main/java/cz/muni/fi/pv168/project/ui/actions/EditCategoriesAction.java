@@ -4,11 +4,11 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-public class AboutApplication extends AbstractAction {
-    public AboutApplication() {
-        super("About application");
-        putValue(SHORT_DESCRIPTION, "Show info About application");
-        putValue(MNEMONIC_KEY, KeyEvent.VK_I);
+public class EditCategoriesAction extends AbstractAction {
+    public EditCategoriesAction() {
+        super("Edit Categories");
+        putValue(SHORT_DESCRIPTION, "Add, rename, delete Categories");
+        putValue(MNEMONIC_KEY, KeyEvent.VK_E);
     }
 
     @Override
