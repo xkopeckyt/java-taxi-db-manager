@@ -6,8 +6,6 @@ import org.jdatepicker.DateModel;
 import org.jdatepicker.JDatePicker;
 
 
-import javax.swing.*;
-import java.awt.*;
 import java.time.LocalDateTime;
 
 public class DrivingLicenceDialog extends EntityDialog<DrivingLicence> {

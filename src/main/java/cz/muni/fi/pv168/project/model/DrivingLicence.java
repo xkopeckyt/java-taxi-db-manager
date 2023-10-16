@@ -32,4 +32,8 @@ public class DrivingLicence {
         LocalDateTime now = LocalDateTime.now();
         return now.isBefore(this.getTo().plusDays(1));
     }
+
+    public boolean checkDate(LocalDateTime date) {
+        return date.isBefore(to.plusDays(1));
+    }
 }

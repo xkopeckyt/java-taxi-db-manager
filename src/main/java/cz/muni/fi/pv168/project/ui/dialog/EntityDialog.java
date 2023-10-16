@@ -10,7 +10,7 @@ import static javax.swing.JOptionPane.*;
 // from https://gitlab.fi.muni.cz/xsokolar/employee-records/-/blob/main/src/main/java/cz/muni/fi/pv168/employees/ui/dialog/EntityDialog.java
 abstract class EntityDialog<E> {
 
-    private final JPanel panel = new JPanel();
+    protected final JPanel panel = new JPanel();
 
     EntityDialog() {
         panel.setLayout(new MigLayout("wrap 2"));
@@ -32,5 +32,13 @@ abstract class EntityDialog<E> {
         } else {
             return Optional.empty();
         }
+    }
+
+    void addButton(JButton button) {
+        panel.add(button);
+    }
+
+    void addLabel(JLabel label) {
+        panel.add(label);
     }
 }

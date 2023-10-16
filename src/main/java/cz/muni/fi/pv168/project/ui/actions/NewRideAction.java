@@ -2,19 +2,26 @@ package cz.muni.fi.pv168.project.ui.actions;
 
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
 import cz.muni.fi.pv168.project.model.Category;
+import cz.muni.fi.pv168.project.model.DrivingLicence;
+import cz.muni.fi.pv168.project.model.Ride;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.List;
+
 
 public class NewRideAction extends AbstractAction {
     private final JTable ridesTable;
     private final TestDataGenerator testDataGenerator;
     private final ListModel<Category> categoryListModel;
+    private final DrivingLicence licence;
+    private final List <Ride> rideTemplates;
 
-    public NewRideAction(JTable ridesTable, TestDataGenerator testDataGenerator, ListModel<Category> categoryListModel) {
+    public NewRideAction(JTable ridesTable, TestDataGenerator testDataGenerator, ListModel<Category> categoryListModel,
+                         DrivingLicence licence, List <Ride> rideTemplates) {
         super("New Ride");
         putValue(SHORT_DESCRIPTION, "Show Create new ride Dialog");
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
@@ -22,13 +29,17 @@ public class NewRideAction extends AbstractAction {
         this.ridesTable = ridesTable;
         this.testDataGenerator = testDataGenerator;
         this.categoryListModel = categoryListModel;
+        this.licence = licence;
+        this.rideTemplates = rideTemplates;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-        var dialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel);
-        dialog.show(ridesTable, "New Ride")
-            .ifPresent(ridesTableModel::addRow);
+        var dialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, rideTemplates, licence);
+        var result = dialog.show(ridesTable, "New Ride");
+        if (result.isPresent() && licence.checkDate(result.get().getDateTime())) {
+            ridesTableModel.addRow(result.get());
+        }
     }
 }
