@@ -44,8 +44,7 @@ public class MainWindow {
         showRideAction = new ShowRideAction();
         editRideAction = new EditRideAction();
         deleteRideAction = new DeleteRideAction();
-
-        setFilterAction = new SetFilterAction();
+        setFilterAction = new SetFilterAction(ridesTable, testDataGenerator, categoryListModel);
         clearFilterAction = new ClearFilterAction();
         importDataAction = new ImportDataAction();
         exportDataAction = new ExportDataAction();
