@@ -41,4 +41,8 @@ abstract class EntityDialog<E> {
     void addLabel(JLabel label) {
         panel.add(label);
     }
+
+    void addSeparator() {
+        panel.add(new JSeparator());
+    }
 }

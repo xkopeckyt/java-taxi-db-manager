@@ -12,7 +12,6 @@ import org.jdatepicker.JDatePicker;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class RideDialog extends EntityDialog <Ride> {
 
@@ -28,43 +27,45 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JButton loadTemplateButton;
     private final JButton saveTemplateButton;
     private boolean validDate = false;
+    private final JLabel labelLicence;
+    private final JFileChooser fileChooser = new JFileChooser();
 
-    public RideDialog(Ride ride, ListModel<Category> categoryModel, List<Ride> rideTemplates, DrivingLicence licence) {
+    public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence) {
         this.ride = ride;
         this.categoryModel = new ComboBoxModelAdapter<>(categoryModel);
         this.categoryComboBox = new JComboBox<>(this.categoryModel);
-        JLabel labelLicence = new JLabel("Ride will not be added, licence invalid!");
+        this.labelLicence = new JLabel("");
         labelLicence.setForeground(Color.red);
 
 
         this.loadTemplateButton = new JButton("Load Templates");
-        loadTemplateButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(null);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                String selectedFilePath = fileChooser.getSelectedFile().getAbsolutePath();
-                //System.out.println("Selected File: " + selectedFilePath);
-            } else {
-                System.out.println(this.getClass().getName());
-            }
-        });
+        loadTemplateButton.addActionListener(e -> fileChooser.showOpenDialog(null));
 
         this.saveTemplateButton = new JButton("Save As Template");
-        saveTemplateButton.addActionListener(e -> rideTemplates.add(new Ride(Float.parseFloat(distanceField.getText()),
+        saveTemplateButton.addActionListener(e ->  {
+        fileChooser.showOpenDialog(null);
+                /*new Ride(Float.parseFloat(distanceField.getText()),
                 dateTimeModel.getValue(),
                 Float.parseFloat(priceField.getText()),
                 (Currency) currencyModel.getSelectedItem(),
                 (Category) categoryComboBox.getSelectedItem(),
-                Integer.parseInt(passengersCountField.getText()))));
+                Integer.parseInt(passengersCountField.getText())))*/
+        });
 
 
         this.dateTimeModel.addChangeListener(e -> {
             if (validDate && !licence.checkDate(dateTimeModel.getValue())) {
                 validDate = false;
+                labelLicence.setText("Invalid licence date!");
+                panel.revalidate();
+                panel.repaint();
                 var wrongDateDialog = new WrongDateDialog(dateTimeModel.getValue());
                 wrongDateDialog.show(new JTable(), "Invalid date!");
             } else if (!validDate && licence.checkDate(dateTimeModel.getValue())) {
                 validDate = true;
+                labelLicence.setText("");
+                panel.revalidate();
+                panel.repaint();
             }
         });
 
@@ -86,6 +87,8 @@ public class RideDialog extends EntityDialog <Ride> {
         add("Currency:", new JComboBox<>(currencyModel));
         add("Distance:", distanceField);
         add("Date & Time", datePicker);
+        addSeparator();
+        addLabel(labelLicence);
         add("Category:", categoryComboBox);
         add("Passengers count:", passengersCountField);
         addButton(loadTemplateButton);

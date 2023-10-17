@@ -9,7 +9,6 @@ import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainWindow {
@@ -33,12 +32,11 @@ public class MainWindow {
         var categoryListModel = new CategoryListModel(testDataGenerator.getCategories());
         var ridesTable = createRidesTable(testDataGenerator.createTestRides(10), categoryListModel);
         var licence = testDataGenerator.createTestDrivingLicence();
-        final List<Ride> rideTemplates = new ArrayList<>();
 
         frame.add(new JScrollPane(ridesTable), BorderLayout.CENTER);
 
-        newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence, rideTemplates);
-        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, rideTemplates);
+        newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
+        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
         setFilterAction = new SetFilterAction();
         clearFilterAction = new ClearFilterAction();
         importDataAction = new ImportDataAction();
