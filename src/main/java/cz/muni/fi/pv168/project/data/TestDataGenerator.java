@@ -55,8 +55,8 @@ public class TestDataGenerator {
     }
 
     public Filter createTestFilter() {
-        float distanceFrom = random.nextFloat(MAX_DISTANCE+1);
-        float distanceTo = random.nextFloat(distanceFrom, MAX_DISTANCE+1);
+        float distanceFrom = random.nextInt(MAX_DISTANCE+1);
+        float distanceTo = random.nextInt((int) distanceFrom, MAX_DISTANCE+1);
         LocalDateTime dateTimeFrom = selectRandomLocalDateTime(MIN_DATE, MAX_DATE);
         LocalDateTime dateTimeTo = selectRandomLocalDateTime(dateTimeFrom.toLocalDate(), MAX_DATE);
         Currency currency = selectRandom(Arrays.stream(Currency.values()).filter(c -> c != Currency.NONE).toList());
