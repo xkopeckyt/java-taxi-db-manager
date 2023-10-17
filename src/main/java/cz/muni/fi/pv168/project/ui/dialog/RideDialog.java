@@ -43,7 +43,7 @@ public class RideDialog extends EntityDialog <Ride> {
 
         this.saveTemplateButton = new JButton("Save As Template");
         saveTemplateButton.addActionListener(e ->  {
-        fileChooser.showOpenDialog(null);
+        fileChooser.showSaveDialog(null);
                 /*new Ride(Float.parseFloat(distanceField.getText()),
                 dateTimeModel.getValue(),
                 Float.parseFloat(priceField.getText()),
