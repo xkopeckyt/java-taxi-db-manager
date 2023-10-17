@@ -2,6 +2,7 @@ package cz.muni.fi.pv168.project.data;
 
 import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Currency;
+import cz.muni.fi.pv168.project.model.DrivingLicence;
 import cz.muni.fi.pv168.project.model.Ride;
 
 import java.time.LocalDate;
@@ -54,6 +55,11 @@ public class TestDataGenerator {
 
     public List<Category> getCategories() {
         return CATEGORIES;
+    }
+
+    public DrivingLicence createTestDrivingLicence() {
+        LocalDateTime to = selectRandomLocalDateTime(MIN_DATE, MAX_DATE);
+        return new DrivingLicence(to);
     }
 
     private <T> T selectRandom(List<T> data) {

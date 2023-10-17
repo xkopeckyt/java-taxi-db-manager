@@ -31,15 +31,17 @@ public class MainWindow {
         var testDataGenerator = new TestDataGenerator();
         var categoryListModel = new CategoryListModel(testDataGenerator.getCategories());
         var ridesTable = createRidesTable(testDataGenerator.createTestRides(10), categoryListModel);
+        var licence = testDataGenerator.createTestDrivingLicence();
+
         frame.add(new JScrollPane(ridesTable), BorderLayout.CENTER);
 
-        newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel);
-        newRideFromTemplateAction = new NewRideFromTemplateAction();
+        newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
+        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
         setFilterAction = new SetFilterAction();
         clearFilterAction = new ClearFilterAction();
         importDataAction = new ImportDataAction();
         exportDataAction = new ExportDataAction();
-        editTechnicalLicenceAction = new EditTechnicalLicenceAction();
+        editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
         editCategoriesAction = new EditCategoriesAction();
         aboutApplicationAction = new AboutApplicationAction();
         //deleteAction.setEnabled(false);
