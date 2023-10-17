@@ -8,6 +8,7 @@ import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.util.List;
 
@@ -52,6 +53,7 @@ public class MainWindow {
         //frame.add(createToolbar(), BorderLayout.BEFORE_FIRST_LINE);
 
         ridesTable.setComponentPopupMenu(createRidesTablePopupMenu());
+        changeActionState(0);
         frame.add(new JScrollPane(ridesTable), BorderLayout.CENTER);
         frame.setJMenuBar(createMenuBar());
         frame.pack();
@@ -73,7 +75,7 @@ public class MainWindow {
         var table = new JTable(model, model.getColumnModel());
         table.addComponentListener(model.getResizeListener());
         table.setRowSorter(model.getRowSorter());
-        //table.getSelectionModel().addListSelectionListener(this::rowSelectionChanged);
+        table.getSelectionModel().addListSelectionListener(this::rowSelectionChanged);
         //var currencyJComboBox = new JComboBox<>(Currency.values());
         //table.setDefaultEditor(Currency.class, new DefaultCellEditor(currencyJComboBox));
         //table.setDefaultEditor(Category.class, new DefaultCellEditor(new JComboBox<>(new ComboBoxModelAdapter<>(categoryListModel))));
@@ -154,12 +156,15 @@ public class MainWindow {
         toolbar.add(deleteAction);
         return toolbar;
     }
+    */
 
     private void rowSelectionChanged(ListSelectionEvent listSelectionEvent) {
         var selectionModel = (ListSelectionModel) listSelectionEvent.getSource();
-        editAction.setEnabled(selectionModel.getSelectedItemsCount() == 1);
-        deleteAction.setEnabled(selectionModel.getSelectedItemsCount() >= 1);
+        changeActionState(selectionModel.getSelectedItemsCount());
     }
-    */
 
+    private void changeActionState(int count) {
+        editRideAction.setEnabled(count == 1);
+        deleteRideAction.setEnabled(count >= 1);
+    }
 }
