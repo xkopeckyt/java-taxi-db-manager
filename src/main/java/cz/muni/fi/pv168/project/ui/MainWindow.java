@@ -17,6 +17,8 @@ public class MainWindow {
     private final JFrame frame;
     private final Action newRideAction;
     private final Action newRideFromTemplateAction;
+    private final Action editRideAction;
+    private final Action deleteRideAction;
     private final Action setFilterAction;
     private final Action clearFilterAction;
     private final Action importDataAction;
@@ -33,10 +35,12 @@ public class MainWindow {
         var ridesTable = createRidesTable(testDataGenerator.createTestRides(10), categoryListModel);
         var licence = testDataGenerator.createTestDrivingLicence();
 
-        frame.add(new JScrollPane(ridesTable), BorderLayout.CENTER);
 
         newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
+        editRideAction = new EditRideAction();
+        deleteRideAction = new DeleteRideAction();
+
         setFilterAction = new SetFilterAction();
         clearFilterAction = new ClearFilterAction();
         importDataAction = new ImportDataAction();
@@ -47,6 +51,8 @@ public class MainWindow {
         //deleteAction.setEnabled(false);
         //frame.add(createToolbar(), BorderLayout.BEFORE_FIRST_LINE);
 
+        ridesTable.setComponentPopupMenu(createRidesTablePopupMenu());
+        frame.add(new JScrollPane(ridesTable), BorderLayout.CENTER);
         frame.setJMenuBar(createMenuBar());
         frame.pack();
     }
@@ -74,15 +80,12 @@ public class MainWindow {
         return table;
     }
 
-    /*
-    private JPopupMenu createEmployeeTablePopupMenu() {
+    private JPopupMenu createRidesTablePopupMenu() {
         var menu = new JPopupMenu();
-        menu.add(addAction);
-        menu.add(deleteAction);
-        menu.add(editAction);
+        menu.add(editRideAction);
+        menu.add(deleteRideAction);
         return menu;
     }
-    */
 
     private JMenuBar createMenuBar() {
         var menuBar = new JMenuBar();
