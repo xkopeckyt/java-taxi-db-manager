@@ -9,6 +9,7 @@ import cz.muni.fi.pv168.project.ui.resources.Icons;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import static javax.swing.JOptionPane.*;
 
 public class ShowRideAction extends AbstractAction {
     private final JTable rideTable;
@@ -27,6 +28,6 @@ public class ShowRideAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         var dialog = new RideDetailDialog(testDataGenerator.createTestRide());
-        dialog.show(rideTable, "Filter Rides");
+        dialog.show(rideTable, "Ride Detail", OK_OPTION, new String[]{"OK"});
     }
 }

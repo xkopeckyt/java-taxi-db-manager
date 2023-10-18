@@ -12,6 +12,7 @@ import org.jdatepicker.JDatePicker;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
+import static javax.swing.JOptionPane.*;
 
 public class RideDialog extends EntityDialog <Ride> {
 
@@ -60,7 +61,7 @@ public class RideDialog extends EntityDialog <Ride> {
                 panel.revalidate();
                 panel.repaint();
                 var wrongDateDialog = new WrongDateDialog(dateTimeModel.getValue());
-                wrongDateDialog.show(new JTable(), "Invalid date!");
+                wrongDateDialog.show(new JTable(), "Invalid date!", OK_OPTION, new String[]{"OK"});
             } else if (!validDate && licence.checkDate(dateTimeModel.getValue())) {
                 validDate = true;
                 labelLicence.setText("");

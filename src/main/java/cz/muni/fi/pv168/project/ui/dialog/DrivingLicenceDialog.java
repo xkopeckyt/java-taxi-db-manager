@@ -8,7 +8,7 @@ import org.jdatepicker.JDatePicker;
 
 import java.time.LocalDateTime;
 
-public class DrivingLicenceDialog extends EntityDialog<DrivingLicence> {
+public class DrivingLicenceDialog extends EntityDialog<LocalDateTime> {
     private final DateModel<LocalDateTime> to = new LocalDateTimeModel();
     private final DrivingLicence drivingLicence;
 
@@ -27,8 +27,7 @@ public class DrivingLicenceDialog extends EntityDialog<DrivingLicence> {
     }
 
     @Override
-    DrivingLicence getEntity() {
-        drivingLicence.setTo(to.getValue());
-        return drivingLicence;
+    LocalDateTime getEntity() {
+        return to.getValue();
     }
 }
