@@ -10,16 +10,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 public class SetFilterAction extends AbstractAction {
-    private final JTable filterTable;
+    private final JTable rideTable;
     private final TestDataGenerator testDataGenerator;
     private final ListModel<Category> categoryListModel;
 
-    public SetFilterAction(JTable filterTable, TestDataGenerator testDataGenerator, ListModel<Category> categoryListModel) {
+    public SetFilterAction(JTable rideTable, TestDataGenerator testDataGenerator, ListModel<Category> categoryListModel) {
         super("Set Filter");
         putValue(SHORT_DESCRIPTION, "Show Set filter Dialog for rides");
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
 
-        this.filterTable = filterTable;
+        this.rideTable = rideTable;
         this.testDataGenerator = testDataGenerator;
         this.categoryListModel = categoryListModel;
     }
@@ -27,6 +27,6 @@ public class SetFilterAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         var dialog = new FilterDialog(testDataGenerator.createTestFilter(), categoryListModel);
-        dialog.show(filterTable, "Filter Rides");
+        dialog.show(rideTable, "Filter Rides");
     }
 }
