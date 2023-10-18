@@ -9,6 +9,7 @@ import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import static javax.swing.JOptionPane.*;
 
 
 public class NewRideAction extends AbstractAction {
@@ -33,7 +34,7 @@ public class NewRideAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         var ridesTableModel = (RidesTableModel) ridesTable.getModel();
         var dialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, licence);
-        var result = dialog.show(ridesTable, "New Ride");
+        var result = dialog.show(ridesTable, "New Ride", OK_CANCEL_OPTION, null);
         if (result.isPresent() && licence.checkDate(result.get().getDateTime())) {
             ridesTableModel.addRow(result.get());
         }

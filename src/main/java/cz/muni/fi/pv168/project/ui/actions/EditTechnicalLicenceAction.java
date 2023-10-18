@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import static javax.swing.JOptionPane.*;
 
 public class EditTechnicalLicenceAction extends AbstractAction {
 
@@ -33,14 +34,17 @@ public class EditTechnicalLicenceAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         boolean oldValidation = drivingLicence.getValid();
         var dialog = new DrivingLicenceDialog(drivingLicence);
-        dialog.show(new JTable(), "Update driving licence");
+        var result = dialog.show(new JTable(), "Update driving licence", OK_CANCEL_OPTION, null);
 
-        if (oldValidation && !drivingLicence.checkLicence()) {
-            drivingLicence.setValid(drivingLicence.checkLicence());
-            addLabel(label);
-        } else if (!oldValidation && drivingLicence.checkLicence()) {
-            drivingLicence.setValid(drivingLicence.checkLicence());
-            removeLabel(label);
+        if (result.isPresent()) {
+            drivingLicence.setTo(result.get());
+            if (oldValidation && !drivingLicence.checkLicence()) {
+                drivingLicence.setValid(drivingLicence.checkLicence());
+                addLabel(label);
+            } else if (!oldValidation && drivingLicence.checkLicence()) {
+                drivingLicence.setValid(drivingLicence.checkLicence());
+                removeLabel(label);
+            }
         }
     }
 
