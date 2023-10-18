@@ -9,15 +9,18 @@ import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.util.List;
 
 public class MainWindow {
     private static final int WIDTH = 600;
-    private static final int HEIGHT = 400;
+    private static final int HEIGHT = 600;
     private final JFrame frame;
     private final Action newRideAction;
     private final Action newRideFromTemplateAction;
+    private final Action showRideAction;
     private final Action editRideAction;
     private final Action deleteRideAction;
     private final Action setFilterAction;
@@ -36,9 +39,9 @@ public class MainWindow {
         var ridesTable = createRidesTable(testDataGenerator.createTestRides(10), categoryListModel);
         var licence = testDataGenerator.createTestDrivingLicence();
 
-
         newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
+        showRideAction = new ShowRideAction();
         editRideAction = new EditRideAction();
         deleteRideAction = new DeleteRideAction();
 
@@ -49,13 +52,23 @@ public class MainWindow {
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
         editCategoriesAction = new EditCategoriesAction();
         aboutApplicationAction = new AboutApplicationAction();
+        changeActionState(0);
         //deleteAction.setEnabled(false);
         //frame.add(createToolbar(), BorderLayout.BEFORE_FIRST_LINE);
 
-        ridesTable.setComponentPopupMenu(createRidesTablePopupMenu());
-        changeActionState(0);
-        frame.add(new JScrollPane(ridesTable), BorderLayout.CENTER);
         frame.setJMenuBar(createMenuBar());
+
+
+        JPanel mainPanel = new JPanel(new GridLayout(2,1));
+        frame.add(mainPanel);
+
+        ridesTable.setComponentPopupMenu(createRidesTablePopupMenu());
+        mainPanel.add(new JScrollPane(ridesTable)); //, BorderLayout.CENTER
+
+        mainPanel.add(createStatisticsPanel());
+        frame.add(mainPanel);
+
+
         frame.pack();
     }
 
@@ -81,9 +94,32 @@ public class MainWindow {
         //table.setDefaultEditor(Category.class, new DefaultCellEditor(new JComboBox<>(new ComboBoxModelAdapter<>(categoryListModel))));
         return table;
     }
+    private JPanel createStatisticsPanel() {
+        JPanel statisticsPanel  = new JPanel(new GridLayout(1,2));
+        statisticsPanel.add(new JScrollPane(createStatisticPane("Global statistics")));
+        statisticsPanel.add(new JScrollPane(createStatisticPane("Filtered statistics")));
+        return statisticsPanel;
+    }
+
+    private JEditorPane createStatisticPane(String name) {
+        JEditorPane statsPane = new JEditorPane();
+        statsPane.setContentType("text/html");
+        statsPane.setEditable(false);
+        StyleSheet styleSheet = ((HTMLEditorKit)statsPane.getEditorKit()).getStyleSheet();
+        styleSheet.addRule("ul{margin:0px 20px;");
+        statsPane.setText("<html><h3>" + name + ":</h3><ul>" +
+                "<li>Rides count: 0</li><br>" +
+                "<li>Total price: 0</li>" +
+                "<li>Total distance: 0</li><br>" +
+                "<li>Average price: 0</li>" +
+                "<li>Average distance: 0</li>" +
+                "</ul></html>");
+        return statsPane;
+    }
 
     private JPopupMenu createRidesTablePopupMenu() {
         var menu = new JPopupMenu();
+        menu.add(showRideAction);
         menu.add(editRideAction);
         menu.add(deleteRideAction);
         return menu;
@@ -164,6 +200,7 @@ public class MainWindow {
     }
 
     private void changeActionState(int count) {
+        showRideAction.setEnabled(count == 1);
         editRideAction.setEnabled(count == 1);
         deleteRideAction.setEnabled(count >= 1);
     }
