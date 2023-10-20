@@ -42,14 +42,14 @@ public class MainWindow {
         newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
         showRideAction = new ShowRideAction(ridesTable, testDataGenerator);
-        editRideAction = new EditRideAction();
+        editRideAction = new EditRideAction(ridesTable, categoryListModel, licence);
         deleteRideAction = new DeleteRideAction();
         setFilterAction = new SetFilterAction(ridesTable, testDataGenerator, categoryListModel);
         clearFilterAction = new ClearFilterAction();
         importDataAction = new ImportDataAction();
         exportDataAction = new ExportDataAction();
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
-        editCategoriesAction = new EditCategoriesAction();
+        editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesTable);
         aboutApplicationAction = new AboutApplicationAction();
         changeActionState(0);
         //deleteAction.setEnabled(false);

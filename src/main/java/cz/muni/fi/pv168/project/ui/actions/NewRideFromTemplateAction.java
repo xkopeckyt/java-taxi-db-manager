@@ -36,7 +36,7 @@ public class NewRideFromTemplateAction extends AbstractAction {
 
         if (result == JFileChooser.APPROVE_OPTION) {
             var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-            var rideDialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, licence);
+            var rideDialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, licence, false);
             var rideResult = rideDialog.show(ridesTable, "New Ride", OK_CANCEL_OPTION, null);
 
             if (rideResult.isPresent() && licence.checkDate(rideResult.get().getDateTime())) {

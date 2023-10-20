@@ -27,11 +27,14 @@ public class RideDialog extends EntityDialog <Ride> {
     private final Ride ride;
     private final JButton loadTemplateButton;
     private final JButton saveTemplateButton;
+    private final JButton resetButton;
     private boolean validDate = false;
     private final JLabel labelLicence;
     private final JFileChooser fileChooser = new JFileChooser();
+    private final boolean editMode;
 
-    public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence) {
+    public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence, boolean editMode) {
+        this.editMode = editMode;
         this.ride = ride;
         this.categoryModel = new ComboBoxModelAdapter<>(categoryModel);
         this.categoryComboBox = new JComboBox<>(this.categoryModel);
@@ -52,6 +55,8 @@ public class RideDialog extends EntityDialog <Ride> {
                 (Category) categoryComboBox.getSelectedItem(),
                 Integer.parseInt(passengersCountField.getText())))*/
         });
+        this.resetButton = new JButton("Reset");
+        resetButton.addActionListener(e -> setValues());
 
 
         this.dateTimeModel.addChangeListener(e -> {
@@ -92,8 +97,12 @@ public class RideDialog extends EntityDialog <Ride> {
         addLabel(labelLicence);
         add("Category:", categoryComboBox);
         add("Passengers count:", passengersCountField);
-        addButton(loadTemplateButton);
-        addButton(saveTemplateButton);
+        if(!editMode) {
+            addButton(loadTemplateButton);
+            addButton(saveTemplateButton);
+        } else{
+            addButton(resetButton);
+        }
     }
 
     @Override
@@ -106,4 +115,5 @@ public class RideDialog extends EntityDialog <Ride> {
         ride.setPassengersCount(Integer.parseInt(passengersCountField.getText()));
         return ride;
     }
+
 }
