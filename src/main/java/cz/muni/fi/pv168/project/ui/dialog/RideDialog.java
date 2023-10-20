@@ -106,4 +106,5 @@ public class RideDialog extends EntityDialog <Ride> {
         ride.setPassengersCount(Integer.parseInt(passengersCountField.getText()));
         return ride;
     }
+
 }

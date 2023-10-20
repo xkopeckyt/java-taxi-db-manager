@@ -49,7 +49,7 @@ public class MainWindow {
         importDataAction = new ImportDataAction();
         exportDataAction = new ExportDataAction();
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
-        editCategoriesAction = new EditCategoriesAction();
+        editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesTable);
         aboutApplicationAction = new AboutApplicationAction();
         changeActionState(0);
         //deleteAction.setEnabled(false);
