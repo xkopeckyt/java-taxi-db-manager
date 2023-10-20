@@ -12,6 +12,8 @@ import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.util.Optional;
 
+import static cz.muni.fi.pv168.project.ui.resources.Icons.DELETE_ICON;
+import static cz.muni.fi.pv168.project.ui.resources.Icons.EDIT_ICON;
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 import static javax.swing.JOptionPane.OK_OPTION;
 
@@ -20,8 +22,8 @@ public class CategoryDialog extends EntityDialog<Category> {
     private static final int HEIGHT = 400;
     private final JTable categoryTable;
     private final JButton newCategory;
-    private final JButton renameCategory;
-    private final JButton deleteCategory;
+    private final JMenuItem renameCategory;
+    private final JMenuItem deleteCategory;
     private final JFrame frame;
     private final CategoryListModel categoryListModel;
     private final CategoryTableModel categoryTableModel;
@@ -37,8 +39,8 @@ public class CategoryDialog extends EntityDialog<Category> {
         this.categoryTable.getSelectionModel().addListSelectionListener(this::rowSelectionChanged);
 
         this.newCategory = new JButton("New");
-        this.renameCategory = new JButton("Rename");
-        this.deleteCategory = new JButton("Delete");
+        this.renameCategory = new JMenuItem("Rename", EDIT_ICON);
+        this.deleteCategory = new JMenuItem("Delete", DELETE_ICON);
 
         this.newCategory.addActionListener(e -> createNewCategory());
         this.renameCategory.addActionListener(e -> renameSelectedCategory());
@@ -46,8 +48,7 @@ public class CategoryDialog extends EntityDialog<Category> {
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonPanel.add(newCategory);
-        buttonPanel.add(renameCategory);
-        buttonPanel.add(deleteCategory);
+        categoryTable.setComponentPopupMenu(createPopUpMenu());
 
         frame.setLayout(new BorderLayout());
         frame.add(buttonPanel, BorderLayout.NORTH);
@@ -96,6 +97,13 @@ public class CategoryDialog extends EntityDialog<Category> {
     private void changeActionState(int count) {
         renameCategory.setEnabled(count == 1);
         deleteCategory.setEnabled(count >= 1);
+    }
+
+    private JPopupMenu createPopUpMenu(){
+        var menu = new JPopupMenu();
+        menu.add(renameCategory);
+        menu.add(deleteCategory);
+        return menu;
     }
 
     @Override
