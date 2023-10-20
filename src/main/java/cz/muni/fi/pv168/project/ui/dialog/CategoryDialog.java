@@ -12,6 +12,9 @@ import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.util.Optional;
 
+import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
+import static javax.swing.JOptionPane.OK_OPTION;
+
 public class CategoryDialog extends EntityDialog<Category> {
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
@@ -41,7 +44,7 @@ public class CategoryDialog extends EntityDialog<Category> {
         this.renameCategory.addActionListener(e -> renameSelectedCategory());
         this.deleteCategory.addActionListener(e -> deleteSelectedCategory());
         
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonPanel.add(newCategory);
         buttonPanel.add(renameCategory);
         buttonPanel.add(deleteCategory);
@@ -54,7 +57,7 @@ public class CategoryDialog extends EntityDialog<Category> {
 
     private void createNewCategory(){
         var dialog = new CategoryNameDialog(null);
-        var result = dialog.show(categoryTable, "New category");
+        var result = dialog.show(categoryTable, "New category", OK_CANCEL_OPTION, null);
         if(result.isPresent()){
             categoryListModel.add(result.get());
             int idx = categoryListModel.getIndex(result.get());
@@ -65,7 +68,7 @@ public class CategoryDialog extends EntityDialog<Category> {
         int row = categoryTable.getSelectedRow();
         Category category = categoryListModel.getElementAt(row);
         var dialog = new CategoryNameDialog(category);
-        var result = dialog.show(categoryTable, "Rename category");
+        var result = dialog.show(categoryTable, "Rename category", OK_OPTION, null);
         categoryTableModel.fireTableDataChanged();
         ((RidesTableModel)ridesTable.getModel()).fireTableDataChanged();
     }
@@ -106,7 +109,7 @@ public class CategoryDialog extends EntityDialog<Category> {
     }
 
     @Override
-    public Optional<Category> show(JComponent parentComponent, String title) {
+    public Optional<Category> show(JComponent parentComponent, String title, int option, Object[] options) {
         frame.setTitle(title);
         frame.pack();
         frame.setLocationRelativeTo(parentComponent);

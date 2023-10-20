@@ -9,6 +9,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
+import static javax.swing.JOptionPane.OK_OPTION;
+
 public class EditCategoriesAction extends AbstractAction {
     private CategoryListModel categoryListModel;
     private JTable ridesTable;
@@ -24,6 +27,6 @@ public class EditCategoriesAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         var dialog = new CategoryDialog(categoryListModel, ridesTable);
         var model = new CategoryTableModel(categoryListModel);
-        dialog.show(new JTable(model, model.getColumnModel()), "Edit Categories");
+        dialog.show(new JTable(model, model.getColumnModel()), "Edit Categories", OK_CANCEL_OPTION, null);
     }
 }

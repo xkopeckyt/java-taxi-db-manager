@@ -33,7 +33,7 @@ public class NewRideAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-        var dialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, licence);
+        var dialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, licence, false);
         var result = dialog.show(ridesTable, "New Ride", OK_CANCEL_OPTION, null);
         if (result.isPresent() && licence.checkDate(result.get().getDateTime())) {
             ridesTableModel.addRow(result.get());

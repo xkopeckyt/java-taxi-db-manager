@@ -32,7 +32,7 @@ public class CategoryTableModel extends AbstractTableModel {
             var tableColumn = new TableColumn(i);
             tableColumn.setHeaderValue(column.getName());
             DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-            leftRenderer.setHorizontalAlignment(JLabel.LEFT);
+            leftRenderer.setHorizontalAlignment(JLabel.CENTER);
             tableColumn.setCellRenderer(leftRenderer);
             tableColumnModel.addColumn(tableColumn);
         }
@@ -73,7 +73,7 @@ public class CategoryTableModel extends AbstractTableModel {
             column.setPreferredWidth(pWidth);
         }
     }
-    float[] columnWidthPercentage = {0.28f, 0.28f};
+    float[] columnWidthPercentage = {0.05f, 0.8f};
     @Override
     public int getRowCount() {
         return categoryModel.getSize();

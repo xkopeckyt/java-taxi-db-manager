@@ -42,7 +42,7 @@ public class MainWindow {
         newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
         showRideAction = new ShowRideAction(ridesTable, testDataGenerator);
-        editRideAction = new EditRideAction();
+        editRideAction = new EditRideAction(ridesTable, categoryListModel, licence);
         deleteRideAction = new DeleteRideAction();
         setFilterAction = new SetFilterAction(ridesTable, testDataGenerator, categoryListModel);
         clearFilterAction = new ClearFilterAction();
