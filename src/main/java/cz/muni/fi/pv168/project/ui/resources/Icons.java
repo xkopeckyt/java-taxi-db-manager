@@ -5,8 +5,13 @@ import java.net.URL;
 
 public class Icons {
     public static final Icon SHOW_ICON = createIcon("show.png");
+    public static final Icon NEW_ICON = createIcon("new_ride.png");
     public static final Icon EDIT_ICON = createIcon("edit.png");
     public static final Icon DELETE_ICON = createIcon("delete.png");
+    public static final Icon IMPORT_ICON = createIcon("import.png");
+    public static final Icon EXPORT_ICON = createIcon("export.png");
+    public static final Icon LICENSE_ICON = createIcon("license.png");
+    public static final Icon SELECT_ICON = createIcon("radiobutton_list.png");
 
     private Icons() {
         throw new AssertionError("This class is not instantiable");

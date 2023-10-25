@@ -8,8 +8,6 @@ import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
@@ -54,7 +52,8 @@ public class MainWindow {
         editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesTable);
         aboutApplicationAction = new AboutApplicationAction();
         changeActionState(0);
-        //deleteAction.setEnabled(false);
+
+        frame.setJMenuBar(createMenuBar());
 
         var tabbedPane = new JTabbedPane();
 
@@ -74,12 +73,14 @@ public class MainWindow {
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
 
+
+
+        JPanel toolbarPanel = new JPanel(new GridLayout(2,1));
+        toolbarPanel.add(createActionToolbar());
+        toolbarPanel.add(createFilterToolbar());
+        frame.add(toolbarPanel, BorderLayout.BEFORE_FIRST_LINE);
+
         frame.add(tabbedPane, BorderLayout.CENTER);
-
-        frame.add(createToolbar(), BorderLayout.BEFORE_FIRST_LINE);
-
-        frame.setJMenuBar(createMenuBar());
-
 
         /*JPanel mainPanel = new JPanel(new GridLayout(2,1));
         frame.add(mainPanel);
@@ -203,8 +204,9 @@ public class MainWindow {
         return menu;
     }
 
-    private JToolBar createToolbar() {
+    private JToolBar createActionToolbar() {
         var toolbar = new JToolBar();
+        toolbar.setFloatable(false);
         toolbar.add(newRideAction);
         toolbar.add(editRideAction);
         toolbar.add(deleteRideAction);
@@ -212,7 +214,16 @@ public class MainWindow {
         toolbar.add(importDataAction);
         toolbar.add(exportDataAction);
         toolbar.addSeparator();
+        toolbar.add(editCategoriesAction);
+        toolbar.addSeparator();
         toolbar.add(editTechnicalLicenceAction);
+        return toolbar;
+    }
+
+    private JToolBar createFilterToolbar() {
+        var toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.add(new JLabel("Filter related stuff here"));
         return toolbar;
     }
 

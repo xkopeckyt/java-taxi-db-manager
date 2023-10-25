@@ -4,6 +4,7 @@ import cz.muni.fi.pv168.project.ui.dialog.CategoryDialog;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.CategoryTableModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
+import cz.muni.fi.pv168.project.ui.resources.Icons;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -13,10 +14,10 @@ import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 import static javax.swing.JOptionPane.OK_OPTION;
 
 public class EditCategoriesAction extends AbstractAction {
-    private CategoryListModel categoryListModel;
-    private JTable ridesTable;
+    private final CategoryListModel categoryListModel;
+    private final JTable ridesTable;
     public EditCategoriesAction(CategoryListModel categoryListModel, JTable ridesTable) {
-        super("Edit Categories");
+        super("Edit Categories", Icons.SELECT_ICON);
         putValue(SHORT_DESCRIPTION, "Add, rename, delete Categories");
         putValue(MNEMONIC_KEY, KeyEvent.VK_E);
         this.categoryListModel = categoryListModel;
