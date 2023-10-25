@@ -8,6 +8,8 @@ import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
@@ -53,19 +55,39 @@ public class MainWindow {
         aboutApplicationAction = new AboutApplicationAction();
         changeActionState(0);
         //deleteAction.setEnabled(false);
-        //frame.add(createToolbar(), BorderLayout.BEFORE_FIRST_LINE);
+
+        var tabbedPane = new JTabbedPane();
+
+        JPanel mainPanel = new JPanel(new GridLayout(1,1));
+        ridesTable.setComponentPopupMenu(createRidesTablePopupMenu());
+        mainPanel.add(new JScrollPane(ridesTable)); //, BorderLayout.CENTER
+
+        JPanel secondaryPanel = new JPanel(new GridLayout(1,1));
+        secondaryPanel.add(createStatisticsPanel());
+
+        /*tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                }
+        });*/
+
+        tabbedPane.addTab("Rides (table)", mainPanel);
+        tabbedPane.addTab("Statistics", secondaryPanel);
+
+        frame.add(tabbedPane, BorderLayout.CENTER);
+
+        frame.add(createToolbar(), BorderLayout.BEFORE_FIRST_LINE);
 
         frame.setJMenuBar(createMenuBar());
 
 
-        JPanel mainPanel = new JPanel(new GridLayout(2,1));
+        /*JPanel mainPanel = new JPanel(new GridLayout(2,1));
         frame.add(mainPanel);
-
         ridesTable.setComponentPopupMenu(createRidesTablePopupMenu());
         mainPanel.add(new JScrollPane(ridesTable)); //, BorderLayout.CENTER
 
         mainPanel.add(createStatisticsPanel());
-        frame.add(mainPanel);
+        frame.add(mainPanel);*/
 
 
         frame.pack();
@@ -181,17 +203,18 @@ public class MainWindow {
         return menu;
     }
 
-    /*
     private JToolBar createToolbar() {
         var toolbar = new JToolBar();
-        toolbar.add(quitAction);
+        toolbar.add(newRideAction);
+        toolbar.add(editRideAction);
+        toolbar.add(deleteRideAction);
         toolbar.addSeparator();
-        toolbar.add(addAction);
-        toolbar.add(editAction);
-        toolbar.add(deleteAction);
+        toolbar.add(importDataAction);
+        toolbar.add(exportDataAction);
+        toolbar.addSeparator();
+        toolbar.add(editTechnicalLicenceAction);
         return toolbar;
     }
-    */
 
     private void rowSelectionChanged(ListSelectionEvent listSelectionEvent) {
         var selectionModel = (ListSelectionModel) listSelectionEvent.getSource();

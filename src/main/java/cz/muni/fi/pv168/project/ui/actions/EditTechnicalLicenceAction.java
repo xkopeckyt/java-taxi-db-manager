@@ -21,9 +21,8 @@ public class EditTechnicalLicenceAction extends AbstractAction {
 
         this.drivingLicence = drivingLicence;
         this.frame = frame;
-        this.label = new JLabel("DRIVING LICENCE IS NOT VALID TODAY!!!");
+        this.label = new JLabel("DRIVING LICENCE IS NOT VALID TODAY!!! UPDATE YOUR LICENCE!!!", SwingConstants.CENTER);
         label.setForeground(Color.RED);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
 
         if (!drivingLicence.getValid()) {
             addLabel(label);
@@ -49,7 +48,7 @@ public class EditTechnicalLicenceAction extends AbstractAction {
     }
 
     private void addLabel(JLabel label) {
-        frame.add(label, BorderLayout.NORTH);
+        frame.add(label, BorderLayout.AFTER_LAST_LINE);
         frame.revalidate();
         frame.repaint();
     }
