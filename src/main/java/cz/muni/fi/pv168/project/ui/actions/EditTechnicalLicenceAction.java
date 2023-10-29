@@ -2,6 +2,7 @@ package cz.muni.fi.pv168.project.ui.actions;
 
 import cz.muni.fi.pv168.project.model.DrivingLicence;
 import cz.muni.fi.pv168.project.ui.dialog.DrivingLicenceDialog;
+import cz.muni.fi.pv168.project.ui.resources.Icons;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,15 +16,14 @@ public class EditTechnicalLicenceAction extends AbstractAction {
     private final JFrame frame;
     private final JLabel label;
     public EditTechnicalLicenceAction(DrivingLicence drivingLicence, JFrame frame) {
-        super("Show/Edit Technical Licence");
+        super("Show/Edit Technical Licence", Icons.LICENSE_ICON);
         putValue(SHORT_DESCRIPTION, "Show/Edit Technical Licence validity date");
         putValue(MNEMONIC_KEY, KeyEvent.VK_E);
 
         this.drivingLicence = drivingLicence;
         this.frame = frame;
-        this.label = new JLabel("DRIVING LICENCE IS NOT VALID TODAY!!!");
+        this.label = new JLabel("DRIVING LICENCE IS NOT VALID TODAY!!! UPDATE YOUR LICENCE!!!", SwingConstants.CENTER);
         label.setForeground(Color.RED);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
 
         if (!drivingLicence.getValid()) {
             addLabel(label);
@@ -49,7 +49,7 @@ public class EditTechnicalLicenceAction extends AbstractAction {
     }
 
     private void addLabel(JLabel label) {
-        frame.add(label, BorderLayout.NORTH);
+        frame.add(label, BorderLayout.AFTER_LAST_LINE);
         frame.revalidate();
         frame.repaint();
     }
