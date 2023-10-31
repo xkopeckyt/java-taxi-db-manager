@@ -38,7 +38,7 @@ public class TestDataGenerator {
     );
 
     public Ride createTestRide() {
-        Currency currency = selectRandom(Arrays.stream(Currency.values()).filter(c -> c != Currency.NONE).toList());
+        Currency currency = selectRandom(Arrays.stream(Currency.values()).toList());
         float distance = random.nextFloat(MAX_DISTANCE+1);
         float price = random.nextFloat(MAX_PRICE+1);
         int passengersCount = random.nextInt(1, MAX_PASSENGERS+1);
@@ -59,7 +59,7 @@ public class TestDataGenerator {
         float distanceTo = random.nextInt((int) distanceFrom, MAX_DISTANCE+1);
         LocalDateTime dateTimeFrom = selectRandomLocalDateTime(MIN_DATE, MAX_DATE);
         LocalDateTime dateTimeTo = selectRandomLocalDateTime(dateTimeFrom.toLocalDate(), MAX_DATE);
-        Currency currency = selectRandom(Arrays.stream(Currency.values()).filter(c -> c != Currency.NONE).toList());
+        Currency currency = selectRandom(Arrays.stream(Currency.values()).toList());
         Category category = selectRandom(CATEGORIES);
         return new Filter(distanceFrom, distanceTo, dateTimeFrom, dateTimeTo, currency, category);
     }
