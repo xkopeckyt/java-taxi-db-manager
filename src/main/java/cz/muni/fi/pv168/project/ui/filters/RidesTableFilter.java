@@ -4,16 +4,14 @@ package cz.muni.fi.pv168.project.ui.filters;
 import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Currency;
 import cz.muni.fi.pv168.project.model.Ride;
-import cz.muni.fi.pv168.project.ui.filters.Matchers.EntityMatcher;
-import cz.muni.fi.pv168.project.ui.filters.Matchers.EntityMatchers;
-import cz.muni.fi.pv168.project.ui.filters.Matchers.RideCategoriesMatcher;
-import cz.muni.fi.pv168.project.ui.filters.Matchers.RideCurrencyMatcher;
+import cz.muni.fi.pv168.project.ui.filters.Matchers.*;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.util.Either;
 
 import javax.swing.table.TableRowSorter;
+import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 /**
@@ -41,11 +39,31 @@ public final class RidesTableFilter {
         );
     }
 
+    public void filterDistanceFrom(Float selectedItem) {
+        ridesCompoundMatcher.setDistanceFromMatcher(new RideDistanceFromMatcher(selectedItem));
+    }
+
+    public void filterDistanceTo(Float selectedItem) {
+        ridesCompoundMatcher.setDistanceToMatcher(new RideDistanceToMatcher(selectedItem));
+    }
+
+    public void filterDateFrom(LocalDateTime selectedItem) {
+        ridesCompoundMatcher.setDateFromMatcher(new RideDateFromMatcher(selectedItem));
+    }
+
+    public void filterDateTo(LocalDateTime selectedItem) {
+        ridesCompoundMatcher.setDateToMatcher(new RideDateToMatcher(selectedItem));
+    }
+
     private static class RidesCompoundMatcher extends EntityMatcher<Ride> {
 
         private final TableRowSorter<RidesTableModel> rowSorter;
         private EntityMatcher<Ride> currencyMatcher = EntityMatchers.all();
         private EntityMatcher<Ride> categoryMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> distanceFromMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> distanceToMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> dateFromMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> dateToMatcher = EntityMatchers.all();
 
         private RidesCompoundMatcher(TableRowSorter<RidesTableModel> rowSorter) {
             this.rowSorter = rowSorter;
@@ -61,9 +79,30 @@ public final class RidesTableFilter {
             rowSorter.sort();
         }
 
+        public void setDistanceFromMatcher(EntityMatcher<Ride> distanceFromMatcher) {
+            this.distanceFromMatcher = distanceFromMatcher;
+            rowSorter.sort();
+        }
+
+        public void setDistanceToMatcher(EntityMatcher<Ride> distanceToMatcher) {
+            this.distanceToMatcher = distanceToMatcher;
+            rowSorter.sort();
+        }
+
+        public void setDateFromMatcher(EntityMatcher<Ride> dateFromMatcher) {
+            this.dateFromMatcher = dateFromMatcher;
+            rowSorter.sort();
+        }
+
+        public void setDateToMatcher(EntityMatcher<Ride> dateToMatcher) {
+            this.dateToMatcher = dateToMatcher;
+            rowSorter.sort();
+        }
+
         @Override
         public boolean evaluate(Ride ride) {
-            return Stream.of(currencyMatcher, categoryMatcher)
+            return Stream.of(currencyMatcher, categoryMatcher, distanceFromMatcher,
+                            distanceToMatcher, dateFromMatcher, dateToMatcher)
                     .allMatch(m -> m.evaluate(ride));
         }
     }
