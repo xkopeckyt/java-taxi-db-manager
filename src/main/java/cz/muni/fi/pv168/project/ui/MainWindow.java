@@ -103,12 +103,12 @@ public class MainWindow {
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter);
         resetFiltersButton.addActionListener(e -> resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
-                                                                dateFromFilter, dateToFilter, currencyFilter));
+                                                                dateFromFilter, dateToFilter, categoryFilter));
 
-        toolbarPanel.add(createFilter1Toolbar(new JLabel("Distance from:"), distanceFromFilter,
+        toolbarPanel.add(createFilterToolbar(new JLabel("Distance from:"), distanceFromFilter,
                                               new JLabel("Distance to:"), distanceToFilter,
                                               new JLabel("Currency:"), currencyFilter, resetFiltersButton));
-        toolbarPanel.add(createFilter2Toolbar(new JLabel("Date from:"), dateFromPicker,
+        toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
                                               new JLabel("Date to:"), dateToPicker,
                                               new JLabel("Category:"), categoryFilter));
 
@@ -164,13 +164,16 @@ public class MainWindow {
         });
     }
 
-    public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox currency,
+    public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox<Either<SpecialCurrencyValues, Currency>> currency,
                               LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo, JComboBox category) {
         distanceFrom.setText(null);
         distanceFrom.postActionEvent();
         distanceTo.setText(null);
         distanceTo.postActionEvent();
-        currency.setSelectedItem(SpecialCurrencyValues.ALL);
+        currency.setSelectedIndex(0);
+        category.setSelectedIndex(0);
+        dateFrom.setValue(null);
+        dateTo.setValue(null);
     }
     private static JComboBox<Either<SpecialCurrencyValues, Currency>> createCurrencyFilter(
             RidesTableFilter ridesTableFilter) {
@@ -308,19 +311,7 @@ public class MainWindow {
         return toolbar;
     }
 
-    private JToolBar createFilter1Toolbar(Component ... components) {
-        var toolbar = new JToolBar();
-        toolbar.setLayout(new FlowLayout());
-        toolbar.setFloatable(false);
-
-        for (var component: components) {
-            toolbar.add(component);
-        }
-
-        return toolbar;
-    }
-
-    private JToolBar createFilter2Toolbar(Component ... components) {
+    private JToolBar createFilterToolbar(Component ... components) {
         var toolbar = new JToolBar();
         toolbar.setLayout(new FlowLayout());
         toolbar.setFloatable(false);
