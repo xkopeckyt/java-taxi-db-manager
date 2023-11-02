@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Ride {
-    private static Currency globalCurrency = Currency.NONE;
+    private static Currency globalCurrency = Currency.EUR;
     private float distance;
     private LocalDateTime dateTime;
     private float price;

@@ -16,7 +16,7 @@ import java.awt.event.ComponentEvent;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class RidesTableModel extends AbstractTableModel {
+public class RidesTableModel extends AbstractTableModel implements EntityTableModel<Ride>{
     private final List<Ride> rides;
     private static final Map<Class<?>, Comparator<?>> COMPARATORS = Map.ofEntries(
             Map.entry(float.class, new FloatComparator()),
@@ -142,6 +142,7 @@ public class RidesTableModel extends AbstractTableModel {
         fireTableRowsUpdated(rowIndex, rowIndex);
     }
 
+    @Override
     public Ride getEntity(int rowIndex) {
         return rides.get(rowIndex);
     }

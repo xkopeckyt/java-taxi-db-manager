@@ -3,23 +3,31 @@ package cz.muni.fi.pv168.project.ui;
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
 import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.Filter;
-import cz.muni.fi.pv168.project.model.Ride;
 import cz.muni.fi.pv168.project.ui.actions.*;
+import cz.muni.fi.pv168.project.ui.filters.RidesTableFilter;
+import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
+import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
+import cz.muni.fi.pv168.project.ui.filters.components.FilterComboboxBuilder;
+import cz.muni.fi.pv168.project.ui.filters.components.FilterListModelBuilder;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
-import cz.muni.fi.pv168.project.ui.model.ComboBoxModelAdapter;
 import cz.muni.fi.pv168.project.ui.model.LocalDateTimeModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
-import org.jdatepicker.DateModel;
+import cz.muni.fi.pv168.project.ui.renderers.CategoryRenderer;
+import cz.muni.fi.pv168.project.ui.renderers.CurrencyRenderer;
+import cz.muni.fi.pv168.project.ui.renderers.SpecialFilterCategoryValuesRenderer;
+import cz.muni.fi.pv168.project.ui.renderers.SpecialFilterCurrencyValuesRenderer;
+import cz.muni.fi.pv168.project.util.Either;
 import org.jdatepicker.JDatePicker;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.TableRowSorter;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class MainWindow {
     private static final int WIDTH = 600;
@@ -30,37 +38,30 @@ public class MainWindow {
     private final Action showRideAction;
     private final Action editRideAction;
     private final Action deleteRideAction;
-    private final Action setFilterAction;
-    private final Action clearFilterAction;
     private final Action importDataAction;
     private final Action exportDataAction;
     private final Action editTechnicalLicenceAction;
     private final Action editCategoriesAction;
     private final Action aboutApplicationAction;
 
-    private final Filter filter;
-
-
     public MainWindow() {
         frame = createFrame();
         var testDataGenerator = new TestDataGenerator();
         var categoryListModel = new CategoryListModel(testDataGenerator.getCategories());
-        var ridesTable = createRidesTable(testDataGenerator.createTestRides(10), categoryListModel);
+        var ridesTableModel = new RidesTableModel(testDataGenerator.createTestRides(10));
+        var ridesTable = createRidesTable(ridesTableModel, categoryListModel);
         var licence = testDataGenerator.createTestDrivingLicence();
 
         newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
         showRideAction = new ShowRideAction(ridesTable, testDataGenerator);
         editRideAction = new EditRideAction(ridesTable, categoryListModel, licence);
-        deleteRideAction = new DeleteRideAction();
-        setFilterAction = new SetFilterAction(ridesTable, testDataGenerator, categoryListModel);
-        clearFilterAction = new ClearFilterAction();
+        deleteRideAction = new DeleteRideAction(ridesTable);
         importDataAction = new ImportDataAction();
         exportDataAction = new ExportDataAction();
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
         editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesTable);
         aboutApplicationAction = new AboutApplicationAction();
-        filter = testDataGenerator.createTestFilter();
         changeActionState(0);
 
         frame.setJMenuBar(createMenuBar());
@@ -74,24 +75,10 @@ public class MainWindow {
         JPanel secondaryPanel = new JPanel(new GridLayout(1,1));
         secondaryPanel.add(createStatisticsPanel());
 
-        /*tabbedPane.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                }
-        });*/
-
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
 
-
-
-        JPanel toolbarPanel = new JPanel(new GridLayout(4,1));
-        toolbarPanel.add(createActionToolbar());
-        toolbarPanel.add(createFilter1Toolbar(testDataGenerator));
-        toolbarPanel.add(createFilter2Toolbar(testDataGenerator));
-        toolbarPanel.add(createFilterButtonsToolbar());
-        frame.add(toolbarPanel, BorderLayout.BEFORE_FIRST_LINE);
-
+        frame.add(createToolBar(ridesTable, categoryListModel), BorderLayout.BEFORE_FIRST_LINE);
         frame.add(tabbedPane, BorderLayout.CENTER);
 
         /*JPanel mainPanel = new JPanel(new GridLayout(2,1));
@@ -106,6 +93,75 @@ public class MainWindow {
         frame.pack();
     }
 
+    private void setActionListeners(RidesTableFilter ridesTableFilter, JTextField distanceFrom, JTextField distanceTo,
+                                    LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo) {
+        distanceFrom.addActionListener(e -> {
+            var distanceFromText = distanceFrom.getText();
+            if (distanceFromText.length() != 0) {
+                ridesTableFilter.filterDistanceFrom(Float.parseFloat(distanceFromText));
+            } else {
+                ridesTableFilter.filterDistanceFrom(Float.MIN_VALUE);
+            }
+        });
+
+        distanceTo.addActionListener(e -> {
+            var distanceToText = distanceTo.getText();
+            if (distanceToText.length() != 0) {
+                ridesTableFilter.filterDistanceTo(Float.parseFloat(distanceToText));
+            } else {
+                ridesTableFilter.filterDistanceTo(Float.MAX_VALUE);
+            }
+        });
+
+        dateFrom.addChangeListener(e -> {
+            if (dateFrom.isSelected()) {
+                ridesTableFilter.filterDateFrom(dateFrom.getValue());
+            } else {
+                ridesTableFilter.filterDateFrom(LocalDateTime.MIN.plusDays(1));
+            }
+        });
+
+        dateTo.addChangeListener(e -> {
+            if (dateTo.isSelected()) {
+                ridesTableFilter.filterDateTo(dateTo.getValue());
+            } else {
+                ridesTableFilter.filterDateTo(LocalDateTime.MAX.minusDays(1));
+            }
+        });
+    }
+
+    public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox currency,
+                              LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo, JList category) {
+        distanceFrom.setText(null);
+        distanceFrom.postActionEvent();
+        distanceTo.setText(null);
+        distanceTo.postActionEvent();
+        currency.setSelectedIndex(0);
+        category.setSelectedIndex(0);
+        dateFrom.setValue(null);
+        dateTo.setValue(null);
+    }
+    private static JComboBox<Either<SpecialCurrencyValues, Currency>> createCurrencyFilter(
+            RidesTableFilter ridesTableFilter) {
+        return FilterComboboxBuilder.create(SpecialCurrencyValues.class, Currency.values())
+                .setSelectedItem(SpecialCurrencyValues.ALL)
+                .setSpecialValuesRenderer(new SpecialFilterCurrencyValuesRenderer())
+                .setValuesRenderer(new CurrencyRenderer())
+                .setFilter(ridesTableFilter::filterCurrency)
+                .build();
+    }
+
+    private static JList<Either<SpecialCategoryValues, Category>> createCategoryFilter(
+            RidesTableFilter ridesTableFilter, CategoryListModel categoryListModel) {
+        return FilterListModelBuilder.create(SpecialCategoryValues.class, categoryListModel)
+                .setSelectedIndex(0)
+                .setVisibleRowsCount(5)
+                .setSpecialValuesRenderer(new SpecialFilterCategoryValuesRenderer())
+                .setValuesRenderer(new CategoryRenderer())
+                .setFilter(ridesTableFilter::filterCategory)
+                .build();
+    }
+
     public void show() {
         frame.setVisible(true);
     }
@@ -117,8 +173,7 @@ public class MainWindow {
         return frame;
     }
 
-    private JTable createRidesTable(List<Ride> rides, ListModel<Category> categoryListModel) {
-        var model = new RidesTableModel(rides);
+    private JTable createRidesTable(RidesTableModel model, ListModel<Category> categoryListModel) {
         var table = new JTable(model, model.getColumnModel());
         table.addComponentListener(model.getResizeListener());
         table.setRowSorter(model.getRowSorter());
@@ -162,7 +217,6 @@ public class MainWindow {
     private JMenuBar createMenuBar() {
         var menuBar = new JMenuBar();
         menuBar.add(createNewRideMenu());
-        menuBar.add(createFilterMenu());
         menuBar.add(createDataMenu());
         menuBar.add(createTechnicalLicenceMenu());
         menuBar.add(createCategoryMenu());
@@ -176,14 +230,6 @@ public class MainWindow {
         menu.setMnemonic('n');
         menu.add(newRideAction);
         menu.add(newRideFromTemplateAction);
-        return menu;
-    }
-
-    private JMenu createFilterMenu() {
-        var menu = new JMenu("Filter");
-        menu.setMnemonic('f');
-        menu.add(setFilterAction);
-        menu.add(clearFilterAction);
         return menu;
     }
 
@@ -216,6 +262,59 @@ public class MainWindow {
         return menu;
     }
 
+    private JPanel createToolBar(JTable ridesTable, CategoryListModel categoryListModel) {
+        JPanel toolbarPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
+        //gbc.weighty = 0.3;
+        gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+        toolbarPanel.add(createActionToolbar(), gbc);
+
+        var rowSorter = new TableRowSorter<>((RidesTableModel)ridesTable.getModel());
+        var ridesTableFilter = new RidesTableFilter(rowSorter);
+        ridesTable.setRowSorter(rowSorter);
+
+        var currencyFilter = createCurrencyFilter(ridesTableFilter);
+        var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel);// tu sa vytvara ten filter
+        var scroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
+        var distanceFromFilter = new JTextField();
+        var distanceToFilter = new JTextField();
+        var dateFromFilter = new LocalDateTimeModel();
+        var dateToFilter = new LocalDateTimeModel();
+        var dateFromPicker = new JDatePicker(dateFromFilter);
+        var dateToPicker = new JDatePicker(dateToFilter);
+        var resetFiltersButton = new JButton("Reset Filters");
+
+        distanceFromFilter.setPreferredSize(new Dimension(60,20));
+        distanceToFilter.setPreferredSize(new Dimension(60, 20));
+        dateFromPicker.setPreferredSize(new Dimension(100, 20));
+        dateToPicker.setPreferredSize(new Dimension(100, 20));
+        scroll.setPreferredSize(new Dimension(140, 60));
+
+        setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter);
+        resetFiltersButton.addActionListener(e -> resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
+                dateFromFilter, dateToFilter, categoryFilter));
+
+        gbc.gridy = 1;
+        toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
+                new JLabel("Date to:"), dateToPicker,
+                new JLabel("Category:"), scroll), gbc);
+
+        gbc.gridy = 2;
+        toolbarPanel.add(createFilterToolbar(new JLabel("Distance from:"), distanceFromFilter,
+                new JLabel("Distance to:"), distanceToFilter,
+                new JLabel("Currency:"), currencyFilter, resetFiltersButton), gbc);
+
+        return toolbarPanel;
+    }
+
     private JToolBar createActionToolbar() {
         var toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -232,49 +331,14 @@ public class MainWindow {
         return toolbar;
     }
 
-    private JToolBar createFilter1Toolbar(TestDataGenerator testDataGenerator) {
+    private JToolBar createFilterToolbar(Component ... components) {
         var toolbar = new JToolBar();
         toolbar.setLayout(new FlowLayout());
         toolbar.setFloatable(false);
-        JTextField distanceFieldFrom = new JTextField();
-        distanceFieldFrom.setPreferredSize(new Dimension(75,20));
-        JTextField distanceFieldTo = new JTextField();
-        distanceFieldTo.setPreferredSize(new Dimension(75,20));
-        ComboBoxModel<Currency> currencyModel = new DefaultComboBoxModel<>(Currency.values());
-        toolbar.add(new JLabel("Distance from:"));
-        toolbar.add("Distance from:", distanceFieldFrom);
-        toolbar.add(new JLabel("Distance to:"));
-        toolbar.add("Distance to:", distanceFieldTo);
-        toolbar.add(new JLabel("Currency:"));
-        toolbar.add("Currency:", new JComboBox<>(currencyModel));
 
-        return toolbar;
-    }
-
-    private JToolBar createFilter2Toolbar(TestDataGenerator testDataGenerator) {
-        var toolbar = new JToolBar();
-        toolbar.setLayout(new FlowLayout());
-        toolbar.setFloatable(false);
-        DateModel<LocalDateTime> dateTimeModelFrom = new LocalDateTimeModel();
-        DateModel<LocalDateTime> dateTimeModelTo = new LocalDateTimeModel();
-        var categoryModel = new CategoryListModel(testDataGenerator.getCategories());
-        var categoryModelList = new ComboBoxModelAdapter<>(categoryModel);
-        toolbar.add(new JLabel("Date from:"));
-        toolbar.add("Date from:", new JDatePicker(dateTimeModelFrom)).setPreferredSize(new Dimension(100,20));
-        toolbar.add(new JLabel("Date to:"));
-        toolbar.add("Date to:", new JDatePicker(dateTimeModelTo)).setPreferredSize(new Dimension(100,20));
-        toolbar.add(new JLabel("Category:"));
-        toolbar.add("Category:", new JComboBox<>(categoryModelList)).setPreferredSize(new Dimension(50,20));
-
-        return toolbar;
-    }
-
-    private JToolBar createFilterButtonsToolbar() {
-        var toolbar = new JToolBar();
-        toolbar.setLayout(new FlowLayout());
-        toolbar.setFloatable(false);
-        toolbar.add(new JButton("Set filter"));
-        toolbar.add(new JButton("Clear filter"));
+        for (var component: components) {
+            toolbar.add(component);
+        }
 
         return toolbar;
     }
