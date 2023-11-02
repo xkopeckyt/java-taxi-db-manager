@@ -78,44 +78,7 @@ public class MainWindow {
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
 
-        JPanel toolbarPanel = new JPanel(new GridLayout(3,1));
-        toolbarPanel.add(createActionToolbar());
-
-        var rowSorter = new TableRowSorter<>(ridesTableModel);
-        var ridesTableFilter = new RidesTableFilter(rowSorter);
-        ridesTable.setRowSorter(rowSorter);
-
-        var currencyFilter = createCurrencyFilter(ridesTableFilter);
-        var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel);// tu sa vytvara ten filter
-        var scroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
-        var distanceFromFilter = new JTextField();
-        var distanceToFilter = new JTextField();
-        var dateFromFilter = new LocalDateTimeModel();
-        var dateToFilter = new LocalDateTimeModel();
-        var dateFromPicker = new JDatePicker(dateFromFilter);
-        var dateToPicker = new JDatePicker(dateToFilter);
-        var resetFiltersButton = new JButton("Reset Filters");
-
-        distanceFromFilter.setPreferredSize(new Dimension(60,20));
-        distanceToFilter.setPreferredSize(new Dimension(60, 20));
-        dateFromPicker.setPreferredSize(new Dimension(100, 20));
-        dateToPicker.setPreferredSize(new Dimension(100, 20));
-        scroll.setPreferredSize(new Dimension(140, 60));
-
-        setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter);
-        resetFiltersButton.addActionListener(e -> resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
-                                                                dateFromFilter, dateToFilter, categoryFilter));
-
-        toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
-                                            new JLabel("Date to:"), dateToPicker,
-                                            new JLabel("Category:"), scroll));
-
-        toolbarPanel.add(createFilterToolbar(new JLabel("Distance from:"), distanceFromFilter,
-                                              new JLabel("Distance to:"), distanceToFilter,
-                                              new JLabel("Currency:"), currencyFilter, resetFiltersButton));
-
-
-        frame.add(toolbarPanel, BorderLayout.BEFORE_FIRST_LINE);
+        frame.add(createToolBar(ridesTable, categoryListModel), BorderLayout.BEFORE_FIRST_LINE);
         frame.add(tabbedPane, BorderLayout.CENTER);
 
         /*JPanel mainPanel = new JPanel(new GridLayout(2,1));
@@ -297,6 +260,59 @@ public class MainWindow {
         menu.setMnemonic('a');
         menu.add(aboutApplicationAction);
         return menu;
+    }
+
+    private JPanel createToolBar(JTable ridesTable, CategoryListModel categoryListModel) {
+        JPanel toolbarPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
+        //gbc.weighty = 0.3;
+        gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+        toolbarPanel.add(createActionToolbar(), gbc);
+
+        var rowSorter = new TableRowSorter<>((RidesTableModel)ridesTable.getModel());
+        var ridesTableFilter = new RidesTableFilter(rowSorter);
+        ridesTable.setRowSorter(rowSorter);
+
+        var currencyFilter = createCurrencyFilter(ridesTableFilter);
+        var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel);// tu sa vytvara ten filter
+        var scroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
+        var distanceFromFilter = new JTextField();
+        var distanceToFilter = new JTextField();
+        var dateFromFilter = new LocalDateTimeModel();
+        var dateToFilter = new LocalDateTimeModel();
+        var dateFromPicker = new JDatePicker(dateFromFilter);
+        var dateToPicker = new JDatePicker(dateToFilter);
+        var resetFiltersButton = new JButton("Reset Filters");
+
+        distanceFromFilter.setPreferredSize(new Dimension(60,20));
+        distanceToFilter.setPreferredSize(new Dimension(60, 20));
+        dateFromPicker.setPreferredSize(new Dimension(100, 20));
+        dateToPicker.setPreferredSize(new Dimension(100, 20));
+        scroll.setPreferredSize(new Dimension(140, 60));
+
+        setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter);
+        resetFiltersButton.addActionListener(e -> resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
+                dateFromFilter, dateToFilter, categoryFilter));
+
+        gbc.gridy = 1;
+        toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
+                new JLabel("Date to:"), dateToPicker,
+                new JLabel("Category:"), scroll), gbc);
+
+        gbc.gridy = 2;
+        toolbarPanel.add(createFilterToolbar(new JLabel("Distance from:"), distanceFromFilter,
+                new JLabel("Distance to:"), distanceToFilter,
+                new JLabel("Currency:"), currencyFilter, resetFiltersButton), gbc);
+
+        return toolbarPanel;
     }
 
     private JToolBar createActionToolbar() {
