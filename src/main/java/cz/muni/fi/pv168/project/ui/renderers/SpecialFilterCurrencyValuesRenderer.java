@@ -18,7 +18,7 @@ public class SpecialFilterCurrencyValuesRenderer extends AbstractRenderer<Specia
     }
 
     private static void renderBoth(JLabel label) {
-        label.setText("(BOTH)");
+        label.setText("(ALL)");
         label.setFont(label.getFont().deriveFont(Font.ITALIC));
         label.setForeground(Color.GRAY);
     }

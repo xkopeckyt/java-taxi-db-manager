@@ -12,6 +12,8 @@ import cz.muni.fi.pv168.project.util.Either;
 
 import javax.swing.table.TableRowSorter;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -32,13 +34,14 @@ public final class RidesTableFilter {
         );
     }
 
-    public void filterCategory(Either<SpecialCategoryValues, Category> selectedItem) {
-        selectedItem.apply(
-                l -> ridesCompoundMatcher.setCategoryMatcher(l.getMatcher()),
-                r -> ridesCompoundMatcher.setCategoryMatcher(new RideCategoriesMatcher(r))
-        );
+    public void filterCategory(List<Either<SpecialCategoryValues, Category>> selectedItems) {
+        List<EntityMatcher<Ride>> matchers = new ArrayList<>();
+        selectedItems.forEach(either -> either.apply(
+                l -> matchers.add(l.getMatcher()),
+                r -> matchers.add(new RideCategoriesMatcher(r))
+        ));
+        ridesCompoundMatcher.setCategoryMatcher(new RideCategoriesCompoundMatcher(matchers));
     }
-
     public void filterDistanceFrom(Float selectedItem) {
         ridesCompoundMatcher.setDistanceFromMatcher(new RideDistanceFromMatcher(selectedItem));
     }

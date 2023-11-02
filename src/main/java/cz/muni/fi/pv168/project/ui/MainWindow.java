@@ -8,6 +8,7 @@ import cz.muni.fi.pv168.project.ui.filters.RidesTableFilter;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
 import cz.muni.fi.pv168.project.ui.filters.components.FilterComboboxBuilder;
+import cz.muni.fi.pv168.project.ui.filters.components.FilterListModelBuilder;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.LocalDateTimeModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
@@ -55,7 +56,7 @@ public class MainWindow {
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
         showRideAction = new ShowRideAction(ridesTable, testDataGenerator);
         editRideAction = new EditRideAction(ridesTable, categoryListModel, licence);
-        deleteRideAction = new DeleteRideAction();
+        deleteRideAction = new DeleteRideAction(ridesTable);
         importDataAction = new ImportDataAction();
         exportDataAction = new ExportDataAction();
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
@@ -77,9 +78,7 @@ public class MainWindow {
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
 
-
-
-        JPanel toolbarPanel = new JPanel(new GridLayout(4,1));
+        JPanel toolbarPanel = new JPanel(new GridLayout(3,1));
         toolbarPanel.add(createActionToolbar());
 
         var rowSorter = new TableRowSorter<>(ridesTableModel);
@@ -87,7 +86,8 @@ public class MainWindow {
         ridesTable.setRowSorter(rowSorter);
 
         var currencyFilter = createCurrencyFilter(ridesTableFilter);
-        var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel);
+        var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel);// tu sa vytvara ten filter
+        var scroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
         var distanceFromFilter = new JTextField();
         var distanceToFilter = new JTextField();
         var dateFromFilter = new LocalDateTimeModel();
@@ -100,17 +100,20 @@ public class MainWindow {
         distanceToFilter.setPreferredSize(new Dimension(60, 20));
         dateFromPicker.setPreferredSize(new Dimension(100, 20));
         dateToPicker.setPreferredSize(new Dimension(100, 20));
+        scroll.setPreferredSize(new Dimension(140, 60));
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter);
         resetFiltersButton.addActionListener(e -> resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
                                                                 dateFromFilter, dateToFilter, categoryFilter));
 
+        toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
+                                            new JLabel("Date to:"), dateToPicker,
+                                            new JLabel("Category:"), scroll));
+
         toolbarPanel.add(createFilterToolbar(new JLabel("Distance from:"), distanceFromFilter,
                                               new JLabel("Distance to:"), distanceToFilter,
                                               new JLabel("Currency:"), currencyFilter, resetFiltersButton));
-        toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
-                                              new JLabel("Date to:"), dateToPicker,
-                                              new JLabel("Category:"), categoryFilter));
+
 
         frame.add(toolbarPanel, BorderLayout.BEFORE_FIRST_LINE);
         frame.add(tabbedPane, BorderLayout.CENTER);
@@ -164,8 +167,8 @@ public class MainWindow {
         });
     }
 
-    public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox<Either<SpecialCurrencyValues, Currency>> currency,
-                              LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo, JComboBox category) {
+    public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox currency,
+                              LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo, JList category) {
         distanceFrom.setText(null);
         distanceFrom.postActionEvent();
         distanceTo.setText(null);
@@ -185,10 +188,11 @@ public class MainWindow {
                 .build();
     }
 
-    private static JComboBox<Either<SpecialCategoryValues, Category>> createCategoryFilter(
+    private static JList<Either<SpecialCategoryValues, Category>> createCategoryFilter(
             RidesTableFilter ridesTableFilter, CategoryListModel categoryListModel) {
-        return FilterComboboxBuilder.create(SpecialCategoryValues.class, categoryListModel)
-                .setSelectedItem(SpecialCategoryValues.ALL)
+        return FilterListModelBuilder.create(SpecialCategoryValues.class, categoryListModel)
+                .setSelectedIndex(0)
+                .setVisibleRowsCount(5)
                 .setSpecialValuesRenderer(new SpecialFilterCategoryValuesRenderer())
                 .setValuesRenderer(new CategoryRenderer())
                 .setFilter(ridesTableFilter::filterCategory)
