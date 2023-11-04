@@ -21,6 +21,8 @@ import org.jdatepicker.JDatePicker;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
@@ -73,7 +75,15 @@ public class MainWindow {
         mainPanel.add(new JScrollPane(ridesTable)); //, BorderLayout.CENTER
 
         JPanel secondaryPanel = new JPanel(new GridLayout(1,1));
-        secondaryPanel.add(createStatisticsPanel());
+        JPanel statisticsPanel = createStatisticsPanel(ridesTableModel);
+        secondaryPanel.add(statisticsPanel);
+        ridesTableModel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                updateStatisticsPanel(statisticsPanel, ridesTableModel);
+            }
+        });
+
 
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
@@ -183,29 +193,49 @@ public class MainWindow {
         //table.setDefaultEditor(Category.class, new DefaultCellEditor(new JComboBox<>(new ComboBoxModelAdapter<>(categoryListModel))));
         return table;
     }
-    private JPanel createStatisticsPanel() {
+    private JPanel createStatisticsPanel(RidesTableModel ridesTableModel) {
         JPanel statisticsPanel  = new JPanel(new GridLayout(1,2));
-        statisticsPanel.add(new JScrollPane(createStatisticPane("Global statistics")));
-        statisticsPanel.add(new JScrollPane(createStatisticPane("Filtered statistics")));
+        statisticsPanel.add(new JScrollPane(createStatisticPane("Global statistics", false, ridesTableModel)));
+        statisticsPanel.add(new JScrollPane(createStatisticPane("Filtered statistics", true, ridesTableModel)));
         return statisticsPanel;
     }
 
-    private JEditorPane createStatisticPane(String name) {
+    private JEditorPane createStatisticPane(String name, boolean filtered, RidesTableModel ridesTableModel) {
         JEditorPane statsPane = new JEditorPane();
         statsPane.setContentType("text/html");
         statsPane.setEditable(false);
         StyleSheet styleSheet = ((HTMLEditorKit)statsPane.getEditorKit()).getStyleSheet();
         styleSheet.addRule("ul{margin:0px 20px;");
-        statsPane.setText("<html><h3>" + name + ":</h3><ul>" +
-                "<li>Rides count: 0</li><br>" +
-                "<li>Total price: 0</li>" +
-                "<li>Total distance: 0</li><br>" +
-                "<li>Average price: 0</li>" +
-                "<li>Average distance: 0</li>" +
-                "</ul></html>");
+        setStatisticPane(statsPane, name, filtered, ridesTableModel);
         return statsPane;
     }
+    public void updateStatisticsPanel(JPanel statisticsPanel, RidesTableModel ridesTableModel) {
+        Component[] components = statisticsPanel.getComponents();
+        if (components.length >= 2) {
+            JScrollPane globalScrollPane = (JScrollPane) components[0];
+            JEditorPane globalStatsPane = (JEditorPane) globalScrollPane.getViewport().getView();
+            setStatisticPane(globalStatsPane, "Global statistics", false, ridesTableModel);
 
+            JScrollPane filteredScrollPane = (JScrollPane) components[1];
+            JEditorPane filteredStatsPane = (JEditorPane) filteredScrollPane.getViewport().getView();
+            setStatisticPane(filteredStatsPane, "Filtered statistics", true, ridesTableModel);
+        }
+    }
+    private void setStatisticPane(JEditorPane statsPane, String name, boolean filtered, RidesTableModel ridesTableModel){
+        String ridesCount = String.format("%,d", ridesTableModel.getRowCount());
+        String totalPrice = String.format("%.2f", ridesTableModel.totalPrice());
+        String totalDistance = String.format("%.2f", ridesTableModel.totalDistance());
+        String averagePrice = String.format("%.2f", ridesTableModel.averagePrice());
+        String averageDistance = String.format("%.2f", ridesTableModel.averageDistance());
+
+        statsPane.setText("<html><h3>" + name + ":</h3><ul>" +
+                "<li>Rides count: " + ridesCount + "</li><br>" +
+                "<li>Total price: " + totalPrice + "</li>" +
+                "<li>Total distance: " + totalDistance + "</li><br>" +
+                "<li>Average price: " + averagePrice + "</li>" +
+                "<li>Average distance: " + averageDistance + "</li>" +
+                "</ul></html>");
+    }
     private JPopupMenu createRidesTablePopupMenu() {
         var menu = new JPopupMenu();
         menu.add(showRideAction);
