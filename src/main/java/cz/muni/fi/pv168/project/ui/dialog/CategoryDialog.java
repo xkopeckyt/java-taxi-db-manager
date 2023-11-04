@@ -1,8 +1,6 @@
 package cz.muni.fi.pv168.project.ui.dialog;
 
 import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.Ride;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.CategoryTableModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
@@ -64,6 +62,7 @@ public class CategoryDialog extends EntityDialog<Category> {
             int idx = categoryListModel.getIndex(result.get());
             categoryTableModel.fireTableRowsInserted(idx, idx);
         }
+
     }
     private void renameSelectedCategory(){
         int row = categoryTable.getSelectedRow();
@@ -75,8 +74,29 @@ public class CategoryDialog extends EntityDialog<Category> {
     }
     private void deleteSelectedCategory() {
         int[] rows = categoryTable.getSelectedRows();
+        int category_idx = 0;
+        for(; category_idx < ridesTable.getColumnCount(); category_idx++){
+            if(ridesTable.getColumnClass(category_idx) == Category.class){
+                break;
+            }
+        }
         for(int i = rows.length - 1; i >= 0; i--){
-            categoryListModel.remove(rows[i]);
+            int modelIndex = categoryTable.convertRowIndexToModel(rows[i]);
+            Category category = categoryTableModel.getEntity(modelIndex);
+            boolean used = false;
+            for(int j = 0; j < ridesTable.getRowCount(); j++){
+                if(ridesTable.getValueAt(j, category_idx) == category){
+                    used = true;
+                    break;
+                }
+            }
+            if(used){
+                JOptionPane.showMessageDialog(null,
+                        "The category: \"" + category.getName() + "\" is being used.", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+            } else{
+                categoryTableModel.deleteRow(modelIndex);
+            }
         }
         categoryTableModel.fireTableDataChanged();
     }

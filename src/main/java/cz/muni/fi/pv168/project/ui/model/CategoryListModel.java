@@ -29,7 +29,9 @@ public class CategoryListModel extends AbstractListModel<Category> {
     }
 
     public void add(Category category){
+        int i = categories.size();
         categories.add(category);
+        this.fireIntervalAdded(categories, i, i);
     }
 
     public int getIndex(Category category){
