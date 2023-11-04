@@ -83,6 +83,12 @@ public class CategoryDialog extends EntityDialog<Category> {
         for(int i = rows.length - 1; i >= 0; i--){
             int modelIndex = categoryTable.convertRowIndexToModel(rows[i]);
             Category category = categoryTableModel.getEntity(modelIndex);
+            if(category.getName() == "Cash" || category.getName() == "Card"){
+                JOptionPane.showMessageDialog(null,
+                        "The category: \"" + category.getName() + "\" cannot be deleted.", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+                continue;
+            }
             boolean used = false;
             for(int j = 0; j < ridesTable.getRowCount(); j++){
                 if(ridesTable.getValueAt(j, category_idx) == category){
