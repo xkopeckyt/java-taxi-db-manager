@@ -172,4 +172,8 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
     public Ride getEntity(int rowIndex) {
         return rides.get(rowIndex);
     }
+
+    public List<Ride> getAllRides() {
+        return new ArrayList<Ride>(rides);
+    }
 }
