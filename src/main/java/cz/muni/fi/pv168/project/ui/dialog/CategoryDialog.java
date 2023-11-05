@@ -73,13 +73,8 @@ public class CategoryDialog extends EntityDialog<Category> {
         ((RidesTableModel)ridesTable.getModel()).fireTableDataChanged();
     }
     private void deleteSelectedCategory() {
+        RidesTableModel ridesTableModel = (RidesTableModel) ridesTable.getModel();
         int[] rows = categoryTable.getSelectedRows();
-        int category_idx = 0;
-        for(; category_idx < ridesTable.getColumnCount(); category_idx++){
-            if(ridesTable.getColumnClass(category_idx) == Category.class){
-                break;
-            }
-        }
         for(int i = rows.length - 1; i >= 0; i--){
             int modelIndex = categoryTable.convertRowIndexToModel(rows[i]);
             Category category = categoryTableModel.getEntity(modelIndex);
@@ -90,8 +85,8 @@ public class CategoryDialog extends EntityDialog<Category> {
                 continue;
             }
             boolean used = false;
-            for(int j = 0; j < ridesTable.getRowCount(); j++){
-                if(ridesTable.getValueAt(j, category_idx) == category){
+            for(int j = 0; j < ridesTableModel.getRowCount(); j++){
+                if(ridesTableModel.getEntity(j).getCategory() == category){
                     used = true;
                     break;
                 }
