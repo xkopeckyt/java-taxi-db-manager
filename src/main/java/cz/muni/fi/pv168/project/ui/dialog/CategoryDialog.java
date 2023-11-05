@@ -55,7 +55,7 @@ public class CategoryDialog extends EntityDialog<Category> {
     }
 
     private void createNewCategory(){
-        var dialog = new CategoryNameDialog(null);
+        var dialog = new CategoryNameDialog(null, categoryListModel);
         var result = dialog.show(categoryTable, "New category", OK_CANCEL_OPTION, null);
         if(result.isPresent()){
             categoryListModel.add(result.get());
@@ -67,7 +67,7 @@ public class CategoryDialog extends EntityDialog<Category> {
     private void renameSelectedCategory(){
         int row = categoryTable.getSelectedRow();
         Category category = categoryListModel.getElementAt(row);
-        var dialog = new CategoryNameDialog(category);
+        var dialog = new CategoryNameDialog(category, categoryListModel);
         var result = dialog.show(categoryTable, "Rename category", OK_OPTION, null);
         categoryTableModel.fireTableDataChanged();
         ((RidesTableModel)ridesTable.getModel()).fireTableDataChanged();
