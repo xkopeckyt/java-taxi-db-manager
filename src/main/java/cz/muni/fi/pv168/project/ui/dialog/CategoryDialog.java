@@ -54,23 +54,48 @@ public class CategoryDialog extends EntityDialog<Category> {
         changeActionState(0);
     }
 
-    private void createNewCategory(){
-        var dialog = new CategoryNameDialog(null, categoryListModel);
-        var result = dialog.show(categoryTable, "New category", OK_CANCEL_OPTION, null);
-        if(result.isPresent()){
-            categoryListModel.add(result.get());
-            int idx = categoryListModel.getIndex(result.get());
-            categoryTableModel.fireTableRowsInserted(idx, idx);
+    private boolean isNameUsed(String categoryName){
+        for(int i = 0; i < categoryListModel.getSize(); i++){
+            if(categoryListModel.getElementAt(i).getName().equals(categoryName)){
+                return true;
+            }
         }
+        return false;
+    }
+    private void createNewCategory(){
+        boolean validInput = false;
+        while(!validInput) {
+            var dialog = new CategoryNameDialog(null, categoryListModel);
+            var result = dialog.show(categoryTable, "New category", OK_CANCEL_OPTION, null);
+            if (result.isPresent()) {
+                String categoryName = result.get().getName();
+                if(isNameUsed(categoryName)){
+                    JOptionPane.showMessageDialog(null,
+                            "The category name: \"" + categoryName + "\" is already used.", "Warning",
+                            JOptionPane.WARNING_MESSAGE);
+                }
+                else{
+                    categoryListModel.add(result.get());
+                    int idx = categoryListModel.getIndex(result.get());
+                    categoryTableModel.fireTableRowsInserted(idx, idx);
+                    validInput = true;
+                }
 
+            }
+            else{
+                validInput = true;
+            }
+        }
     }
     private void renameSelectedCategory(){
         int row = categoryTable.getSelectedRow();
         Category category = categoryListModel.getElementAt(row);
         var dialog = new CategoryNameDialog(category, categoryListModel);
         var result = dialog.show(categoryTable, "Rename category", OK_OPTION, null);
-        categoryTableModel.fireTableDataChanged();
-        ((RidesTableModel)ridesTable.getModel()).fireTableDataChanged();
+        if(result.isPresent()){
+            categoryTableModel.fireTableDataChanged();
+            ((RidesTableModel)ridesTable.getModel()).fireTableDataChanged();
+        }
     }
     private void deleteSelectedCategory() {
         RidesTableModel ridesTableModel = (RidesTableModel) ridesTable.getModel();

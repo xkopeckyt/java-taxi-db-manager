@@ -19,16 +19,18 @@ public class CategoryNameDialog extends EntityDialog<Category> {
     @Override
     Category getEntity() {
         String categoryName = categoryNameField.getText();
-        for(int i = 0; i < categoryListModel.getSize(); i++){
-            if(categoryListModel.getElementAt(i).getName().equals(categoryName)){
-                JOptionPane.showMessageDialog(null,
-                        "The category name: \"" + categoryName + "\" is already used.", "Warning",
-                        JOptionPane.WARNING_MESSAGE);
-                return category;
-            }
-        }
         if (category == null) {
             category = new Category(categoryName);
+        } else{
+            for(int i = 0; i < categoryListModel.getSize(); i++){
+                if(!categoryListModel.getElementAt(i).getName().equals(category.getName())
+                && categoryListModel.getElementAt(i).getName().equals(categoryName)){
+                    JOptionPane.showMessageDialog(null,
+                            "The category name: \"" + categoryName + "\" is already used.", "Warning",
+                            JOptionPane.WARNING_MESSAGE);
+                    return category;
+                }
+            }
         }
         category.setName(categoryName);
         return category;
