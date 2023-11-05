@@ -67,6 +67,12 @@ public class CategoryDialog extends EntityDialog<Category> {
     private void renameSelectedCategory(){
         int row = categoryTable.getSelectedRow();
         Category category = categoryListModel.getElementAt(row);
+        if(category.getName() == "Cash" || category.getName() == "Card"){
+            JOptionPane.showMessageDialog(null,
+                    "The category: \"" + category.getName() + "\" cannot be changed.", "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         var dialog = new CategoryNameDialog(category);
         var result = dialog.show(categoryTable, "Rename category", OK_OPTION, null);
         categoryTableModel.fireTableDataChanged();
