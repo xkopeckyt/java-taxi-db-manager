@@ -28,10 +28,6 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -81,10 +77,15 @@ public class MainWindow {
         JPanel secondaryPanel = new JPanel(new GridLayout(1,1));
         JPanel statisticsPanel = createStatisticsPanel(ridesTable);
         secondaryPanel.add(statisticsPanel);
-        secondaryPanel.addComponentListener(new ComponentAdapter() {
+        ridesTableModel.addTableModelListener(new TableModelListener() {
             @Override
-            public void componentShown(ComponentEvent e) {
-                updateStatisticsPanel(statisticsPanel, ridesTable);
+            public void tableChanged(TableModelEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateStatisticsPanel(statisticsPanel, ridesTable, true);
+                    }
+                });
             }
         });
 
@@ -92,7 +93,7 @@ public class MainWindow {
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
 
-        frame.add(createToolBar(ridesTable, categoryListModel), BorderLayout.BEFORE_FIRST_LINE);
+        frame.add(createToolBar(ridesTable, categoryListModel, statisticsPanel), BorderLayout.BEFORE_FIRST_LINE);
         frame.add(tabbedPane, BorderLayout.CENTER);
 
         /*JPanel mainPanel = new JPanel(new GridLayout(2,1));
@@ -108,7 +109,8 @@ public class MainWindow {
     }
 
     private void setActionListeners(RidesTableFilter ridesTableFilter, JTextField distanceFrom, JTextField distanceTo,
-                                    LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo) {
+                                    LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo,
+                                    JTable ridesTable, JPanel statisticsPanel) {
         distanceFrom.addActionListener(e -> {
             var distanceFromText = distanceFrom.getText();
             if (distanceFromText.length() != 0) {
@@ -116,6 +118,7 @@ public class MainWindow {
             } else {
                 ridesTableFilter.filterDistanceFrom(Float.MIN_VALUE);
             }
+            updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
         distanceTo.addActionListener(e -> {
@@ -125,6 +128,7 @@ public class MainWindow {
             } else {
                 ridesTableFilter.filterDistanceTo(Float.MAX_VALUE);
             }
+            updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
         dateFrom.addChangeListener(e -> {
@@ -133,6 +137,7 @@ public class MainWindow {
             } else {
                 ridesTableFilter.filterDateFrom(LocalDateTime.MIN.plusDays(1));
             }
+            updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
         dateTo.addChangeListener(e -> {
@@ -141,6 +146,7 @@ public class MainWindow {
             } else {
                 ridesTableFilter.filterDateTo(LocalDateTime.MAX.minusDays(1));
             }
+            updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
     }
 
@@ -156,23 +162,30 @@ public class MainWindow {
         dateTo.setValue(null);
     }
     private static JComboBox<Either<SpecialCurrencyValues, Currency>> createCurrencyFilter(
-            RidesTableFilter ridesTableFilter) {
+            RidesTableFilter ridesTableFilter, JTable ridesTable, JPanel statisticsPanel) {
         return FilterComboboxBuilder.create(SpecialCurrencyValues.class, Currency.values())
                 .setSelectedItem(SpecialCurrencyValues.ALL)
                 .setSpecialValuesRenderer(new SpecialFilterCurrencyValuesRenderer())
                 .setValuesRenderer(new CurrencyRenderer())
-                .setFilter(ridesTableFilter::filterCurrency)
+                .setFilter(item -> {
+                    ridesTableFilter.filterCurrency(item);
+                    updateStatisticsPanel(statisticsPanel, ridesTable, false);
+                })
                 .build();
     }
 
     private static JList<Either<SpecialCategoryValues, Category>> createCategoryFilter(
-            RidesTableFilter ridesTableFilter, CategoryListModel categoryListModel) {
+            RidesTableFilter ridesTableFilter, CategoryListModel categoryListModel,
+            JTable ridesTable, JPanel statisticsPanel) {
         return FilterListModelBuilder.create(SpecialCategoryValues.class, categoryListModel)
                 .setSelectedIndex(0)
                 .setVisibleRowsCount(5)
                 .setSpecialValuesRenderer(new SpecialFilterCategoryValuesRenderer())
                 .setValuesRenderer(new CategoryRenderer())
-                .setFilter(ridesTableFilter::filterCategory)
+                .setFilter(item -> {
+                    ridesTableFilter.filterCategory(item);
+                    updateStatisticsPanel(statisticsPanel, ridesTable, false);
+                })
                 .build();
     }
 
@@ -213,25 +226,25 @@ public class MainWindow {
         setStatisticPane(statsPane, name, filtered, ridesTable);
         return statsPane;
     }
-    public void updateStatisticsPanel(JPanel statisticsPanel, JTable ridesTable) {
+    public static void updateStatisticsPanel(JPanel statisticsPanel, JTable ridesTable, boolean both) {
         Component[] components = statisticsPanel.getComponents();
         if (components.length >= 2) {
-            JScrollPane globalScrollPane = (JScrollPane) components[0];
-            JEditorPane globalStatsPane = (JEditorPane) globalScrollPane.getViewport().getView();
-            setStatisticPane(globalStatsPane, "Global statistics", false, ridesTable);
-
+            if(both) {
+                JScrollPane globalScrollPane = (JScrollPane) components[0];
+                JEditorPane globalStatsPane = (JEditorPane) globalScrollPane.getViewport().getView();
+                setStatisticPane(globalStatsPane, "Global statistics", false, ridesTable);
+            }
             JScrollPane filteredScrollPane = (JScrollPane) components[1];
             JEditorPane filteredStatsPane = (JEditorPane) filteredScrollPane.getViewport().getView();
             setStatisticPane(filteredStatsPane, "Filtered statistics", true, ridesTable);
         }
     }
-    private void setStatisticPane(JEditorPane statsPane, String name, boolean filtered, JTable ridesTable){
+    private static void setStatisticPane(JEditorPane statsPane, String name, boolean filtered, JTable ridesTable){
         RidesTableModel ridesTableModel = (RidesTableModel) ridesTable.getModel();
         ArrayList<Ride> rides = new ArrayList<>();
         if(filtered){
-            RowSorter rowSorter = ridesTable.getRowSorter();
-            for(int i = 0; i < rowSorter.getViewRowCount(); i++){
-                int modelIndex = rowSorter.convertRowIndexToModel(i);
+            for(int i = 0; i < ridesTable.getRowCount(); i++){
+                int modelIndex = ridesTable.convertRowIndexToModel(i);
                 rides.add(ridesTableModel.getEntity(modelIndex));
             }
         }
@@ -310,7 +323,7 @@ public class MainWindow {
         return menu;
     }
 
-    private JPanel createToolBar(JTable ridesTable, CategoryListModel categoryListModel) {
+    private JPanel createToolBar(JTable ridesTable, CategoryListModel categoryListModel, JPanel statisticsPanel) {
         JPanel toolbarPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -329,8 +342,8 @@ public class MainWindow {
         var ridesTableFilter = new RidesTableFilter(rowSorter);
         ridesTable.setRowSorter(rowSorter);
 
-        var currencyFilter = createCurrencyFilter(ridesTableFilter);
-        var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel);// tu sa vytvara ten filter
+        var currencyFilter = createCurrencyFilter(ridesTableFilter, ridesTable, statisticsPanel);
+        var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel, ridesTable, statisticsPanel);// tu sa vytvara ten filter
         var scroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
         var distanceFromFilter = new JTextField();
         var distanceToFilter = new JTextField();
@@ -346,7 +359,8 @@ public class MainWindow {
         dateToPicker.setPreferredSize(new Dimension(100, 20));
         scroll.setPreferredSize(new Dimension(140, 60));
 
-        setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter);
+        setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter,
+                ridesTable, statisticsPanel);
         resetFiltersButton.addActionListener(e -> resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
                 dateFromFilter, dateToFilter, categoryFilter));
 
