@@ -84,12 +84,6 @@ public class CategoryDialog extends EntityDialog<Category> {
         for(int i = rows.length - 1; i >= 0; i--){
             int modelIndex = categoryTable.convertRowIndexToModel(rows[i]);
             Category category = categoryTableModel.getEntity(modelIndex);
-            if(category.getName() == "Cash" || category.getName() == "Card"){
-                JOptionPane.showMessageDialog(null,
-                        "The category: \"" + category.getName() + "\" cannot be deleted.", "Warning",
-                        JOptionPane.WARNING_MESSAGE);
-                continue;
-            }
             boolean used = false;
             for(int j = 0; j < ridesTableModel.getRowCount(); j++){
                 if(ridesTableModel.getEntity(j).getCategory() == category){
@@ -101,9 +95,18 @@ public class CategoryDialog extends EntityDialog<Category> {
                 JOptionPane.showMessageDialog(null,
                         "The category: \"" + category.getName() + "\" is being used.", "Warning",
                         JOptionPane.WARNING_MESSAGE);
-            } else{
-                categoryTableModel.deleteRow(modelIndex);
             }
+            else if(categoryListModel.getSize() == 1) {
+                JOptionPane.showMessageDialog(null,
+                        "There has to be at least one category.", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+                {
+
+                }
+            }
+            else{
+                    categoryTableModel.deleteRow(modelIndex);
+                }
         }
         categoryTableModel.fireTableDataChanged();
     }
