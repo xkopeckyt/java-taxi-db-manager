@@ -27,13 +27,14 @@ public class GenericImportService implements ImportService {
     public void importData(String filePath) {
 
         var batch = getImporter(filePath).importBatch(filePath);
-
+        ridesTableModel.deleteAll();
         batch.rides().forEach(this::createRide);
         System.out.println();
     }
 
 
     private void createRide(Ride ride) {
+        ridesTableModel.addRow(ride);
     }
 
     @Override
