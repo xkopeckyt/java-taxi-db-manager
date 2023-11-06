@@ -1,4 +1,3 @@
-/*
 package cz.muni.fi.pv168.project.ui;
 import cz.muni.fi.pv168.project.ui.model.LocalDateTimeModel;
 import org.jdatepicker.DateModel;
@@ -162,5 +161,3 @@ public class JDateTimePicker extends JXDatePicker {
         frame.setVisible(true);
     }
 }
-
- */
