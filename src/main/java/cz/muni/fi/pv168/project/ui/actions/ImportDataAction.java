@@ -33,15 +33,15 @@ public class ImportDataAction extends AbstractAction {
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 
         int dialogResult = fileChooser.showOpenDialog(parent);
-
+        String importMessage;
         if (dialogResult == JFileChooser.APPROVE_OPTION) {
             File importFile = fileChooser.getSelectedFile();
 
             importService.importData(importFile.getAbsolutePath());
-
-            JOptionPane.showMessageDialog(parent, "Import was done");
+            importMessage = "Import was done";
+        } else {
+            importMessage = "Could not import that file";
         }
-
-
+        JOptionPane.showMessageDialog(parent, importMessage);
     }
 }

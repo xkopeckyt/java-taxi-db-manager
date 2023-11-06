@@ -57,7 +57,7 @@ public class MainWindow {
         var ridesTable = createRidesTable(ridesTableModel, categoryListModel);
         var licence = testDataGenerator.createTestDrivingLicence();
         var exportService = new GenericExportService(ridesTableModel, List.of(new CsvExporter()));
-        var importService = new GenericImportService(ridesTableModel, List.of(new CsvImporter()));
+        var importService = new GenericImportService(ridesTableModel, categoryListModel,List.of(new CsvImporter()));
 
         newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);

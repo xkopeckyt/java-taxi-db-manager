@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryListModel extends AbstractListModel<Category> {
-    private List<Category> categories;
+    private final List<Category> categories;
 
     public CategoryListModel(List<Category> categories) {
         this.categories = new ArrayList<>(categories);
@@ -34,6 +34,10 @@ public class CategoryListModel extends AbstractListModel<Category> {
 
     public int getIndex(Category category){
        return categories.indexOf(category);
+    }
+
+    public void clearCategories() {
+        categories.clear();
     }
 }
 
