@@ -141,7 +141,33 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
         int rowIndex = rides.indexOf(ride);
         fireTableRowsUpdated(rowIndex, rowIndex);
     }
+    public float totalPrice(List<Ride> rides){
+        float count = 0;
+        for(Ride ride : rides){
+            count += ride.getPrice();
+        }
+        return count;
+    }
+    public float totalDistance(List<Ride> rides){
+        float distance = 0;
+        for(Ride ride : rides){
+            distance += ride.getDistance();
+        }
+        return distance;
+    }
+    public float averageDistance(List<Ride> rides){
 
+        if(rides.size() == 0){
+            return 0;
+        }
+        return totalDistance(rides) / rides.size();
+    }
+    public float averagePrice(List<Ride> rides){
+        if(rides.size() == 0){
+            return 0;
+        }
+        return totalPrice(rides) / rides.size();
+    }
     @Override
     public Ride getEntity(int rowIndex) {
         return rides.get(rowIndex);
