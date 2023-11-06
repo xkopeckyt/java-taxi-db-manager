@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryListModel extends AbstractListModel<Category> {
-    private List<Category> categories;
+    private final List<Category> categories;
 
     public CategoryListModel(List<Category> categories) {
         this.categories = new ArrayList<>(categories);
@@ -38,13 +38,17 @@ public class CategoryListModel extends AbstractListModel<Category> {
        return categories.indexOf(category);
     }
 
-    public boolean isNameUsed(String categoryName){
-        for(int i = 0; i < getSize(); i++){
-            if(getElementAt(i).getName().equals(categoryName)){
+    public boolean isNameUsed(String categoryName) {
+        for (int i = 0; i < getSize(); i++) {
+            if (getElementAt(i).getName().equals(categoryName)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public void clearCategories() {
+        categories.clear();
     }
 }
 

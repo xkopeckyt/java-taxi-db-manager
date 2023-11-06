@@ -5,6 +5,10 @@ import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Currency;
 import cz.muni.fi.pv168.project.model.Ride;
 import cz.muni.fi.pv168.project.ui.actions.*;
+import cz.muni.fi.pv168.project.ui.export.CsvImporter;
+import cz.muni.fi.pv168.project.ui.export.GenericExportService;
+import cz.muni.fi.pv168.project.ui.export.GenericImportService;
+import cz.muni.fi.pv168.project.ui.export.CsvExporter;
 import cz.muni.fi.pv168.project.ui.filters.RidesTableFilter;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
@@ -30,6 +34,7 @@ import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainWindow {
     private static final int WIDTH = 600;
@@ -53,14 +58,16 @@ public class MainWindow {
         var ridesTableModel = new RidesTableModel(testDataGenerator.createTestRides(10));
         var ridesTable = createRidesTable(ridesTableModel, categoryListModel);
         var licence = testDataGenerator.createTestDrivingLicence();
+        var exportService = new GenericExportService(ridesTableModel, List.of(new CsvExporter()));
+        var importService = new GenericImportService(ridesTableModel, categoryListModel,List.of(new CsvImporter()));
 
         newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
         showRideAction = new ShowRideAction(ridesTable, testDataGenerator);
         editRideAction = new EditRideAction(ridesTable, categoryListModel, licence);
         deleteRideAction = new DeleteRideAction(ridesTable);
-        importDataAction = new ImportDataAction();
-        exportDataAction = new ExportDataAction();
+        importDataAction = new ImportDataAction(ridesTableModel, importService, ridesTable);
+        exportDataAction = new ExportDataAction(ridesTable, exportService);
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
         editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesTable);
         aboutApplicationAction = new AboutApplicationAction();
@@ -149,6 +156,7 @@ public class MainWindow {
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
     }
+
 
     public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox currency,
                               LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo, JList category) {
