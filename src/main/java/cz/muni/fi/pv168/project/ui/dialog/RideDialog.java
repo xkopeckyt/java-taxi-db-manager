@@ -29,7 +29,7 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JButton loadTemplateButton;
     private final JButton saveTemplateButton;
     private final JButton resetButton;
-    private boolean validDate = false;
+    private boolean validDate = true;
     private final JLabel labelLicence;
     private final JFileChooser fileChooser = new JFileChooser();
     private final boolean editMode;
@@ -60,24 +60,32 @@ public class RideDialog extends EntityDialog <Ride> {
         resetButton.addActionListener(e -> setValues());
 
 
-        this.dateTimeModel.addChangeListener(e -> {
-            if (validDate && !licence.checkDate(dateTimeModel.getValue())) {
-                validDate = false;
-                labelLicence.setText("Invalid licence date!");
-                panel.revalidate();
-                panel.repaint();
-                var wrongDateDialog = new WrongDateDialog(dateTimeModel.getValue());
-                wrongDateDialog.show(new JTable(), "Invalid date!", OK_OPTION, new String[]{"OK"});
-            } else if (!validDate && licence.checkDate(dateTimeModel.getValue())) {
-                validDate = true;
-                labelLicence.setText("");
-                panel.revalidate();
-                panel.repaint();
+        this.datePicker.addActionListener(e -> {
+            if ((validDate && !licence.checkDate(datePicker.getLocalDateTime())) ||
+                    (!validDate && licence.checkDate(datePicker.getLocalDateTime()))) {
+                changeLabel();
             }
         });
 
         setValues();
         addFields();
+
+        if (!licence.checkDate(datePicker.getLocalDateTime())) {
+            changeLabel();
+        }
+    }
+
+    private void changeLabel() {
+        if (validDate) {
+            labelLicence.setText("Invalid licence date!");
+            var wrongDateDialog = new WrongDateDialog(datePicker.getLocalDateTime());
+            wrongDateDialog.show(new JTable(), "Invalid date!", OK_OPTION, new String[]{"OK"});
+        } else {
+            labelLicence.setText("");
+        }
+        panel.revalidate();
+        panel.repaint();
+        validDate = !validDate;
     }
 
     private void setValues() {

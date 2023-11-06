@@ -372,8 +372,13 @@ public class MainWindow {
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter,
                 ridesTable, statisticsPanel);
-        resetFiltersButton.addActionListener(e -> resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
-                dateFromFilter, dateToFilter, categoryFilter));
+        resetFiltersButton.addActionListener(e ->
+        {
+            resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
+                    dateFromFilter, dateToFilter, categoryFilter);
+            dateFromPicker.setLocalDateTime(null);
+            dateToPicker.setLocalDateTime(null);
+        });
 
         gbc.gridy = 1;
         toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
