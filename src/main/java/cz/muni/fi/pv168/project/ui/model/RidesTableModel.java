@@ -176,14 +176,6 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
         }
     }
 
-    public void deleteAll() {
-        int lastIndex = rides.size() - 1;
-        rides.clear();
-        if (lastIndex >= 0) {
-            fireTableRowsDeleted(0, lastIndex);
-        }
-    }
-
     @Override
     public Ride getEntity(int rowIndex) {
         return rides.get(rowIndex);
