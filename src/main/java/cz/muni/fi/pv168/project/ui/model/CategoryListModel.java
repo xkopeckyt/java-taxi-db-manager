@@ -37,5 +37,14 @@ public class CategoryListModel extends AbstractListModel<Category> {
     public int getIndex(Category category){
        return categories.indexOf(category);
     }
+
+    public boolean isNameUsed(String categoryName){
+        for(int i = 0; i < getSize(); i++){
+            if(getElementAt(i).getName().equals(categoryName)){
+                return true;
+            }
+        }
+        return false;
+    }
 }
 

@@ -54,14 +54,6 @@ public class CategoryDialog extends EntityDialog<Category> {
         changeActionState(0);
     }
 
-    private boolean isNameUsed(String categoryName){
-        for(int i = 0; i < categoryListModel.getSize(); i++){
-            if(categoryListModel.getElementAt(i).getName().equals(categoryName)){
-                return true;
-            }
-        }
-        return false;
-    }
     private void createNewCategory(){
         boolean validInput = false;
         while(!validInput) {
@@ -69,7 +61,7 @@ public class CategoryDialog extends EntityDialog<Category> {
             var result = dialog.show(categoryTable, "New category", OK_CANCEL_OPTION, null);
             if (result.isPresent()) {
                 String categoryName = result.get().getName();
-                if(isNameUsed(categoryName)){
+                if(categoryListModel.isNameUsed(categoryName)){
                     JOptionPane.showMessageDialog(null,
                             "The category name: \"" + categoryName + "\" is already used.", "Warning",
                             JOptionPane.WARNING_MESSAGE);
