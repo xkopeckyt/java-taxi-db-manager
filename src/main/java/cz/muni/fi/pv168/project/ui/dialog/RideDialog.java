@@ -4,6 +4,7 @@ import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Currency;
 import cz.muni.fi.pv168.project.model.DrivingLicence;
 import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.ui.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.LocalDateTimeModel;
 import cz.muni.fi.pv168.project.ui.model.ComboBoxModelAdapter;
 import org.jdatepicker.DateModel;
@@ -22,7 +23,7 @@ public class RideDialog extends EntityDialog <Ride> {
     private final ComboBoxModel<Currency> currencyModel = new DefaultComboBoxModel<>(Currency.values());
     private final ComboBoxModel<Category> categoryModel;
     private final DateModel<LocalDateTime> dateTimeModel = new LocalDateTimeModel();
-    private final JDatePicker datePicker = new JDatePicker(dateTimeModel);
+    private final JDateTimePicker datePicker = new JDateTimePicker(dateTimeModel);
     private final JComboBox<Category> categoryComboBox;
     private final Ride ride;
     private final JButton loadTemplateButton;
@@ -83,7 +84,8 @@ public class RideDialog extends EntityDialog <Ride> {
         priceField.setText(String.valueOf(ride.getPrice()));
         currencyModel.setSelectedItem(ride.getOriginalCurrency());
         distanceField.setText(String.valueOf(ride.getDistance()));
-        dateTimeModel.setValue(ride.getDateTime());
+        datePicker.setLocalDateTime(ride.getDateTime());
+        //dateTimeModel.setValue(ride.getDateTime());
         categoryModel.setSelectedItem(ride.getCategory());
         passengersCountField.setText(String.valueOf(ride.getPassengersCount()));
     }
@@ -110,7 +112,8 @@ public class RideDialog extends EntityDialog <Ride> {
         ride.setPrice(Float.parseFloat(priceField.getText()));
         ride.setOriginalCurrency((Currency) currencyModel.getSelectedItem());
         ride.setDistance(Float.parseFloat(distanceField.getText()));
-        ride.setDateTime(dateTimeModel.getValue());
+        //ride.setDateTime(dateTimeModel.getValue());
+        ride.setDateTime(datePicker.getLocalDateTime());
         ride.setCategory((Category) categoryModel.getSelectedItem());
         ride.setPassengersCount(Integer.parseInt(passengersCountField.getText()));
         return ride;
