@@ -171,7 +171,9 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
     public void deleteAll() {
         int lastIndex = rides.size() - 1;
         rides.clear();
-        fireTableRowsDeleted(0, lastIndex);
+        if (lastIndex >= 0) {
+            fireTableRowsDeleted(0, lastIndex);
+        }
     }
 
     @Override

@@ -31,7 +31,7 @@ public class GenericExportService implements ExportService {
     public void exportData(String filePath) {
         var exporter = getExporter(filePath);
 
-        var batch = new Batch(ridesTableModel.getAllRides());
+        var batch = new Batch(ridesTableModel.getAllRides(), null);
         exporter.exportBatch(batch, filePath);
     }
 
