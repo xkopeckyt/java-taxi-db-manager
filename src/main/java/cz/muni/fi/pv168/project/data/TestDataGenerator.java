@@ -21,8 +21,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 public class TestDataGenerator {
     private static final Random random = new Random(2L);
-    private static final LocalDate MIN_DATE = LocalDate.of(1950, JANUARY, 1);
-    private static final LocalDate MAX_DATE = LocalDate.of(2002, DECEMBER, 31);
+    private static final LocalDate MIN_DATE = LocalDate.of(2020, JANUARY, 1);
+    private static final LocalDate MAX_DATE = LocalDate.of(2025, DECEMBER, 31);
     private static final int MAX_DISTANCE = 200;
     private static final int MAX_PRICE = 200;
     private static final int MAX_PASSENGERS = 15;

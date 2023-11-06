@@ -30,8 +30,10 @@ import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 
 public class MainWindow {
-    private static final int WIDTH = 600;
+    private static final int WIDTH = 670;
     private static final int HEIGHT = 600;
+    private static final int MIN_WIDTH = 670;
+    private static final int MIN_HEIGHT = 400;
     private final JFrame frame;
     private final Action newRideAction;
     private final Action newRideFromTemplateAction;
@@ -97,7 +99,7 @@ public class MainWindow {
                                     LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo) {
         distanceFrom.addActionListener(e -> {
             var distanceFromText = distanceFrom.getText();
-            if (distanceFromText.length() != 0) {
+            if (!distanceFromText.isEmpty()) {
                 ridesTableFilter.filterDistanceFrom(Float.parseFloat(distanceFromText));
             } else {
                 ridesTableFilter.filterDistanceFrom(Float.MIN_VALUE);
@@ -106,7 +108,7 @@ public class MainWindow {
 
         distanceTo.addActionListener(e -> {
             var distanceToText = distanceTo.getText();
-            if (distanceToText.length() != 0) {
+            if (!distanceToText.isEmpty()) {
                 ridesTableFilter.filterDistanceTo(Float.parseFloat(distanceToText));
             } else {
                 ridesTableFilter.filterDistanceTo(Float.MAX_VALUE);
@@ -170,6 +172,7 @@ public class MainWindow {
         var frame = new JFrame("Share Car Rider");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        frame.setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
         return frame;
     }
 
@@ -288,14 +291,14 @@ public class MainWindow {
         var distanceToFilter = new JTextField();
         var dateFromFilter = new LocalDateTimeModel();
         var dateToFilter = new LocalDateTimeModel();
-        var dateFromPicker = new JDatePicker(dateFromFilter);
-        var dateToPicker = new JDatePicker(dateToFilter);
+        var dateFromPicker = new JDateTimePicker(dateFromFilter);
+        var dateToPicker = new JDateTimePicker(dateToFilter);
         var resetFiltersButton = new JButton("Reset Filters");
 
         distanceFromFilter.setPreferredSize(new Dimension(60,20));
         distanceToFilter.setPreferredSize(new Dimension(60, 20));
-        dateFromPicker.setPreferredSize(new Dimension(100, 20));
-        dateToPicker.setPreferredSize(new Dimension(100, 20));
+        dateFromPicker.setPreferredSize(new Dimension(140, 20));
+        dateToPicker.setPreferredSize(new Dimension(140, 20));
         scroll.setPreferredSize(new Dimension(140, 60));
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter);
