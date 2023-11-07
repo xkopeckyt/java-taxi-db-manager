@@ -15,14 +15,13 @@ import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
 import cz.muni.fi.pv168.project.ui.filters.components.FilterComboboxBuilder;
 import cz.muni.fi.pv168.project.ui.filters.components.FilterListModelBuilder;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
-import cz.muni.fi.pv168.project.ui.model.LocalDateTimeModel;
+import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.renderers.CategoryRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.CurrencyRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.SpecialFilterCategoryValuesRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.SpecialFilterCurrencyValuesRenderer;
 import cz.muni.fi.pv168.project.util.Either;
-import org.jdatepicker.JDatePicker;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -35,6 +34,7 @@ import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainWindow {
     private static final int WIDTH = 670;
@@ -118,7 +118,7 @@ public class MainWindow {
     }
 
     private void setActionListeners(RidesTableFilter ridesTableFilter, JTextField distanceFrom, JTextField distanceTo,
-                                    LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo,
+                                    JDateTimePicker dateFrom, JDateTimePicker dateTo,
                                     JTable ridesTable, JPanel statisticsPanel) {
         distanceFrom.addActionListener(e -> {
             var distanceFromText = distanceFrom.getText();
@@ -140,36 +140,30 @@ public class MainWindow {
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
-        dateFrom.addChangeListener(e -> {
-            if (dateFrom.isSelected()) {
-                ridesTableFilter.filterDateFrom(dateFrom.getValue());
-            } else {
-                ridesTableFilter.filterDateFrom(LocalDateTime.MIN.plusDays(1));
-            }
+        dateFrom.addActionListener(e -> {
+            var dateTime = dateFrom.getLocalDateTime();
+            ridesTableFilter.filterDateFrom(Objects.requireNonNullElseGet(dateTime, () -> LocalDateTime.MIN.plusDays(1)));
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
-        dateTo.addChangeListener(e -> {
-            if (dateTo.isSelected()) {
-                ridesTableFilter.filterDateTo(dateTo.getValue());
-            } else {
-                ridesTableFilter.filterDateTo(LocalDateTime.MAX.minusDays(1));
-            }
+        dateTo.addActionListener(e -> {
+            var dateTime = dateTo.getLocalDateTime();
+            ridesTableFilter.filterDateTo(Objects.requireNonNullElseGet(dateTime, () -> LocalDateTime.MAX.minusDays(1)));
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
     }
 
 
     public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox currency,
-                              LocalDateTimeModel dateFrom, LocalDateTimeModel dateTo, JList category) {
+                              JDateTimePicker dateFrom, JDateTimePicker dateTo, JList category) {
         distanceFrom.setText(null);
         distanceFrom.postActionEvent();
         distanceTo.setText(null);
         distanceTo.postActionEvent();
         currency.setSelectedIndex(0);
         category.setSelectedIndex(0);
-        dateFrom.setValue(null);
-        dateTo.setValue(null);
+        dateFrom.resetPicker();
+        dateTo.resetPicker();
     }
     private static JComboBox<Either<SpecialCurrencyValues, Currency>> createCurrencyFilter(
             RidesTableFilter ridesTableFilter, JTable ridesTable, JPanel statisticsPanel) {
@@ -358,10 +352,8 @@ public class MainWindow {
         var scroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
         var distanceFromFilter = new JTextField();
         var distanceToFilter = new JTextField();
-        var dateFromFilter = new LocalDateTimeModel();
-        var dateToFilter = new LocalDateTimeModel();
-        var dateFromPicker = new JDateTimePicker(dateFromFilter);
-        var dateToPicker = new JDateTimePicker(dateToFilter);
+        var dateFromPicker = new JDateTimePicker();
+        var dateToPicker = new JDateTimePicker();
         var resetFiltersButton = new JButton("Reset Filters");
 
         distanceFromFilter.setPreferredSize(new Dimension(60,20));
@@ -370,12 +362,12 @@ public class MainWindow {
         dateToPicker.setPreferredSize(new Dimension(140, 20));
         scroll.setPreferredSize(new Dimension(140, 60));
 
-        setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromFilter, dateToFilter,
+        setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromPicker, dateToPicker,
                 ridesTable, statisticsPanel);
         resetFiltersButton.addActionListener(e ->
         {
             resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
-                    dateFromFilter, dateToFilter, categoryFilter);
+                    dateFromPicker, dateToPicker, categoryFilter);
             dateFromPicker.setLocalDateTime(null);
             dateToPicker.setLocalDateTime(null);
         });

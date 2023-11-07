@@ -1,14 +1,14 @@
-package cz.muni.fi.pv168.project.ui;
-import cz.muni.fi.pv168.project.ui.model.LocalDateTimeModel;
-import org.jdatepicker.DateModel;
+package cz.muni.fi.pv168.project.ui.model;
 import org.jdesktop.swingx.calendar.SingleDaySelectionModel;
 import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.DateFormatter;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -18,32 +18,28 @@ public class JDateTimePicker extends JXDatePicker {
     private JSpinner timeSpinner;
     private JPanel timePanel;
     private DateFormat timeFormat;
-    private final DateModel<LocalDateTime> model;
 
     public JDateTimePicker() {
-        this(new LocalDateTimeModel());
-    }
-
-    public JDateTimePicker(DateModel<LocalDateTime> model) {
         super();
-        this.model = model;
         getMonthView().setSelectionModel(new SingleDaySelectionModel());
         setFormats(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM));
         setTimeFormat(DateFormat.getTimeInstance(DateFormat.MEDIUM));
-        setLocalDateTime(model.getValue());
     }
 
     public void setLocalDateTime(LocalDateTime dateTime) {
-        if (dateTime == null) {
-            setDate(null);
-            return;
-        }
-        setDate(java.sql.Timestamp.valueOf(dateTime));
+        setDate(getTimestamp(dateTime));
     }
 
     public LocalDateTime getLocalDateTime() {
-        if (getDate() == null) return null;
-        return getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        var date = getDate();
+        if (date == null) return null;
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public LocalDate getLocalDate() {
+        var dateTime = getLocalDateTime();
+        if (dateTime == null) return null;
+        return dateTime.toLocalDate();
     }
 
     public void commitEdit() {
@@ -53,7 +49,6 @@ public class JDateTimePicker extends JXDatePicker {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        model.setValue(getLocalDateTime());
     }
 
     public void cancelEdit() {
@@ -69,6 +64,13 @@ public class JDateTimePicker extends JXDatePicker {
         }
         setTimeSpinners();
         return timePanel;
+    }
+
+    public void resetPicker() {
+        setLocalDateTime(null);
+        cancelEdit();
+        setLightWeightPopupEnabled(false);
+        setLightWeightPopupEnabled(true);
     }
 
     private JPanel createTimePanel() {
@@ -91,14 +93,6 @@ public class JDateTimePicker extends JXDatePicker {
         JButton button = new JButton("Reset");
         button.addActionListener(e -> resetPicker());
         return button;
-    }
-
-    private void resetPicker() {
-        cancelEdit();
-        setLightWeightPopupEnabled(false);
-        setLightWeightPopupEnabled(true);
-        setDate(null);
-        model.setValue(null);
     }
 
     private void updateTextFieldFormat() {
@@ -147,6 +141,13 @@ public class JDateTimePicker extends JXDatePicker {
         updateTextFieldFormat();
     }
 
+    protected Timestamp getTimestamp(LocalDateTime localDateTime) {
+        if (localDateTime == null) {
+            return null;
+        }
+        return java.sql.Timestamp.valueOf(localDateTime);
+    }
+
     public static void main(String[] args) {
         Date date = new Date();
         JFrame frame = new JFrame();
@@ -160,4 +161,5 @@ public class JDateTimePicker extends JXDatePicker {
         frame.pack();
         frame.setVisible(true);
     }
+
 }

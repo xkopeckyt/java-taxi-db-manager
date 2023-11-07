@@ -33,9 +33,8 @@ public class EditRideAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         var ridesTableModel = (RidesTableModel)ridesTable.getModel();
         Ride ride = ridesTableModel.getEntity(ridesTable.getSelectedRow());
-        var dialog = new RideDialog(ride, categoryListModel, licence, true);
-        var result = dialog.show(ridesTable, "Edit Ride", OK_CANCEL_OPTION, null);
-        if (result.isPresent() && licence.checkDate(result.get().getDateTime())) {
+        var result = RideDialog.showDialog("New Ride", ride, categoryListModel, licence);
+        if (result.isPresent() && licence.checkDate(result.get().getDateTime().toLocalDate())) {
             // Update the ride in the table model
             ridesTableModel.updateRow(result.get());
         }

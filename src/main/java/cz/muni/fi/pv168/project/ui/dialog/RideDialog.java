@@ -4,15 +4,13 @@ import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Currency;
 import cz.muni.fi.pv168.project.model.DrivingLicence;
 import cz.muni.fi.pv168.project.model.Ride;
-import cz.muni.fi.pv168.project.ui.JDateTimePicker;
-import cz.muni.fi.pv168.project.ui.model.LocalDateTimeModel;
+import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.ComboBoxModelAdapter;
-import org.jdatepicker.DateModel;
-import org.jdatepicker.JDatePicker;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDateTime;
+import java.util.Optional;
+
 import static javax.swing.JOptionPane.*;
 
 public class RideDialog extends EntityDialog <Ride> {
@@ -22,8 +20,7 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JTextField passengersCountField = new JTextField();
     private final ComboBoxModel<Currency> currencyModel = new DefaultComboBoxModel<>(Currency.values());
     private final ComboBoxModel<Category> categoryModel;
-    private final DateModel<LocalDateTime> dateTimeModel = new LocalDateTimeModel();
-    private final JDateTimePicker datePicker = new JDateTimePicker(dateTimeModel);
+    private final JDateTimePicker datePicker = new JDateTimePicker();
     private final JComboBox<Category> categoryComboBox;
     private final Ride ride;
     private final JButton loadTemplateButton;
@@ -33,9 +30,12 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JLabel labelLicence;
     private final JFileChooser fileChooser = new JFileChooser();
     private final boolean editMode;
+    private final JButton okButton;
 
-    public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence, boolean editMode) {
+    public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence,
+                      boolean editMode, JButton okButton) {
         this.editMode = editMode;
+        this.okButton = okButton;
         this.ride = ride;
         this.categoryModel = new ComboBoxModelAdapter<>(categoryModel);
         this.categoryComboBox = new JComboBox<>(this.categoryModel);
@@ -61,8 +61,8 @@ public class RideDialog extends EntityDialog <Ride> {
 
 
         this.datePicker.addActionListener(e -> {
-            if ((validDate && !licence.checkDate(datePicker.getLocalDateTime())) ||
-                    (!validDate && licence.checkDate(datePicker.getLocalDateTime()))) {
+            if ((validDate && !licence.checkDate(datePicker.getLocalDate())) ||
+                    (!validDate && licence.checkDate(datePicker.getLocalDate()))) {
                 changeLabel();
             }
         });
@@ -70,9 +70,15 @@ public class RideDialog extends EntityDialog <Ride> {
         setValues();
         addFields();
 
-        if (!licence.checkDate(datePicker.getLocalDateTime())) {
+        if (!licence.checkDate(datePicker.getLocalDate())) {
             changeLabel();
         }
+    }
+
+    public static Optional<Ride> showDialog(String name, Ride template, ListModel<Category> categoryListModel, DrivingLicence licence) {
+        var okButton = DialogUtils.createButton("Ok");
+        var dialog = new RideDialog(template, categoryListModel, licence, false, okButton);
+        return dialog.show(null, name, OK_CANCEL_OPTION, new Object[]{ okButton, "Cancel"});
     }
 
     private void changeLabel() {
@@ -86,6 +92,7 @@ public class RideDialog extends EntityDialog <Ride> {
         panel.revalidate();
         panel.repaint();
         validDate = !validDate;
+        okButton.setEnabled(validDate);
     }
 
     private void setValues() {

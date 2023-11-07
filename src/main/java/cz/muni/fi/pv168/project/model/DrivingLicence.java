@@ -1,22 +1,22 @@
 package cz.muni.fi.pv168.project.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class DrivingLicence {
 
-    private LocalDateTime to;
+    private LocalDate to;
     private boolean valid;
 
-    public DrivingLicence(LocalDateTime to) {
+    public DrivingLicence(LocalDate to) {
         setTo(to);
         valid = checkLicence();
     }
 
-    public LocalDateTime getTo() {
+    public LocalDate getTo() {
         return to;
     }
 
-    public void setTo(LocalDateTime to) {
+    public void setTo(LocalDate to) {
         this.to = to;
     }
 
@@ -29,11 +29,12 @@ public class DrivingLicence {
     }
 
     public boolean checkLicence() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
         return now.isBefore(this.getTo().plusDays(1));
     }
 
-    public boolean checkDate(LocalDateTime date) {
+    public boolean checkDate(LocalDate date) {
+        if (date == null) return false;
         return date.isBefore(to.plusDays(1));
     }
 }

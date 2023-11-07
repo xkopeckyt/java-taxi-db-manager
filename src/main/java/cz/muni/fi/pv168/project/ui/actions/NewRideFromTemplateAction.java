@@ -3,6 +3,7 @@ package cz.muni.fi.pv168.project.ui.actions;
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
 import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.DrivingLicence;
+import cz.muni.fi.pv168.project.ui.dialog.DialogUtils;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
@@ -36,14 +37,11 @@ public class NewRideFromTemplateAction extends AbstractAction {
         int result = fileChooser.showOpenDialog(null);
 
         if (result == JFileChooser.APPROVE_OPTION) {
-            var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-            var rideDialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, licence, false);
-            var rideResult = rideDialog.show(ridesTable, "New Ride", OK_CANCEL_OPTION, null);
+            var rideResult = RideDialog.showDialog("New Ride", testDataGenerator.createTestRide(), categoryListModel, licence);
 
-            if (rideResult.isPresent() && licence.checkDate(rideResult.get().getDateTime())) {
+            if (rideResult.isPresent()) {
+                var ridesTableModel = (RidesTableModel) ridesTable.getModel();
                 ridesTableModel.addRow(rideResult.get());
-            } else {
-                System.out.println(this.getClass().getName());
             }
             /*if (templateResult.isPresent() && rideTemplates.size() != 0) {
             var ridesTableModel = (RidesTableModel) ridesTable.getModel();
