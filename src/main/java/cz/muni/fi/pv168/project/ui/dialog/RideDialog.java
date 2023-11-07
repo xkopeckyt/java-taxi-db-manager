@@ -8,6 +8,8 @@ import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.ComboBoxModelAdapter;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.util.Optional;
 
@@ -79,10 +81,26 @@ public class RideDialog extends EntityDialog <Ride> {
     }
 
     public void addListeners() {
-        distanceField.addActionListener(e -> refreshButtonLabel());
-        priceField.addActionListener(e -> refreshButtonLabel());
+        DocumentListener listener = new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                refreshButtonLabel();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                refreshButtonLabel();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                refreshButtonLabel();
+            }
+        };
+        distanceField.getDocument().addDocumentListener(listener);
+        priceField.getDocument().addDocumentListener(listener);
         datePicker.addActionListener(e -> refreshButtonLabel());
-        passengersCountField.addActionListener(e -> refreshButtonLabel());
+        passengersCountField.getDocument().addDocumentListener(listener);
     }
 
     public void refreshButtonLabel() {
