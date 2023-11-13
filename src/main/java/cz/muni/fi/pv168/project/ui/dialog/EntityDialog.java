@@ -27,8 +27,9 @@ abstract class EntityDialog<E> {
     public Optional<E> show(JComponent parentComponent, String title, int option, Object[] options) {
         int result = JOptionPane.showOptionDialog(parentComponent, panel, title,
                 option, PLAIN_MESSAGE, null, options, null);
-        if (result == OK_OPTION) {
-            return Optional.of(getEntity());
+        E entityResult;
+        if (result == OK_OPTION && (entityResult = getEntity()) != null) {
+            return Optional.of(entityResult);
         } else {
             return Optional.empty();
         }

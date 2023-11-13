@@ -3,7 +3,6 @@ package cz.muni.fi.pv168.project.data;
 import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Currency;
 import cz.muni.fi.pv168.project.model.DrivingLicence;
-import cz.muni.fi.pv168.project.model.Filter;
 import cz.muni.fi.pv168.project.model.Ride;
 
 import java.time.LocalDate;
@@ -54,22 +53,12 @@ public class TestDataGenerator {
                 .collect(Collectors.toList());
     }
 
-    public Filter createTestFilter() {
-        float distanceFrom = random.nextInt(MAX_DISTANCE+1);
-        float distanceTo = random.nextInt((int) distanceFrom, MAX_DISTANCE+1);
-        LocalDateTime dateTimeFrom = selectRandomLocalDateTime(MIN_DATE, MAX_DATE);
-        LocalDateTime dateTimeTo = selectRandomLocalDateTime(dateTimeFrom.toLocalDate(), MAX_DATE);
-        Currency currency = selectRandom(Arrays.stream(Currency.values()).toList());
-        Category category = selectRandom(CATEGORIES);
-        return new Filter(distanceFrom, distanceTo, dateTimeFrom, dateTimeTo, currency, category);
-    }
-
     public List<Category> getCategories() {
         return CATEGORIES;
     }
 
     public DrivingLicence createTestDrivingLicence() {
-        LocalDateTime to = selectRandomLocalDateTime(MIN_DATE, MAX_DATE);
+        LocalDate to = selectRandomLocalDateTime(MIN_DATE, MAX_DATE).toLocalDate();
         return new DrivingLicence(to);
     }
 

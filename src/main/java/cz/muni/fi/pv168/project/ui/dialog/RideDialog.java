@@ -4,15 +4,15 @@ import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Currency;
 import cz.muni.fi.pv168.project.model.DrivingLicence;
 import cz.muni.fi.pv168.project.model.Ride;
-import cz.muni.fi.pv168.project.ui.JDateTimePicker;
-import cz.muni.fi.pv168.project.ui.model.LocalDateTimeModel;
+import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.ComboBoxModelAdapter;
-import org.jdatepicker.DateModel;
-import org.jdatepicker.JDatePicker;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.time.LocalDateTime;
+import java.util.Optional;
+
 import static javax.swing.JOptionPane.*;
 
 public class RideDialog extends EntityDialog <Ride> {
@@ -22,20 +22,22 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JTextField passengersCountField = new JTextField();
     private final ComboBoxModel<Currency> currencyModel = new DefaultComboBoxModel<>(Currency.values());
     private final ComboBoxModel<Category> categoryModel;
-    private final DateModel<LocalDateTime> dateTimeModel = new LocalDateTimeModel();
-    private final JDateTimePicker datePicker = new JDateTimePicker(dateTimeModel);
+    private final JDateTimePicker datePicker = new JDateTimePicker();
     private final JComboBox<Category> categoryComboBox;
     private final Ride ride;
     private final JButton loadTemplateButton;
     private final JButton saveTemplateButton;
     private final JButton resetButton;
-    private boolean validDate = false;
+    private boolean validDate = true;
     private final JLabel labelLicence;
     private final JFileChooser fileChooser = new JFileChooser();
     private final boolean editMode;
+    private final JButton okButton;
 
-    public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence, boolean editMode) {
+    public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence,
+                      boolean editMode, JButton okButton) {
         this.editMode = editMode;
+        this.okButton = okButton;
         this.ride = ride;
         this.categoryModel = new ComboBoxModelAdapter<>(categoryModel);
         this.categoryComboBox = new JComboBox<>(this.categoryModel);
@@ -60,24 +62,62 @@ public class RideDialog extends EntityDialog <Ride> {
         resetButton.addActionListener(e -> setValues());
 
 
-        this.dateTimeModel.addChangeListener(e -> {
-            if (validDate && !licence.checkDate(dateTimeModel.getValue())) {
-                validDate = false;
-                labelLicence.setText("Invalid licence date!");
-                panel.revalidate();
-                panel.repaint();
-                var wrongDateDialog = new WrongDateDialog(dateTimeModel.getValue());
-                wrongDateDialog.show(new JTable(), "Invalid date!", OK_OPTION, new String[]{"OK"});
-            } else if (!validDate && licence.checkDate(dateTimeModel.getValue())) {
-                validDate = true;
-                labelLicence.setText("");
-                panel.revalidate();
-                panel.repaint();
+        this.datePicker.addActionListener(e -> {
+            if ((validDate && !licence.checkDate(datePicker.getLocalDate())) ||
+                    (!validDate && licence.checkDate(datePicker.getLocalDate()))) {
+                validDate = !validDate;
+                refreshButtonLabel();
             }
         });
 
         setValues();
         addFields();
+        addListeners();
+
+        if (!licence.checkDate(datePicker.getLocalDate())) {
+            validDate = !validDate;
+            refreshButtonLabel();
+        }
+    }
+
+    public void addListeners() {
+        DocumentListener listener = new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                refreshButtonLabel();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                refreshButtonLabel();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                refreshButtonLabel();
+            }
+        };
+        distanceField.getDocument().addDocumentListener(listener);
+        priceField.getDocument().addDocumentListener(listener);
+        datePicker.addActionListener(e -> refreshButtonLabel());
+        passengersCountField.getDocument().addDocumentListener(listener);
+    }
+
+    public void refreshButtonLabel() {
+        if (distanceField.getText().isEmpty() || priceField.getText().isEmpty() ||
+            datePicker.getLocalDate() == null || passengersCountField.getText().isEmpty() || !validDate) {
+            okButton.setEnabled(false);
+            labelLicence.setText("Invalid licence date or empty field!");
+        } else {
+            okButton.setEnabled(true);
+            labelLicence.setText("");
+        }
+    }
+
+    public static Optional<Ride> showDialog(String name, Ride template, ListModel<Category> categoryListModel, DrivingLicence licence) {
+        var okButton = DialogUtils.createButton("Ok");
+        var dialog = new RideDialog(template, categoryListModel, licence, false, okButton);
+        return dialog.show(null, name, OK_CANCEL_OPTION, new Object[]{ okButton, "Cancel"});
     }
 
     private void setValues() {
@@ -85,7 +125,6 @@ public class RideDialog extends EntityDialog <Ride> {
         currencyModel.setSelectedItem(ride.getOriginalCurrency());
         distanceField.setText(String.valueOf(ride.getDistance()));
         datePicker.setLocalDateTime(ride.getDateTime());
-        //dateTimeModel.setValue(ride.getDateTime());
         categoryModel.setSelectedItem(ride.getCategory());
         passengersCountField.setText(String.valueOf(ride.getPassengersCount()));
     }
@@ -112,7 +151,6 @@ public class RideDialog extends EntityDialog <Ride> {
         ride.setPrice(Float.parseFloat(priceField.getText()));
         ride.setOriginalCurrency((Currency) currencyModel.getSelectedItem());
         ride.setDistance(Float.parseFloat(distanceField.getText()));
-        //ride.setDateTime(dateTimeModel.getValue());
         ride.setDateTime(datePicker.getLocalDateTime());
         ride.setCategory((Category) categoryModel.getSelectedItem());
         ride.setPassengersCount(Integer.parseInt(passengersCountField.getText()));

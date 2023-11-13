@@ -3,12 +3,14 @@ package cz.muni.fi.pv168.project.ui.actions;
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
 import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.DrivingLicence;
+import cz.muni.fi.pv168.project.ui.dialog.DialogUtils;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import static javax.swing.JOptionPane.*;
 
@@ -33,10 +35,9 @@ public class NewRideAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-        var dialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, licence, false);
-        var result = dialog.show(ridesTable, "New Ride", OK_CANCEL_OPTION, null);
-        if (result.isPresent() && licence.checkDate(result.get().getDateTime())) {
+        var result = RideDialog.showDialog("New Ride", testDataGenerator.createTestRide(), categoryListModel, licence);
+        if (result.isPresent()) {
+            var ridesTableModel = (RidesTableModel) ridesTable.getModel();
             ridesTableModel.addRow(result.get());
         }
     }

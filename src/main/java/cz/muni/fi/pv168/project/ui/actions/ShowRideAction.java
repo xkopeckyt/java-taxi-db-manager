@@ -1,8 +1,6 @@
 package cz.muni.fi.pv168.project.ui.actions;
 
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.ui.dialog.FilterDialog;
 import cz.muni.fi.pv168.project.ui.dialog.RideDetailDialog;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
