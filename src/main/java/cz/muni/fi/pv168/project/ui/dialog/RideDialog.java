@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.util.Map;
 import java.util.Optional;
 
 import static javax.swing.JOptionPane.*;
@@ -33,42 +34,25 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JFileChooser fileChooser = new JFileChooser();
     private final boolean editMode;
     private final JButton okButton;
+    private final Map<String, Ride> templates;
+    private final DrivingLicence licence;
 
     public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence,
-                      boolean editMode, JButton okButton) {
+                      boolean editMode, JButton okButton, Map<String, Ride> templates) {
         this.editMode = editMode;
         this.okButton = okButton;
         this.ride = ride;
         this.categoryModel = new ComboBoxModelAdapter<>(categoryModel);
         this.categoryComboBox = new JComboBox<>(this.categoryModel);
+        this.templates = templates;
+        this.licence = licence;
         this.labelLicence = new JLabel("");
         labelLicence.setForeground(Color.red);
 
-
         this.loadTemplateButton = new JButton("Load Templates");
-        loadTemplateButton.addActionListener(e -> fileChooser.showOpenDialog(null));
-
         this.saveTemplateButton = new JButton("Save As Template");
-        saveTemplateButton.addActionListener(e ->  {
-        fileChooser.showSaveDialog(null);
-                /*new Ride(Float.parseFloat(distanceField.getText()),
-                dateTimeModel.getValue(),
-                Float.parseFloat(priceField.getText()),
-                (Currency) currencyModel.getSelectedItem(),
-                (Category) categoryComboBox.getSelectedItem(),
-                Integer.parseInt(passengersCountField.getText())))*/
-        });
+
         this.resetButton = new JButton("Reset");
-        resetButton.addActionListener(e -> setValues());
-
-
-        this.datePicker.addActionListener(e -> {
-            if ((validDate && !licence.checkDate(datePicker.getLocalDate())) ||
-                    (!validDate && licence.checkDate(datePicker.getLocalDate()))) {
-                validDate = !validDate;
-                refreshButtonLabel();
-            }
-        });
 
         setValues();
         addFields();
@@ -101,6 +85,44 @@ public class RideDialog extends EntityDialog <Ride> {
         priceField.getDocument().addDocumentListener(listener);
         datePicker.addActionListener(e -> refreshButtonLabel());
         passengersCountField.getDocument().addDocumentListener(listener);
+        resetButton.addActionListener(e -> setValues());
+
+        loadTemplateButton.addActionListener(e -> {
+            if (!templates.isEmpty()) {
+                var loadTemplatesDialog = new LoadTemplateDialog(templates.keySet());
+                var loadResult = loadTemplatesDialog.show(new JTable(), "Load Template", OK_CANCEL_OPTION, null);
+                if (loadResult.isPresent()) {
+                    var loadedRide = templates.get(loadResult.get());
+                    categoryComboBox.setSelectedItem(loadedRide.getCategory());
+                    priceField.setText(String.valueOf(loadedRide.getPrice()));
+                    distanceField.setText(String.valueOf(loadedRide.getDistance()));
+                    datePicker.setLocalDateTime(loadedRide.getDateTime());
+                    passengersCountField.setText(String.valueOf(loadedRide.getPassengersCount()));
+                    currencyModel.setSelectedItem(loadedRide.getOriginalCurrency());
+                }
+            } else {
+                var emptyTemplatesDialod = new EmptyTemplateDialog();
+                emptyTemplatesDialod.show(new JTable(), "Empty Templates", OK_CANCEL_OPTION, null);
+            }
+        });
+
+        saveTemplateButton.addActionListener(e ->  {
+            var templateResult = SaveTemplateDialog.showDialog(templates);
+            templateResult.ifPresent(s -> templates.put(s, new Ride(Float.parseFloat(distanceField.getText()),
+                    datePicker.getLocalDateTime(),
+                    Float.parseFloat(priceField.getText()),
+                    (Currency) currencyModel.getSelectedItem(),
+                    (Category) categoryComboBox.getSelectedItem(),
+                    Integer.parseInt(passengersCountField.getText()))));
+        });
+
+        this.datePicker.addActionListener(e -> {
+            if ((validDate && !licence.checkDate(datePicker.getLocalDate())) ||
+                    (!validDate && licence.checkDate(datePicker.getLocalDate()))) {
+                validDate = !validDate;
+                refreshButtonLabel();
+            }
+        });
     }
 
     public void refreshButtonLabel() {
@@ -114,9 +136,9 @@ public class RideDialog extends EntityDialog <Ride> {
         }
     }
 
-    public static Optional<Ride> showDialog(String name, Ride template, ListModel<Category> categoryListModel, DrivingLicence licence) {
+    public static Optional<Ride> showDialog(String name, Ride template, ListModel<Category> categoryListModel, DrivingLicence licence, Map<String, Ride> templates) {
         var okButton = DialogUtils.createButton("Ok");
-        var dialog = new RideDialog(template, categoryListModel, licence, false, okButton);
+        var dialog = new RideDialog(template, categoryListModel, licence, false, okButton, templates);
         return dialog.show(null, name, OK_CANCEL_OPTION, new Object[]{ okButton, "Cancel"});
     }
 
