@@ -3,7 +3,9 @@ package cz.muni.fi.pv168.project.ui.actions;
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
 import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.DrivingLicence;
-import cz.muni.fi.pv168.project.ui.dialog.DialogUtils;
+import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.ui.dialog.EmptyTemplateDialog;
+import cz.muni.fi.pv168.project.ui.dialog.LoadTemplateDialog;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
@@ -11,6 +13,8 @@ import cz.muni.fi.pv168.project.ui.resources.Icons;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Map;
+
 import static javax.swing.JOptionPane.*;
 
 public class NewRideFromTemplateAction extends AbstractAction {
@@ -18,10 +22,11 @@ public class NewRideFromTemplateAction extends AbstractAction {
     private final ListModel<Category> categoryListModel;
     private final DrivingLicence licence;
     TestDataGenerator testDataGenerator;
+    private final Map<String, Ride> templates;
 
     public NewRideFromTemplateAction(JTable ridesTable, ListModel<Category> categoryListModel,
-                                     DrivingLicence licence, TestDataGenerator testDataGenerator) {
-        super("New Ride from Template", Icons.NEW_ICON);
+                                     DrivingLicence licence, TestDataGenerator testDataGenerator, Map<String, Ride> templates) {
+        super("New Ride from Template", Icons.NEW_TEMPLATE_ICON);
         putValue(SHORT_DESCRIPTION, "Show Create new ride Dialog with chosen Template");
         putValue(MNEMONIC_KEY, KeyEvent.VK_T);
         this.testDataGenerator = testDataGenerator;
@@ -29,31 +34,27 @@ public class NewRideFromTemplateAction extends AbstractAction {
         this.ridesTable = ridesTable;
         this.categoryListModel = categoryListModel;
         this.licence = licence;
+        this.templates = templates;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(null);
+        if (!templates.isEmpty()) {
+            var loadTemplatesDialog = new LoadTemplateDialog(templates.keySet());
+            var loadResult = loadTemplatesDialog.show(new JTable(), "Load Template", OK_CANCEL_OPTION, null);
 
-        if (result == JFileChooser.APPROVE_OPTION) {
-            var rideResult = RideDialog.showDialog("New Ride", testDataGenerator.createTestRide(), categoryListModel, licence);
-
-            if (rideResult.isPresent()) {
-                var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-                ridesTableModel.addRow(rideResult.get());
+            if (loadResult.isPresent()) {
+                var addRideDialogresult = RideDialog.showDialog("Add Ride", templates.get(loadResult.get()), categoryListModel, licence, templates);
+                if (addRideDialogresult.isPresent()) {
+                    var ridesTableModel = (RidesTableModel) ridesTable.getModel();
+                    ridesTableModel.addRow(addRideDialogresult.get());
+                }
             }
-            /*if (templateResult.isPresent() && rideTemplates.size() != 0) {
-            var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-            if (!licence.checkDate(templateResult.get().getDateTime())) {
-                var wrongDateDialog = new WrongDateDialog(templateResult.get().getDateTime());
-                wrongDateDialog.show(new JTable(), "Invalid date");
-            }
-            var rideDialog = new RideDialog(templateResult.get(), categoryListModel, rideTemplates, licence);
-            var rideResult = rideDialog.show(ridesTable, "New Ride");
-            if (rideResult.isPresent() && licence.checkDate(rideResult.get().getDateTime())) {
-                ridesTableModel.addRow(rideResult.get());
-            }*/
+        } else {
+            var dialog = new EmptyTemplateDialog();
+            dialog.show(new JTable(), "Empty Templates", OK_CANCEL_OPTION, null);
         }
+
+
     }
 }

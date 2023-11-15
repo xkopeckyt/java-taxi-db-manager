@@ -32,9 +32,8 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 public class MainWindow {
     private static final int WIDTH = 670;
@@ -52,6 +51,7 @@ public class MainWindow {
     private final Action editTechnicalLicenceAction;
     private final Action editCategoriesAction;
     private final Action aboutApplicationAction;
+    private final Map<String, Ride> templates = new HashMap<>();
 
     public MainWindow() {
         frame = createFrame();
@@ -63,10 +63,10 @@ public class MainWindow {
         var exportService = new GenericExportService(ridesTableModel, List.of(new CsvExporter()));
         var importService = new GenericImportService(ridesTableModel, categoryListModel,List.of(new CsvImporter()));
 
-        newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence);
-        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator);
+        newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence, templates);
+        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator, templates);
         showRideAction = new ShowRideAction(ridesTable, testDataGenerator);
-        editRideAction = new EditRideAction(ridesTable, categoryListModel, licence);
+        editRideAction = new EditRideAction(ridesTable, categoryListModel, licence, templates);
         deleteRideAction = new DeleteRideAction(ridesTable);
         importDataAction = new ImportDataAction(ridesTableModel, importService, ridesTable);
         exportDataAction = new ExportDataAction(ridesTable, exportService);
@@ -389,6 +389,7 @@ public class MainWindow {
         var toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(newRideAction);
+        toolbar.add(newRideFromTemplateAction);
         toolbar.add(editRideAction);
         toolbar.add(deleteRideAction);
         toolbar.addSeparator();

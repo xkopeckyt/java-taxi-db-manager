@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 public class Icons {
     public static final Icon SHOW_ICON = createIcon("show.png");
     public static final Icon NEW_ICON = createIcon("new_ride.png");
+    public static final Icon NEW_TEMPLATE_ICON = createIcon("new_ride_template.png");
     public static final Icon EDIT_ICON = createIcon("edit.png");
     public static final Icon DELETE_ICON = createIcon("delete.png");
     public static final Icon IMPORT_ICON = createIcon("import.png");
