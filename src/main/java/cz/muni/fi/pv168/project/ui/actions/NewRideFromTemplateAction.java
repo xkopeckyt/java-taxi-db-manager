@@ -26,7 +26,7 @@ public class NewRideFromTemplateAction extends AbstractAction {
 
     public NewRideFromTemplateAction(JTable ridesTable, ListModel<Category> categoryListModel,
                                      DrivingLicence licence, TestDataGenerator testDataGenerator, Map<String, Ride> templates) {
-        super("New Ride from Template", Icons.NEW_ICON);
+        super("New Ride from Template", Icons.NEW_TEMPLATE_ICON);
         putValue(SHORT_DESCRIPTION, "Show Create new ride Dialog with chosen Template");
         putValue(MNEMONIC_KEY, KeyEvent.VK_T);
         this.testDataGenerator = testDataGenerator;
