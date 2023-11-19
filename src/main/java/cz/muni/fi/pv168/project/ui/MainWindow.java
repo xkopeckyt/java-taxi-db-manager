@@ -98,11 +98,21 @@ public class MainWindow {
             }
         });
 
+        var actionToolbar = createActionToolbar();
+
+        tabbedPane.addChangeListener(e -> {
+            if(tabbedPane.getSelectedComponent() == secondaryPanel) {
+                actionToolbar.setVisible(false);
+            } else {
+                actionToolbar.setVisible(true);
+            }
+        });
+
 
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
 
-        frame.add(createToolBar(ridesTable, categoryListModel, statisticsPanel), BorderLayout.BEFORE_FIRST_LINE);
+        frame.add(createToolBar(ridesTable, categoryListModel, statisticsPanel, actionToolbar), BorderLayout.BEFORE_FIRST_LINE);
         frame.add(tabbedPane, BorderLayout.CENTER);
 
         /*JPanel mainPanel = new JPanel(new GridLayout(2,1));
@@ -328,7 +338,7 @@ public class MainWindow {
         return menu;
     }
 
-    private JPanel createToolBar(JTable ridesTable, CategoryListModel categoryListModel, JPanel statisticsPanel) {
+    private JPanel createToolBar(JTable ridesTable, CategoryListModel categoryListModel, JPanel statisticsPanel, JToolBar actionToolbar) {
         JPanel toolbarPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -341,7 +351,7 @@ public class MainWindow {
         gbc.weightx = 1;
         //gbc.weighty = 0.3;
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-        toolbarPanel.add(createActionToolbar(), gbc);
+        toolbarPanel.add(actionToolbar, gbc);
 
         var rowSorter = new TableRowSorter<>((RidesTableModel)ridesTable.getModel());
         var ridesTableFilter = new RidesTableFilter(rowSorter);
