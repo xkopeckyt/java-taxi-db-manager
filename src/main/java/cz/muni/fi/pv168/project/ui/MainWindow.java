@@ -31,6 +31,8 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
@@ -161,6 +163,24 @@ public class MainWindow {
             ridesTableFilter.filterDateTo(Objects.requireNonNullElseGet(dateTime, () -> LocalDateTime.MAX.minusDays(1)));
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
+    }
+
+    private void setFocusListeners(JTextField distanceFrom, JTextField distanceTo) {
+        var textFocusListener = new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                JTextField source = (JTextField) e.getSource();
+                source.postActionEvent();
+            }
+        };
+
+        distanceFrom.addFocusListener(textFocusListener);
+        distanceTo.addFocusListener(textFocusListener);
     }
 
 
@@ -374,6 +394,7 @@ public class MainWindow {
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromPicker, dateToPicker,
                 ridesTable, statisticsPanel);
+        setFocusListeners(distanceFromFilter, distanceToFilter);
         resetFiltersButton.addActionListener(e ->
         {
             resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
