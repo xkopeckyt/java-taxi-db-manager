@@ -39,7 +39,7 @@ public class NewRideAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        var result = RideDialog.showDialog("New Ride", testDataGenerator.createTestRide(), categoryListModel, licence, templates);
+        var result = RideDialog.showDialog("New Ride", testDataGenerator.createTestRide(), categoryListModel, licence, templates, false);
         if (result.isPresent()) {
             var ridesTableModel = (RidesTableModel) ridesTable.getModel();
             ridesTableModel.addRow(result.get());

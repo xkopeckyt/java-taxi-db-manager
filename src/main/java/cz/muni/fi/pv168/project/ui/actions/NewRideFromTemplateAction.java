@@ -44,7 +44,7 @@ public class NewRideFromTemplateAction extends AbstractAction {
             var loadResult = loadTemplatesDialog.show(new JTable(), "Load Template", OK_CANCEL_OPTION, null);
 
             if (loadResult.isPresent()) {
-                var addRideDialogresult = RideDialog.showDialog("Add Ride", templates.get(loadResult.get()), categoryListModel, licence, templates);
+                var addRideDialogresult = RideDialog.showDialog("Add Ride", templates.get(loadResult.get()), categoryListModel, licence, templates, true);
                 if (addRideDialogresult.isPresent()) {
                     var ridesTableModel = (RidesTableModel) ridesTable.getModel();
                     ridesTableModel.addRow(addRideDialogresult.get());

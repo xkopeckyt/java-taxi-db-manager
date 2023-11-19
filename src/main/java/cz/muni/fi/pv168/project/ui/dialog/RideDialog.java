@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,24 +26,27 @@ public class RideDialog extends EntityDialog <Ride> {
     private final ComboBoxModel<Category> categoryModel;
     private final JDateTimePicker datePicker = new JDateTimePicker();
     private final JComboBox<Category> categoryComboBox;
-    private final Ride ride;
+    private Ride ride;
     private final JButton loadTemplateButton;
     private final JButton saveTemplateButton;
     private final JButton resetButton;
     private boolean validDate = true;
     private final JLabel labelLicence;
-    private final JFileChooser fileChooser = new JFileChooser();
     private final boolean editMode;
+    private boolean teamplateMode;
     private final JButton okButton;
     private final Map<String, Ride> templates;
     private final DrivingLicence licence;
+    private final ListModel<Category> categoryListModel;
 
     public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence,
-                      boolean editMode, JButton okButton, Map<String, Ride> templates) {
+                      boolean editMode, JButton okButton, Map<String, Ride> templates, boolean templateMode) {
+        this.teamplateMode = templateMode;
         this.editMode = editMode;
         this.okButton = okButton;
         this.ride = ride;
-        this.categoryModel = new ComboBoxModelAdapter<>(categoryModel);
+        this.categoryListModel = categoryModel;
+        this.categoryModel = new ComboBoxModelAdapter<>(categoryListModel);
         this.categoryComboBox = new JComboBox<>(this.categoryModel);
         this.templates = templates;
         this.licence = licence;
@@ -91,15 +95,11 @@ public class RideDialog extends EntityDialog <Ride> {
             if (!templates.isEmpty()) {
                 var loadTemplatesDialog = new LoadTemplateDialog(templates.keySet());
                 var loadResult = loadTemplatesDialog.show(new JTable(), "Load Template", OK_CANCEL_OPTION, null);
-                if (loadResult.isPresent()) {
-                    var loadedRide = templates.get(loadResult.get());
-                    categoryComboBox.setSelectedItem(loadedRide.getCategory());
-                    priceField.setText(String.valueOf(loadedRide.getPrice()));
-                    distanceField.setText(String.valueOf(loadedRide.getDistance()));
-                    datePicker.setLocalDateTime(loadedRide.getDateTime());
-                    passengersCountField.setText(String.valueOf(loadedRide.getPassengersCount()));
-                    currencyModel.setSelectedItem(loadedRide.getOriginalCurrency());
-                }
+                loadResult.ifPresent(s -> {
+                    ride = templates.get(s);
+                    teamplateMode = true;
+                    setValues();
+                });
             } else {
                 var emptyTemplatesDialod = new EmptyTemplateDialog();
                 emptyTemplatesDialod.show(new JTable(), "Empty Templates", OK_CANCEL_OPTION, null);
@@ -136,19 +136,20 @@ public class RideDialog extends EntityDialog <Ride> {
         }
     }
 
-    public static Optional<Ride> showDialog(String name, Ride template, ListModel<Category> categoryListModel, DrivingLicence licence, Map<String, Ride> templates) {
+    public static Optional<Ride> showDialog(String name, Ride template, ListModel<Category> categoryListModel,
+                                            DrivingLicence licence, Map<String, Ride> templates, boolean templateMode) {
         var okButton = DialogUtils.createButton("Ok");
-        var dialog = new RideDialog(template, categoryListModel, licence, false, okButton, templates);
+        var dialog = new RideDialog(template, categoryListModel, licence, false, okButton, templates, templateMode);
         return dialog.show(null, name, OK_CANCEL_OPTION, new Object[]{ okButton, "Cancel"});
     }
 
     private void setValues() {
-        priceField.setText(String.valueOf(ride.getPrice()));
-        currencyModel.setSelectedItem(ride.getOriginalCurrency());
-        distanceField.setText(String.valueOf(ride.getDistance()));
-        datePicker.setLocalDateTime(ride.getDateTime());
-        categoryModel.setSelectedItem(ride.getCategory());
-        passengersCountField.setText(String.valueOf(ride.getPassengersCount()));
+        priceField.setText((teamplateMode) ? String.valueOf(ride.getPrice()) : "");
+        currencyModel.setSelectedItem((teamplateMode) ? ride.getOriginalCurrency() : Currency.EUR);
+        distanceField.setText((teamplateMode) ? String.valueOf(ride.getDistance()) : "");
+        datePicker.setLocalDateTime((teamplateMode) ? ride.getDateTime() : LocalDateTime.now());
+        categoryModel.setSelectedItem((teamplateMode) ? ride.getCategory() :categoryListModel.getElementAt(0));
+        passengersCountField.setText((teamplateMode) ? String.valueOf(ride.getPassengersCount()) : "");
     }
 
     private void addFields() {
