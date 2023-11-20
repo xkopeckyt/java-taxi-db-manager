@@ -102,7 +102,7 @@ public class RideDialog extends EntityDialog <Ride> {
                 });
             } else {
                 var emptyTemplatesDialod = new EmptyTemplateDialog();
-                emptyTemplatesDialod.show(new JTable(), "Empty Templates", OK_CANCEL_OPTION, null);
+                emptyTemplatesDialod.show(new JTable(), "Empty Templates", OK_OPTION, new Object[]{"OK"});
             }
         });
 

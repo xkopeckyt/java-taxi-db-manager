@@ -52,7 +52,7 @@ public class NewRideFromTemplateAction extends AbstractAction {
             }
         } else {
             var dialog = new EmptyTemplateDialog();
-            dialog.show(new JTable(), "Empty Templates", OK_CANCEL_OPTION, null);
+            dialog.show(new JTable(), "Empty Templates", OK_OPTION, new Object[]{"OK"});
         }
 
 
