@@ -1,8 +1,8 @@
 package cz.muni.fi.pv168.project.database.entity.mapper;
 
 import cz.muni.fi.pv168.project.database.entity.CategoryEntity;
+import cz.muni.fi.pv168.project.database.entity.DataAccessObject;
 import cz.muni.fi.pv168.project.database.entity.RideEntity;
-import cz.muni.fi.pv168.project.model.Category;
 import cz.muni.fi.pv168.project.model.Ride;
 
 public class RideMapper {
@@ -20,7 +20,7 @@ public class RideMapper {
     public Ride mapToBusiness(RideEntity entity) {
         var category = categoryDao
                 .findById(entity.id())
-                .map(CategoryMapper::mapToBusiness)
+                .map(categoryMapper::mapToBusiness)
                 .orElseThrow(() -> new RuntimeException("Category not found: " +
                         entity.categoryId()));
 
@@ -36,7 +36,7 @@ public class RideMapper {
 
     public RideEntity mapNewRideToDatabase(Ride ride) {
         CategoryEntity categoryEntity = categoryDao
-                .findByName(ride.getCategory().getName())
+                .findByGuid(ride.getCategory().getGuid())
                 .orElseThrow(() -> new RuntimeException("Category not found with name: " +
                         ride.getCategory().getName()));
 
@@ -52,7 +52,7 @@ public class RideMapper {
 
     public RideEntity mapExistingRideToDatabase(Ride ride, Integer id) {
         CategoryEntity categoryEntity = categoryDao
-                .findByName(ride.getCategory().getName())
+                .findByGuid(ride.getCategory().getGuid())
                 .orElseThrow(() -> new RuntimeException("Category not found with name: " +
                         ride.getCategory().getName()));
 
