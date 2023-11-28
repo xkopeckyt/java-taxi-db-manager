@@ -3,7 +3,7 @@ package cz.muni.fi.pv168.project.model;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Category {
+public class Category extends Entity{
     private static final AtomicLong AL = new AtomicLong();
     private final long id;
     private String name;
@@ -14,6 +14,20 @@ public class Category {
     }
 
     public Category(String name, long id) {
+        setName(name);
+        this.id = id;
+        if (Category.AL.get() < id) {
+            Category.AL.set(id);
+        }
+    }
+    public Category(String name, String guid) {
+        super(guid);
+        setName(name);
+        this.id = Category.AL.incrementAndGet();
+    }
+
+    public Category(String name, long id, String guid) {
+        super(guid);
         setName(name);
         this.id = id;
         if (Category.AL.get() < id) {

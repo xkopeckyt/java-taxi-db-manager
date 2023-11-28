@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,14 +27,14 @@ public class TestDataGenerator {
     private static final int MAX_PRICE = 200;
     private static final int MAX_PASSENGERS = 15;
     private static final List<Category> CATEGORIES = List.of(
-            new Category("Cash"),
-            new Category("Card"),
-            new Category("Internal"),
-            new Category("Out of state"),
-            new Category("Cash + Internal"),
-            new Category("Card + Internal"),
-            new Category("Cash + Out of state"),
-            new Category("Card + Out of state")
+            new Category("Cash", UUID.randomUUID().toString()),
+            new Category("Card", UUID.randomUUID().toString()),
+            new Category("Internal", UUID.randomUUID().toString()),
+            new Category("Out of state", UUID.randomUUID().toString()),
+            new Category("Cash + Internal", UUID.randomUUID().toString()),
+            new Category("Card + Internal", UUID.randomUUID().toString()),
+            new Category("Cash + Out of state", UUID.randomUUID().toString()),
+            new Category("Card + Out of state", UUID.randomUUID().toString())
     );
 
     public Ride createTestRide() {
@@ -43,7 +44,7 @@ public class TestDataGenerator {
         int passengersCount = random.nextInt(1, MAX_PASSENGERS+1);
         LocalDateTime dateTime = selectRandomLocalDateTime(MIN_DATE, MAX_DATE);
         Category category = selectRandom(CATEGORIES);
-        return new Ride(distance, dateTime, price, currency, category, passengersCount);
+        return new Ride(distance, dateTime, price, currency, category, passengersCount, UUID.randomUUID().toString());
     }
 
     public List<Ride> createTestRides(int count) {
