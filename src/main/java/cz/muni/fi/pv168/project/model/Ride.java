@@ -3,7 +3,8 @@ package cz.muni.fi.pv168.project.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Ride {
+public class Ride extends Entity{
+    private static final UuidGuidProvider guidProvider = new UuidGuidProvider();
     private static Currency globalCurrency = Currency.EUR;
     private float distance;
     private LocalDateTime dateTime;
@@ -12,7 +13,20 @@ public class Ride {
     private Category category;
     private int passengersCount;
 
-    public Ride(float distance, LocalDateTime dateTime, float price, Currency originalCurrency, Category category, int passengersCount) {
+    public Ride(float distance, LocalDateTime dateTime, float price,
+                Currency originalCurrency, Category category, int passengersCount) {
+        super(guidProvider.newGuid());
+        setDistance(distance);
+        setDateTime(dateTime);
+        setPrice(price);
+        setOriginalCurrency(originalCurrency);
+        setCategory(category);
+        setPassengersCount(passengersCount);
+    }
+    public Ride(float distance, LocalDateTime dateTime, float price,
+                Currency originalCurrency, Category category, int passengersCount,
+                String guid) {
+        super(guid);
         setDistance(distance);
         setDateTime(dateTime);
         setPrice(price);
