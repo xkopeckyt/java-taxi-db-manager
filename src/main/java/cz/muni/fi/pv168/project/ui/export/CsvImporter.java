@@ -6,7 +6,7 @@ import cz.muni.fi.pv168.project.model.Ride;
 import cz.muni.fi.pv168.project.ui.export.batch.Batch;
 import cz.muni.fi.pv168.project.ui.export.batch.BatchImporter;
 import cz.muni.fi.pv168.project.ui.export.format.Format;
-import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,20 +49,29 @@ public class CsvImporter implements BatchImporter {
 
     private Ride parseRide(String line) {
         var ride = line.split(SEPARATOR);
-
-        Category category = getCategoryByName(ride[5]);
+        Category category = getCategoryByName(ride[6]);
         if (category == null) {
-            category = new Category(ride[5]);
+            category = new Category(ride[6], ride[7]);
             categories.add(category);
         }
 
+       /* ride.getGuid(),
+        ride.getDateTime().toString(),
+        Float.toString(ride.getDistance()),
+        Integer.toString(ride.getPassengersCount()),
+        Float.toString(ride.getPrice()),
+        ride.getOriginalCurrency().toString(),
+        ride.getCategory().toString(),
+        ride.getCategory().getGuid()*/
+
         return new Ride(
-                Float.parseFloat(ride[1]),
-                LocalDateTime.parse(ride[0]),
-                Float.parseFloat(ride[3]),
-                Currency.valueOf(ride[4]),
+                Float.parseFloat(ride[2]),
+                LocalDateTime.parse(ride[1]),
+                Float.parseFloat(ride[4]),
+                Currency.valueOf(ride[5]),
                 category,
-                Integer.parseInt(ride[2])
+                Integer.parseInt(ride[3]),
+                ride[6]
         );
     }
 

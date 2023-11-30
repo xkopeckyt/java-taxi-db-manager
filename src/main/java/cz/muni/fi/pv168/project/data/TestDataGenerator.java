@@ -1,9 +1,6 @@
 package cz.muni.fi.pv168.project.data;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.DrivingLicence;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.model.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +17,7 @@ import static java.time.Month.JANUARY;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class TestDataGenerator {
+    private static final UuidGuidProvider provider = new UuidGuidProvider();
     private static final Random random = new Random(2L);
     private static final LocalDate MIN_DATE = LocalDate.of(2020, JANUARY, 1);
     private static final LocalDate MAX_DATE = LocalDate.of(2025, DECEMBER, 31);
@@ -27,14 +25,14 @@ public class TestDataGenerator {
     private static final int MAX_PRICE = 200;
     private static final int MAX_PASSENGERS = 15;
     private static final List<Category> CATEGORIES = List.of(
-            new Category("Cash", UUID.randomUUID().toString()),
-            new Category("Card", UUID.randomUUID().toString()),
-            new Category("Internal", UUID.randomUUID().toString()),
-            new Category("Out of state", UUID.randomUUID().toString()),
-            new Category("Cash + Internal", UUID.randomUUID().toString()),
-            new Category("Card + Internal", UUID.randomUUID().toString()),
-            new Category("Cash + Out of state", UUID.randomUUID().toString()),
-            new Category("Card + Out of state", UUID.randomUUID().toString())
+            new Category("Cash", provider.newGuid()),
+            new Category("Card", provider.newGuid()),
+            new Category("Internal", provider.newGuid()),
+            new Category("Out of state", provider.newGuid()),
+            new Category("Cash + Internal", provider.newGuid()),
+            new Category("Card + Internal", provider.newGuid()),
+            new Category("Cash + Out of state", provider.newGuid()),
+            new Category("Card + Out of state", provider.newGuid())
     );
 
     public Ride createTestRide() {
@@ -44,7 +42,7 @@ public class TestDataGenerator {
         int passengersCount = random.nextInt(1, MAX_PASSENGERS+1);
         LocalDateTime dateTime = selectRandomLocalDateTime(MIN_DATE, MAX_DATE);
         Category category = selectRandom(CATEGORIES);
-        return new Ride(distance, dateTime, price, currency, category, passengersCount, UUID.randomUUID().toString());
+        return new Ride(distance, dateTime, price, currency, category, passengersCount, provider.newGuid());
     }
 
     public List<Ride> createTestRides(int count) {
