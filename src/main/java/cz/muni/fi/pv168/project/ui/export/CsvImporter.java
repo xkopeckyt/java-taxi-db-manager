@@ -55,15 +55,6 @@ public class CsvImporter implements BatchImporter {
             categories.add(category);
         }
 
-       /* ride.getGuid(),
-        ride.getDateTime().toString(),
-        Float.toString(ride.getDistance()),
-        Integer.toString(ride.getPassengersCount()),
-        Float.toString(ride.getPrice()),
-        ride.getOriginalCurrency().toString(),
-        ride.getCategory().toString(),
-        ride.getCategory().getGuid()*/
-
         return new Ride(
                 Float.parseFloat(ride[2]),
                 LocalDateTime.parse(ride[1]),

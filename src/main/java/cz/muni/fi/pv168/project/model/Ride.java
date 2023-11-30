@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Ride extends Entity{
-    private static UuidGuidProvider guidProvider = new UuidGuidProvider();
+    private static final UuidGuidProvider guidProvider = new UuidGuidProvider();
     private static Currency globalCurrency = Currency.EUR;
     private float distance;
     private LocalDateTime dateTime;
