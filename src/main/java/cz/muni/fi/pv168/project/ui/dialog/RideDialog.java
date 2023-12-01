@@ -107,10 +107,6 @@ public class RideDialog extends EntityDialog <Ride> {
                 checkFormValidity();
             }
         };
-        distanceField.getDocument().addDocumentListener(listener);
-        datePicker.addActionListener(e -> checkFormValidity());
-        passengersCountField.getDocument().addDocumentListener(listener);
-        resetButton.addActionListener(e -> setValues());
 
         loadTemplateButton.addActionListener(e -> {
             if (!templates.isEmpty()) {
@@ -122,8 +118,8 @@ public class RideDialog extends EntityDialog <Ride> {
                     setValues();
                 });
             } else {
-                var emptyTemplatesDialod = new EmptyTemplateDialog();
-                emptyTemplatesDialod.show(new JTable(), "Empty Templates", OK_OPTION, new Object[]{"OK"});
+                var emptyTemplatesDialog = new EmptyTemplateDialog();
+                emptyTemplatesDialog.show(new JTable(), "Empty Templates", OK_OPTION, new Object[]{"OK"});
             }
         });
 
