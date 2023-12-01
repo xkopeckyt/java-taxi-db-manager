@@ -13,13 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 public class CategoryTableModel extends AbstractTableModel {
-    private CategoryListModel categoryModel;
+    private final CategoryListModel categoryModel;
     private static final Map<Class<?>, Comparator<?>> COMPARATORS = Map.ofEntries(
             Map.entry(long.class, new LongComparator()),
             Map.entry(String.class, new StringComparator())
     );
     private static final List<Column<Category, ?>> COLUMNS = List.of(
-            Column.readonly("ID", Long.class, Category::getId),
             Column.readonly("Name", String.class, Category::getName)
     );
     public CategoryTableModel(CategoryListModel categoryModel){
@@ -80,19 +79,12 @@ public class CategoryTableModel extends AbstractTableModel {
     }
     @Override
     public int getColumnCount() {
-        return COLUMNS.size();  // ID and Name
+        return COLUMNS.size();
     }
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         var category = getEntity(rowIndex);
-        switch(columnIndex){
-            case 0:
-                return category.getId();
-            case 1:
-                return category.getName();
-            default:
-                throw new IllegalArgumentException("Invalid column index: " + columnIndex);
-        }
+        return COLUMNS.get(columnIndex).getValue(category);
     }
     @Override
     public String getColumnName(int columnIndex) {
