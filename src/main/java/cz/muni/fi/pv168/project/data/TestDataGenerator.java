@@ -21,7 +21,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class TestDataGenerator {
     private static final Random random = new Random(2L);
     private static final LocalDate MIN_DATE = LocalDate.of(2020, JANUARY, 1);
-    private static final LocalDate MAX_DATE = LocalDate.of(2025, DECEMBER, 31);
+    private static final LocalDate MAX_DATE = LocalDate.now(); //LocalDate.of(2025, DECEMBER, 31);
     private static final int MAX_DISTANCE = 200;
     private static final int MAX_PRICE = 200;
     private static final int MAX_PASSENGERS = 15;
@@ -58,8 +58,7 @@ public class TestDataGenerator {
     }
 
     public DrivingLicence createTestDrivingLicence() {
-        LocalDate to = selectRandomLocalDateTime(MIN_DATE, MAX_DATE).toLocalDate();
-        return new DrivingLicence(to);
+        return new DrivingLicence(MAX_DATE);
     }
 
     private <T> T selectRandom(List<T> data) {

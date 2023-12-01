@@ -5,7 +5,9 @@ import cz.muni.fi.pv168.project.model.Currency;
 import cz.muni.fi.pv168.project.model.DrivingLicence;
 import cz.muni.fi.pv168.project.model.Ride;
 import cz.muni.fi.pv168.project.ui.components.JStatusTextField;
+import cz.muni.fi.pv168.project.ui.listeners.AbstractFieldListener;
 import cz.muni.fi.pv168.project.ui.listeners.DecimalFieldListener;
+import cz.muni.fi.pv168.project.ui.listeners.IntegerFieldListener;
 import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.ComboBoxModelAdapter;
 
@@ -14,17 +16,15 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Optional;
 
 import static javax.swing.JOptionPane.*;
 
 public class RideDialog extends EntityDialog <Ride> {
 
-    private final JTextField distanceField = new JTextField();
+    private final JStatusTextField distanceField = new JStatusTextField();
     private final JStatusTextField priceField = new JStatusTextField();
-    private final JTextField passengersCountField = new JTextField();
+    private final JStatusTextField passengersCountField = new JStatusTextField();
     private final ComboBoxModel<Currency> currencyModel = new DefaultComboBoxModel<>(Currency.values());
     private final ComboBoxModel<Category> categoryModel;
     private final JDateTimePicker datePicker = new JDateTimePicker();
@@ -38,6 +38,9 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JFileChooser fileChooser = new JFileChooser();
     private final boolean editMode;
     private final JButton okButton;
+    private DrivingLicence licence;
+    private final DecimalFormat decimalFormat;
+    public final int decimalPlaces = 2;
 
     public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence,
                       boolean editMode, JButton okButton) {
@@ -46,78 +49,83 @@ public class RideDialog extends EntityDialog <Ride> {
         this.ride = ride;
         this.categoryModel = new ComboBoxModelAdapter<>(categoryModel);
         this.categoryComboBox = new JComboBox<>(this.categoryModel);
-        this.labelLicence = new JLabel("");
+        this.labelLicence = new JLabel(" ");
+        this.licence = licence;
         labelLicence.setForeground(Color.red);
-
+        decimalFormat = new DecimalFormat();
+        decimalFormat.setMaximumFractionDigits(decimalPlaces);
 
         this.loadTemplateButton = new JButton("Load Templates");
         loadTemplateButton.addActionListener(e -> fileChooser.showOpenDialog(null));
 
         this.saveTemplateButton = new JButton("Save As Template");
-        saveTemplateButton.addActionListener(e ->  {
-        fileChooser.showSaveDialog(null);
-                /*new Ride(Float.parseFloat(distanceField.getText()),
-                dateTimeModel.getValue(),
-                Float.parseFloat(priceField.getText()),
-                (Currency) currencyModel.getSelectedItem(),
-                (Category) categoryComboBox.getSelectedItem(),
-                Integer.parseInt(passengersCountField.getText())))*/
-        });
+        saveTemplateButton.addActionListener(e -> fileChooser.showSaveDialog(null));
+
         this.resetButton = new JButton("Reset");
         resetButton.addActionListener(e -> setValues());
 
+        datePicker.getEditor().setEditable(false);
 
-        this.datePicker.addActionListener(e -> {
-            if ((validDate && !licence.checkDate(datePicker.getLocalDate())) ||
-                    (!validDate && licence.checkDate(datePicker.getLocalDate()))) {
-                validDate = !validDate;
-                refreshButtonLabel();
-            }
-        });
-
+        addListeners();
         setValues();
         addFields();
-        addListeners();
 
-        if (!licence.checkDate(datePicker.getLocalDate())) {
-            validDate = !validDate;
-            refreshButtonLabel();
-        }
+        checkValidDate();
+        checkFormValidity();
+    }
+
+    private void checkValidDate() {
+        validDate = licence.checkDate(datePicker.getLocalDate());
+        setBackground(datePicker.getEditor(), validDate);
+        labelLicence.setText(validDate ? " " : "Licence is invalid this day");
     }
 
     public void addListeners() {
+        this.datePicker.addActionListener(e -> {
+            checkValidDate();
+            checkFormValidity();
+        });
+
         DocumentListener listener = new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                refreshButtonLabel();
+                checkFormValidity();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                refreshButtonLabel();
+                checkFormValidity();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                refreshButtonLabel();
+                checkFormValidity();
             }
         };
-        distanceField.getDocument().addDocumentListener(listener);
-        datePicker.addActionListener(e -> refreshButtonLabel());
-        passengersCountField.getDocument().addDocumentListener(listener);
+        datePicker.addActionListener(e -> checkFormValidity());
 
-        //priceField.getDocument().addDocumentListener(listener);
-        priceField.addFieldListener(new DecimalFieldListener(priceField));
+        addListenersToField(passengersCountField, new IntegerFieldListener(passengersCountField), listener);
+        addListenersToField(distanceField, new DecimalFieldListener(distanceField), listener);
+        addListenersToField(priceField, new DecimalFieldListener(priceField), listener);
     }
 
-    public void refreshButtonLabel() {
-        if (distanceField.getText().isEmpty() || priceField.getText().isEmpty() ||
-            datePicker.getLocalDate() == null || passengersCountField.getText().isEmpty() || !validDate) {
-            okButton.setEnabled(false);
-            labelLicence.setText("Invalid licence date or empty field!");
+    private void addListenersToField(JStatusTextField field, AbstractFieldListener fieldLis, DocumentListener docLis) {
+        field.addFieldListener(fieldLis);
+        field.addOnChangeEvent(this::setBackground);
+        field.addOnChangeEvent(this::checkFormValidity);
+        field.getDocument().addDocumentListener(docLis);
+    }
+
+    public void checkFormValidity() {
+        okButton.setEnabled(distanceField.isValid() && priceField.isValid() && passengersCountField.isValid() &&
+                            datePicker.getLocalDate() != null && validDate);
+    }
+
+    private void setBackground(JComponent comp, boolean isValid) {
+        if (isValid) {
+            comp.setBackground(Color.WHITE);
         } else {
-            okButton.setEnabled(true);
-            labelLicence.setText("");
+            comp.setBackground(Color.decode("#ff4040"));
         }
     }
 
@@ -128,9 +136,9 @@ public class RideDialog extends EntityDialog <Ride> {
     }
 
     private void setValues() {
-        priceField.setText(String.valueOf(ride.getPrice()));
+        priceField.setText(decimalFormat.format(ride.getPrice()));
         currencyModel.setSelectedItem(ride.getOriginalCurrency());
-        distanceField.setText(String.valueOf(ride.getDistance()));
+        distanceField.setText(decimalFormat.format(ride.getDistance()));
         datePicker.setLocalDateTime(ride.getDateTime());
         categoryModel.setSelectedItem(ride.getCategory());
         passengersCountField.setText(String.valueOf(ride.getPassengersCount()));
@@ -155,13 +163,16 @@ public class RideDialog extends EntityDialog <Ride> {
 
     @Override
     Ride getEntity() {
-        ride.setPrice(Float.parseFloat(priceField.getText()));
+        ride.setPrice(textToFloat(priceField.getText()));
         ride.setOriginalCurrency((Currency) currencyModel.getSelectedItem());
-        ride.setDistance(Float.parseFloat(distanceField.getText()));
+        ride.setDistance(textToFloat(distanceField.getText()));
         ride.setDateTime(datePicker.getLocalDateTime());
         ride.setCategory((Category) categoryModel.getSelectedItem());
         ride.setPassengersCount(Integer.parseInt(passengersCountField.getText()));
         return ride;
     }
 
+    private float textToFloat(String text) {
+        return Float.parseFloat(text.replace(',', '.'));
+    }
 }
