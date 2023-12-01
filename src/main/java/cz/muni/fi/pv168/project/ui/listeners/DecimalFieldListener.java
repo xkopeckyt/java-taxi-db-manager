@@ -16,27 +16,9 @@ public class DecimalFieldListener extends AbstractFieldListener {
         super();
     }
 
-    @Override
-    public void insertUpdate(DocumentEvent e) {
-        System.out.println(e.getOffset() + " " + e.getLength());
-        lol();
-    }
-
-    @Override
-    public void removeUpdate(DocumentEvent e) {
-        System.out.println(e.getOffset() + " " + e.getLength());
-        lol();
-    }
-
-    @Override
-    public void changedUpdate(DocumentEvent e) {}
-
-    private void lol() {
-        Runnable format = () -> {
-            String text = textField.getText();
-            boolean good = text.matches("\\d+(\\.\\d{0,2})?");
-            textField.setValid(good);
-        };
-        SwingUtilities.invokeLater(format);
+    protected void check() {
+        String text = textField.getText();
+        boolean good = text.matches("\\d+([.,]\\d{1,2})?");
+        textField.setValid(good);
     }
 }
