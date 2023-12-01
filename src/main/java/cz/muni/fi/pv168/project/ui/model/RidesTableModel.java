@@ -156,13 +156,13 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
         return distance;
     }
     public float averageDistance(List<Ride> rides){
-        if(rides.size() == 0){
+        if(rides.isEmpty()){
             return 0;
         }
         return totalDistance(rides) / rides.size();
     }
     public float averagePrice(List<Ride> rides){
-        if(rides.size() == 0){
+        if(rides.isEmpty()){
             return 0;
         }
         return totalPrice(rides) / rides.size();
