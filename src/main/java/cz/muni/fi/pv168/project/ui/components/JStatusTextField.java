@@ -30,6 +30,7 @@ public class JStatusTextField extends JTextField {
 
     public void addFieldListener(AbstractFieldListener fieldListener) {
         getDocument().addDocumentListener(fieldListener);
+        fieldListener.check();
     }
 
     public boolean isValid() {

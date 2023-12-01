@@ -16,7 +16,7 @@ public class DecimalFieldListener extends AbstractFieldListener {
         super();
     }
 
-    protected void check() {
+    public void check() {
         String text = textField.getText();
         boolean good = text.matches("\\d+([.,]\\d{1,2})?");
         textField.setValid(good);

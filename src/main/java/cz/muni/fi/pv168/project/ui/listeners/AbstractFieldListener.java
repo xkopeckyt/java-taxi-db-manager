@@ -22,7 +22,7 @@ public abstract class AbstractFieldListener implements DocumentListener {
         this.textField = textField;
     }
 
-    protected abstract void check();
+    public abstract void check();
 
     @Override
     public void insertUpdate(DocumentEvent e) {

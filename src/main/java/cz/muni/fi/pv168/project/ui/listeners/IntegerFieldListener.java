@@ -15,12 +15,9 @@ public class IntegerFieldListener extends AbstractFieldListener {
         super();
     }
 
-    protected void check() {
-        //Runnable format = () -> {
-            String text = textField.getText();
-            boolean good = text.matches("\\d+");
-            textField.setValid(good);
-        //};
-        //SwingUtilities.invokeLater(format);
+    public void check() {
+        String text = textField.getText();
+        boolean good = text.matches("\\d+");
+        textField.setValid(good);
     }
 }

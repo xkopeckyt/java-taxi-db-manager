@@ -38,7 +38,7 @@ public class RideDialog extends EntityDialog <Ride> {
     private boolean validDate = true;
     private final JLabel labelLicence;
     private final boolean editMode;
-    private boolean teamplateMode;
+    private boolean templateMode;
     private final JButton okButton;
     private final Map<String, Ride> templates;
     private final DrivingLicence licence;
@@ -48,7 +48,7 @@ public class RideDialog extends EntityDialog <Ride> {
 
     public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence,
                       boolean editMode, JButton okButton, Map<String, Ride> templates, boolean templateMode) {
-        this.teamplateMode = templateMode;
+        this.templateMode = templateMode;
         this.editMode = editMode;
         this.okButton = okButton;
         this.ride = ride;
@@ -114,7 +114,7 @@ public class RideDialog extends EntityDialog <Ride> {
                 var loadResult = loadTemplatesDialog.show(new JTable(), "Load Template", OK_CANCEL_OPTION, null);
                 loadResult.ifPresent(s -> {
                     ride = templates.get(s);
-                    teamplateMode = true;
+                    templateMode = true;
                     setValues();
                 });
             } else {
@@ -141,10 +141,10 @@ public class RideDialog extends EntityDialog <Ride> {
     }
 
     private void addListenersToField(JStatusTextField field, AbstractFieldListener fieldLis, DocumentListener docLis) {
-        field.addFieldListener(fieldLis);
         field.addOnChangeEvent(this::setBackground);
         field.addOnChangeEvent(this::checkFormValidity);
         field.getDocument().addDocumentListener(docLis);
+        field.addFieldListener(fieldLis);
     }
 
     public void checkFormValidity() {
@@ -168,12 +168,12 @@ public class RideDialog extends EntityDialog <Ride> {
     }
 
     private void setValues() {
-        priceField.setText((teamplateMode) ? decimalFormat.format(ride.getPrice()) : "");
-        currencyModel.setSelectedItem((teamplateMode) ? ride.getOriginalCurrency() : Currency.EUR);
-        distanceField.setText((teamplateMode) ? decimalFormat.format(ride.getDistance()) : "");
-        datePicker.setLocalDateTime((teamplateMode) ? ride.getDateTime() : LocalDateTime.now());
-        categoryModel.setSelectedItem((teamplateMode) ? ride.getCategory() :categoryListModel.getElementAt(0));
-        passengersCountField.setText((teamplateMode) ? String.valueOf(ride.getPassengersCount()) : "");
+        priceField.setText((templateMode) ? decimalFormat.format(ride.getPrice()) : "");
+        currencyModel.setSelectedItem((templateMode) ? ride.getOriginalCurrency() : Currency.EUR);
+        distanceField.setText((templateMode) ? decimalFormat.format(ride.getDistance()) : "");
+        datePicker.setLocalDateTime((templateMode) ? ride.getDateTime() : LocalDateTime.now());
+        categoryModel.setSelectedItem((templateMode) ? ride.getCategory() :categoryListModel.getElementAt(0));
+        passengersCountField.setText((templateMode) ? String.valueOf(ride.getPassengersCount()) : "");
     }
 
     private void addFields() {
