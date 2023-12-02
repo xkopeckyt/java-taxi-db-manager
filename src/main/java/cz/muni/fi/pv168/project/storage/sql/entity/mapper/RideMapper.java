@@ -1,8 +1,8 @@
-package cz.muni.fi.pv168.project.database.entity.mapper;
+package cz.muni.fi.pv168.project.storage.sql.entity.mapper;
 
-import cz.muni.fi.pv168.project.database.entity.CategoryEntity;
-import cz.muni.fi.pv168.project.database.entity.DataAccessObject;
-import cz.muni.fi.pv168.project.database.entity.RideEntity;
+import cz.muni.fi.pv168.project.storage.sql.dao.DataAccessObject;
+import cz.muni.fi.pv168.project.storage.sql.entity.CategoryEntity;
+import cz.muni.fi.pv168.project.storage.sql.entity.RideEntity;
 import cz.muni.fi.pv168.project.model.Ride;
 
 public class RideMapper {
@@ -30,7 +30,8 @@ public class RideMapper {
                 entity.price(),
                 entity.originalCurrency(),
                 category,
-                entity.passengersCount()
+                entity.passengersCount(),
+                entity.guid()
         );
     }
 
@@ -46,7 +47,8 @@ public class RideMapper {
                 ride.getPrice(),
                 ride.getOriginalCurrency(),
                 categoryEntity.id(),
-                ride.getPassengersCount()
+                ride.getPassengersCount(),
+                ride.getGuid()
         );
     }
 
@@ -63,7 +65,8 @@ public class RideMapper {
                 ride.getPrice(),
                 ride.getOriginalCurrency(),
                 categoryEntity.id(),
-                ride.getPassengersCount()
+                ride.getPassengersCount(),
+                ride.getGuid()
         );
     }
 }

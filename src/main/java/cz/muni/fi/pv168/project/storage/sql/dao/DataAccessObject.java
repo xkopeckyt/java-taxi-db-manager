@@ -1,4 +1,4 @@
-package cz.muni.fi.pv168.project.database.entity;
+package cz.muni.fi.pv168.project.storage.sql.dao;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -9,7 +9,7 @@ public interface DataAccessObject<E> {
 
     Collection<E> findAll();
 
-    Optional<E> findById(Integer id);
+    Optional<E> findById(long id);
 
     Optional<E> findByGuid(String guid);
 
