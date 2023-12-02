@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.text.DecimalFormat;
@@ -125,12 +126,17 @@ public class RideDialog extends EntityDialog <Ride> {
 
         saveTemplateButton.addActionListener(e ->  {
             var templateResult = SaveTemplateDialog.showDialog(templates);
-            templateResult.ifPresent(s -> templates.put(s, new Ride(Float.parseFloat(distanceField.getText()),
-                    datePicker.getLocalDateTime(),
-                    Float.parseFloat(priceField.getText()),
-                    (Currency) currencyModel.getSelectedItem(),
-                    (Category) categoryComboBox.getSelectedItem(),
-                    Integer.parseInt(passengersCountField.getText()))));
+            templateResult.ifPresent(s ->
+                templates.put(s,
+                    new Ride(textToBigDecimal(distanceField.getText()),
+                            datePicker.getLocalDateTime(),
+                            textToBigDecimal(priceField.getText()),
+                            (Currency) currencyModel.getSelectedItem(),
+                            (Category) categoryComboBox.getSelectedItem(),
+                            Integer.parseInt(passengersCountField.getText())
+                    )
+                )
+            );
         });
 
         datePicker.addActionListener(e -> checkFormValidity());
@@ -168,12 +174,12 @@ public class RideDialog extends EntityDialog <Ride> {
     }
 
     private void setValues() {
-        priceField.setText((templateMode) ? decimalFormat.format(ride.getPrice()) : "");
-        currencyModel.setSelectedItem((templateMode) ? ride.getOriginalCurrency() : Currency.EUR);
-        distanceField.setText((templateMode) ? decimalFormat.format(ride.getDistance()) : "");
-        datePicker.setLocalDateTime((templateMode) ? ride.getDateTime() : LocalDateTime.now());
-        categoryModel.setSelectedItem((templateMode) ? ride.getCategory() :categoryListModel.getElementAt(0));
-        passengersCountField.setText((templateMode) ? String.valueOf(ride.getPassengersCount()) : "");
+        priceField.setText((!templateMode) ? decimalFormat.format(ride.getPrice()) : "");
+        currencyModel.setSelectedItem((!templateMode) ? ride.getOriginalCurrency() : Currency.EUR);
+        distanceField.setText((!templateMode) ? decimalFormat.format(ride.getDistance()) : "");
+        datePicker.setLocalDateTime((!templateMode) ? ride.getRideDateTime() : LocalDateTime.now());
+        categoryModel.setSelectedItem((!templateMode) ? ride.getCategory() :categoryListModel.getElementAt(0));
+        passengersCountField.setText((!templateMode) ? String.valueOf(ride.getPassengersCount()) : "");
     }
 
     private void addFields() {
@@ -195,16 +201,16 @@ public class RideDialog extends EntityDialog <Ride> {
 
     @Override
     Ride getEntity() {
-        ride.setPrice(textToFloat(priceField.getText()));
+        ride.setPrice(textToBigDecimal(priceField.getText()));
         ride.setOriginalCurrency((Currency) currencyModel.getSelectedItem());
-        ride.setDistance(textToFloat(distanceField.getText()));
-        ride.setDateTime(datePicker.getLocalDateTime());
+        ride.setDistance(textToBigDecimal(distanceField.getText()));
+        ride.setRideDateTime(datePicker.getLocalDateTime());
         ride.setCategory((Category) categoryModel.getSelectedItem());
         ride.setPassengersCount(Integer.parseInt(passengersCountField.getText()));
         return ride;
     }
 
-    private float textToFloat(String text) {
-        return Float.parseFloat(text.replace(',', '.'));
+    private BigDecimal textToBigDecimal(String text) {
+        return BigDecimal.valueOf(Double.parseDouble(text.replace(',', '.')));
     }
 }

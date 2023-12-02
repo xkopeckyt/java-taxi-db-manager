@@ -67,7 +67,7 @@ public class MainWindow {
 
         newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence, templates);
         newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator, templates);
-        showRideAction = new ShowRideAction(ridesTable, testDataGenerator);
+        showRideAction = new ShowRideAction(ridesTable);
         editRideAction = new EditRideAction(ridesTable, categoryListModel, licence, templates);
         deleteRideAction = new DeleteRideAction(ridesTable);
         importDataAction = new ImportDataAction(ridesTableModel, importService, ridesTable);
@@ -110,21 +110,11 @@ public class MainWindow {
             }
         });
 
-
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
 
         frame.add(createToolBar(ridesTable, categoryListModel, statisticsPanel, actionToolbar), BorderLayout.BEFORE_FIRST_LINE);
         frame.add(tabbedPane, BorderLayout.CENTER);
-
-        /*JPanel mainPanel = new JPanel(new GridLayout(2,1));
-        frame.add(mainPanel);
-        ridesTable.setComponentPopupMenu(createRidesTablePopupMenu());
-        mainPanel.add(new JScrollPane(ridesTable)); //, BorderLayout.CENTER
-
-        mainPanel.add(createStatisticsPanel());
-        frame.add(mainPanel);*/
-
 
         frame.pack();
     }

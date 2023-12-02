@@ -2,10 +2,7 @@ package cz.muni.fi.pv168.project.ui.components;
 
 import cz.muni.fi.pv168.project.ui.listeners.AbstractFieldListener;
 
-import javax.swing.*;
-import javax.swing.event.EventListenerList;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import javax.swing.JTextField;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;

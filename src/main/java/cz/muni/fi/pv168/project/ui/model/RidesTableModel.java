@@ -13,25 +13,28 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class RidesTableModel extends AbstractTableModel implements EntityTableModel<Ride>{
-    private final List<Ride> rides;
     private static final Map<Class<?>, Comparator<?>> COMPARATORS = Map.ofEntries(
-            Map.entry(float.class, new FloatComparator()),
             Map.entry(int.class, new IntCompatator()),
             Map.entry(Enum.class, new EnumComparator())
     );
 
     private static final List<Column<Ride, ?>> COLUMNS = List.of(
-            Column.readonly("Date & Time", LocalDateTime.class, Ride::getDateTime, new DateTimeCellRenderer()),
-            Column.readonly("Distance", float.class, Ride::getDistance, new FloatCellRenderer(2)),
-            Column.readonly("Price", float.class, Ride::getPrice, new FloatCellRenderer(2)),
+            Column.readonly("Date & Time", LocalDateTime.class, Ride::getRideDateTime, new DateTimeCellRenderer()),
+            Column.readonly("Price", BigDecimal.class, Ride::getPrice, new FloatCellRenderer(2)),
+            Column.readonly("Distance", BigDecimal.class, Ride::getDistance, new FloatCellRenderer(2)),
             Column.readonly("Currency", Currency.class, Ride::getOriginalCurrency),
             Column.readonly("Passengers", int.class, Ride::getPassengersCount),
             Column.readonly("Category", Category.class, Ride::getCategory)
     );
+    private static final float[] columnWidthPercentage = {0.28f, 0.1f, 0.1f, 0.13f, 0.14f, 0.25f};
+
+    private final List<Ride> rides;
 
     public RidesTableModel(List<Ride> rides) {
         this.rides = new ArrayList<>(rides);
@@ -73,10 +76,10 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
         };
     }
 
-    float[] columnWidthPercentage = {0.28f, 0.1f, 0.1f, 0.13f, 0.14f, 0.25f};
-
     private void resizeColumns(ComponentEvent e) {
-        if (!(e.getSource() instanceof JTable table)) throw new RuntimeException("nope");
+        if (!(e.getSource() instanceof JTable table)) {
+            throw new RuntimeException("nope");
+        }
         TableColumn column;
         TableColumnModel jTableColumnModel = table.getColumnModel();
         int tW = jTableColumnModel.getTotalColumnWidth();
@@ -141,31 +144,31 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
         int rowIndex = rides.indexOf(ride);
         fireTableRowsUpdated(rowIndex, rowIndex);
     }
-    public float totalPrice(List<Ride> rides){
-        float count = 0;
+    public BigDecimal totalPrice(List<Ride> rides){
+        BigDecimal count = BigDecimal.valueOf(0);
         for(Ride ride : rides){
-            count += ride.getPrice();
+            count = count.add(ride.getPrice());
         }
         return count;
     }
-    public float totalDistance(List<Ride> rides){
-        float distance = 0;
+    public BigDecimal totalDistance(List<Ride> rides){
+        BigDecimal distance = BigDecimal.valueOf(0);
         for(Ride ride : rides){
-            distance += ride.getDistance();
+            distance = distance.add(ride.getDistance());
         }
         return distance;
     }
-    public float averageDistance(List<Ride> rides){
+    public BigDecimal averageDistance(List<Ride> rides){
         if(rides.isEmpty()){
-            return 0;
+            return BigDecimal.valueOf(0);
         }
-        return totalDistance(rides) / rides.size();
+        return totalDistance(rides).divide(BigDecimal.valueOf(rides.size()), new MathContext(2));
     }
-    public float averagePrice(List<Ride> rides){
+    public BigDecimal averagePrice(List<Ride> rides){
         if(rides.isEmpty()){
-            return 0;
+            return BigDecimal.valueOf(0);
         }
-        return totalPrice(rides) / rides.size();
+        return totalPrice(rides).divide(BigDecimal.valueOf(rides.size()), new MathContext(2));
     }
 
     public void deleteAll() {
