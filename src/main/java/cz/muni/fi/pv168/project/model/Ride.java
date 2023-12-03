@@ -1,61 +1,62 @@
 package cz.muni.fi.pv168.project.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Ride extends Entity{
     private static final UuidGuidProvider guidProvider = new UuidGuidProvider();
     private static Currency globalCurrency = Currency.EUR;
-    private float distance;
-    private LocalDateTime dateTime;
-    private float price;
+    private BigDecimal distance;
+    private LocalDateTime rideDateTime;
+    private BigDecimal price;
     private Currency originalCurrency;
     private Category category;
     private int passengersCount;
 
-    public Ride(float distance, LocalDateTime dateTime, float price,
+    public Ride(BigDecimal distance, LocalDateTime rideDateTime, BigDecimal price,
                 Currency originalCurrency, Category category, int passengersCount) {
         super(guidProvider.newGuid());
         setDistance(distance);
-        setDateTime(dateTime);
+        setRideDateTime(rideDateTime);
         setPrice(price);
         setOriginalCurrency(originalCurrency);
         setCategory(category);
         setPassengersCount(passengersCount);
     }
-    public Ride(float distance, LocalDateTime dateTime, float price,
+    public Ride(BigDecimal distance, LocalDateTime rideDateTime, BigDecimal price,
                 Currency originalCurrency, Category category, int passengersCount,
                 String guid) {
         super(guid);
         setDistance(distance);
-        setDateTime(dateTime);
+        setRideDateTime(rideDateTime);
         setPrice(price);
         setOriginalCurrency(originalCurrency);
         setCategory(category);
         setPassengersCount(passengersCount);
     }
 
-    public float getDistance() {
+    public BigDecimal getDistance() {
         return distance;
     }
 
-    public void setDistance(float distance) {
+    public void setDistance(BigDecimal distance) {
         this.distance = distance;
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
+    public LocalDateTime getRideDateTime() {
+        return rideDateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = Objects.requireNonNull(dateTime, "dateTime must not be null");
+    public void setRideDateTime(LocalDateTime rideDateTime) {
+        this.rideDateTime = Objects.requireNonNull(rideDateTime, "dateTime must not be null");
     }
 
-    public float getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -93,6 +94,6 @@ public class Ride extends Entity{
 
     @Override
     public String toString() {
-        return dateTime.toString() + ": " + distance + " km," + price + ' ' + getGlobalCurrency().toString();
+        return rideDateTime.toString() + ": " + distance + " km," + price + ' ' + getGlobalCurrency().toString();
     }
 }

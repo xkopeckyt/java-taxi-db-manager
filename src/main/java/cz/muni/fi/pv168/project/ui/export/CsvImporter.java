@@ -9,6 +9,7 @@ import cz.muni.fi.pv168.project.ui.export.format.Format;
 
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -56,9 +57,9 @@ public class CsvImporter implements BatchImporter {
         }
 
         return new Ride(
-                Float.parseFloat(ride[2]),
+                BigDecimal.valueOf(Double.parseDouble(ride[2])),
                 LocalDateTime.parse(ride[1]),
-                Float.parseFloat(ride[4]),
+                BigDecimal.valueOf(Double.parseDouble(ride[4])),
                 Currency.valueOf(ride[5]),
                 category,
                 Integer.parseInt(ride[3]),

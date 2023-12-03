@@ -8,6 +8,9 @@ import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static cz.muni.fi.pv168.project.ui.resources.Icons.DELETE_ICON;
@@ -18,6 +21,7 @@ import static javax.swing.JOptionPane.OK_OPTION;
 public class CategoryDialog extends EntityDialog<Category> {
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
+
     private final JTable categoryTable;
     private final JButton newCategory;
     private final JMenuItem renameCategory;
@@ -26,6 +30,7 @@ public class CategoryDialog extends EntityDialog<Category> {
     private final CategoryListModel categoryListModel;
     private final CategoryTableModel categoryTableModel;
     private final JTable ridesTable;
+
     public CategoryDialog(CategoryListModel categoryModel, JTable ridesTable){
         this.categoryListModel = categoryModel;
         this.ridesTable = ridesTable;
@@ -92,29 +97,24 @@ public class CategoryDialog extends EntityDialog<Category> {
     private void deleteSelectedCategory() {
         RidesTableModel ridesTableModel = (RidesTableModel) ridesTable.getModel();
         int[] rows = categoryTable.getSelectedRows();
-        for(int i = rows.length - 1; i >= 0; i--){
-            int modelIndex = categoryTable.convertRowIndexToModel(rows[i]);
-            Category category = categoryTableModel.getEntity(modelIndex);
-            boolean used = false;
-            for(int j = 0; j < ridesTableModel.getRowCount(); j++){
-                if(ridesTableModel.getEntity(j).getCategory() == category){
-                    used = true;
-                    break;
-                }
+        for (int i = rows.length - 1; i >= 0; i--) {
+            if (categoryListModel.getSize() == 1) {
+                JOptionPane.showMessageDialog(null,
+                        "There has to be at least one category.", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+                continue;
             }
+            var row = rows[i];
+            int modelIndex = categoryTable.convertRowIndexToModel(row);
+            Category category = categoryTableModel.getEntity(modelIndex);
+            boolean used = ridesTableModel.getAllRides().stream().anyMatch(ride -> ride.getCategory() == category);
             if(used){
                 JOptionPane.showMessageDialog(null,
                         "The category: \"" + category.getName() + "\" is being used.", "Warning",
                         JOptionPane.WARNING_MESSAGE);
+                continue;
             }
-            else if(categoryListModel.getSize() == 1) {
-                JOptionPane.showMessageDialog(null,
-                        "There has to be at least one category.", "Warning",
-                        JOptionPane.WARNING_MESSAGE);
-            }
-            else{
-                    categoryTableModel.deleteRow(modelIndex);
-                }
+            categoryTableModel.deleteRow(modelIndex);
         }
         categoryTableModel.fireTableDataChanged();
     }

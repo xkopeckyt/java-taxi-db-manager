@@ -13,17 +13,20 @@ import java.util.List;
 import java.util.Map;
 
 public class CategoryTableModel extends AbstractTableModel {
-    private final CategoryListModel categoryModel;
     private static final Map<Class<?>, Comparator<?>> COMPARATORS = Map.ofEntries(
-            Map.entry(long.class, new LongComparator()),
             Map.entry(String.class, new StringComparator())
     );
     private static final List<Column<Category, ?>> COLUMNS = List.of(
             Column.readonly("Name", String.class, Category::getName)
     );
+    private static final float[] columnWidthPercentage = {0.05f, 0.8f};
+
+    private final CategoryListModel categoryModel;
+
     public CategoryTableModel(CategoryListModel categoryModel){
         this.categoryModel = categoryModel;
     }
+
     public TableColumnModel getColumnModel() {
         var tableColumnModel = new DefaultTableColumnModel();
         for (int i = 0; i < COLUMNS.size(); i++) {
@@ -72,7 +75,7 @@ public class CategoryTableModel extends AbstractTableModel {
             column.setPreferredWidth(pWidth);
         }
     }
-    float[] columnWidthPercentage = {0.05f, 0.8f};
+
     @Override
     public int getRowCount() {
         return categoryModel.getSize();

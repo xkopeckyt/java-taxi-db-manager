@@ -7,7 +7,10 @@ import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JTable;
+import javax.swing.ListModel;
+import javax.swing.KeyStroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Map;
@@ -33,8 +36,8 @@ public class EditRideAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         var ridesTableModel = (RidesTableModel)ridesTable.getModel();
         Ride ride = ridesTableModel.getEntity(ridesTable.getSelectedRow());
-        var result = RideDialog.showDialog("New Ride", ride, categoryListModel, licence, templates, false);
-        if (result.isPresent() && licence.checkDate(result.get().getDateTime().toLocalDate())) {
+        var result = RideDialog.showDialog("Edit Ride", ride, categoryListModel, licence, templates, false);
+        if (result.isPresent() && licence.checkDate(result.get().getRideDateTime().toLocalDate())) {
             // Update the ride in the table model
             ridesTableModel.updateRow(result.get());
         }

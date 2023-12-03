@@ -27,7 +27,7 @@ public class RideDetailDialog extends EntityDialog <Ride> {
         currencyField.setEditable(false);
         distanceField.setText(String.valueOf(ride.getDistance()));
         distanceField.setEditable(false);
-        dateTimeField.setText(String.valueOf(ride.getDateTime()));
+        dateTimeField.setText(String.valueOf(ride.getRideDateTime()));
         dateTimeField.setEditable(false);
         categoryField.setText(String.valueOf(ride.getCategory()));
         categoryField.setEditable(false);

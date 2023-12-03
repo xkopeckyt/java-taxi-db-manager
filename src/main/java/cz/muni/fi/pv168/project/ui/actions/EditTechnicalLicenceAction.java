@@ -25,24 +25,22 @@ public class EditTechnicalLicenceAction extends AbstractAction {
         this.label = new JLabel("DRIVING LICENCE IS NOT VALID TODAY!!! UPDATE YOUR LICENCE!!!", SwingConstants.CENTER);
         label.setForeground(Color.RED);
 
-        if (!drivingLicence.getValid()) {
+        if (!drivingLicence.isValid()) {
             addLabel(label);
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        boolean oldValidation = drivingLicence.getValid();
+        boolean oldValidation = drivingLicence.isValid();
         var dialog = new DrivingLicenceDialog(drivingLicence);
         var result = dialog.show(new JTable(), "Update driving licence", OK_CANCEL_OPTION, null);
 
         if (result.isPresent()) {
             drivingLicence.setTo(result.get());
-            if (oldValidation && !drivingLicence.checkLicence()) {
-                drivingLicence.setValid(drivingLicence.checkLicence());
+            if (oldValidation && !drivingLicence.isValid()) {
                 addLabel(label);
-            } else if (!oldValidation && drivingLicence.checkLicence()) {
-                drivingLicence.setValid(drivingLicence.checkLicence());
+            } else if (!oldValidation && drivingLicence.isValid()) {
                 removeLabel(label);
             }
         }

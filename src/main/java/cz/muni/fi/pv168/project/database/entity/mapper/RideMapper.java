@@ -42,7 +42,7 @@ public class RideMapper {
 
         return new RideEntity(
                 ride.getDistance(),
-                ride.getDateTime(),
+                ride.getRideDateTime(),
                 ride.getPrice(),
                 ride.getOriginalCurrency(),
                 categoryEntity.id(),
@@ -59,7 +59,7 @@ public class RideMapper {
         return new RideEntity(
                 id,
                 ride.getDistance(),
-                ride.getDateTime(),
+                ride.getRideDateTime(),
                 ride.getPrice(),
                 ride.getOriginalCurrency(),
                 categoryEntity.id(),
