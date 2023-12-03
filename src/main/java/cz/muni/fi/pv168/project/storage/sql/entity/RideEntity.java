@@ -1,4 +1,4 @@
-package cz.muni.fi.pv168.project.database.entity;
+package cz.muni.fi.pv168.project.storage.sql.entity;
 
 import cz.muni.fi.pv168.project.model.Currency;
 
@@ -13,7 +13,8 @@ public record RideEntity(
         BigDecimal price,
         Currency originalCurrency,
         int categoryId,
-        int passengersCount) {
+        int passengersCount,
+        String guid) {
 
     public RideEntity(
             Integer id,
@@ -22,7 +23,8 @@ public record RideEntity(
             BigDecimal price,
             Currency originalCurrency,
             int categoryId,
-            int passengersCount) {
+            int passengersCount,
+            String guid) {
         this.id = id;
         this.distance = distance;
         this.dateTime = Objects.requireNonNull(dateTime, "dateTime cannot be null");
@@ -30,6 +32,7 @@ public record RideEntity(
         this.originalCurrency = Objects.requireNonNull(originalCurrency, "originalCurrency cannot be null");
         this.categoryId = categoryId;
         this.passengersCount = passengersCount;
+        this.guid = Objects.requireNonNull(guid, "guid must not be null");
     }
 
     public RideEntity(
@@ -38,7 +41,8 @@ public record RideEntity(
             BigDecimal price,
             Currency originalCurrency,
             int categoryId,
-            int passengersCount) {
-        this(null, distance, dateTime, price, originalCurrency, categoryId, passengersCount);
+            int passengersCount,
+            String guid) {
+        this(null, distance, dateTime, price, originalCurrency, categoryId, passengersCount, guid);
     }
 }

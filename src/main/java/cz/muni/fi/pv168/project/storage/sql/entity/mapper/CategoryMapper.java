@@ -1,12 +1,13 @@
-package cz.muni.fi.pv168.project.database.entity.mapper;
+package cz.muni.fi.pv168.project.storage.sql.entity.mapper;
 
-import cz.muni.fi.pv168.project.database.entity.CategoryEntity;
+import cz.muni.fi.pv168.project.storage.sql.entity.CategoryEntity;
 import cz.muni.fi.pv168.project.model.Category;
 
 public class CategoryMapper {
     public Category mapToBusiness(CategoryEntity entity) {
         return new Category(
-                entity.name()
+                entity.name(),
+                entity.guid()
         );
     }
 
@@ -21,7 +22,8 @@ public class CategoryMapper {
     private static CategoryEntity getCategoryEntity(Category category, Integer id) {
         return new CategoryEntity(
                 id,
-                category.getName()
+                category.getName(),
+                category.getGuid()
         );
     }
 }
