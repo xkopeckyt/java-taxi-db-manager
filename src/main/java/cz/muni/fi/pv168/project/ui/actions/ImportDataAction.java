@@ -1,6 +1,9 @@
 package cz.muni.fi.pv168.project.ui.actions;
 
-import cz.muni.fi.pv168.project.business.service.export.ImportService;
+import cz.muni.fi.pv168.project.ui.export.ImportService;
+import cz.muni.fi.pv168.project.ui.export.batch.BatchImporter;
+import cz.muni.fi.pv168.project.ui.export.batch.BatchOperationException;
+import cz.muni.fi.pv168.project.ui.export.format.FormatMapping;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
@@ -34,11 +37,18 @@ public class ImportDataAction extends AbstractAction {
         String importMessage;
         if (dialogResult == JFileChooser.APPROVE_OPTION) {
             File importFile = fileChooser.getSelectedFile();
-
-            importService.importData(importFile.getAbsolutePath());
             importMessage = "Import was done";
+            try {
+                importService.importData(importFile.getAbsolutePath());
+            } catch (BatchOperationException ex) {
+                importMessage = "Import was unsuccessful because wrong file format was chosen.";
+            } catch (ArrayIndexOutOfBoundsException ex) {
+                importMessage = "Data in .csv file are not correctly formatted";
+            } catch (Exception ex) {
+                importMessage = "Data was not imported due to unknown error";
+            }
         } else {
-            importMessage = "Could not import that file";
+            importMessage = "Import was cancelled";
         }
         JOptionPane.showMessageDialog(parent, importMessage);
     }
