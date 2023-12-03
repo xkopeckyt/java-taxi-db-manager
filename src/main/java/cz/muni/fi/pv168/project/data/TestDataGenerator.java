@@ -2,6 +2,7 @@ package cz.muni.fi.pv168.project.data;
 
 import cz.muni.fi.pv168.project.model.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -20,7 +21,7 @@ public class TestDataGenerator {
     private static final UuidGuidProvider provider = new UuidGuidProvider();
     private static final Random random = new Random(2L);
     private static final LocalDate MIN_DATE = LocalDate.of(2020, JANUARY, 1);
-    private static final LocalDate MAX_DATE = LocalDate.of(2025, DECEMBER, 31);
+    private static final LocalDate MAX_DATE = LocalDate.now(); //LocalDate.of(2025, DECEMBER, 31);
     private static final int MAX_DISTANCE = 200;
     private static final int MAX_PRICE = 200;
     private static final int MAX_PASSENGERS = 15;
@@ -37,8 +38,8 @@ public class TestDataGenerator {
 
     public Ride createTestRide() {
         Currency currency = selectRandom(Arrays.stream(Currency.values()).toList());
-        float distance = random.nextFloat(MAX_DISTANCE+1);
-        float price = random.nextFloat(MAX_PRICE+1);
+        BigDecimal distance = BigDecimal.valueOf(random.nextFloat(MAX_DISTANCE+1));
+        BigDecimal price = BigDecimal.valueOf(random.nextFloat(MAX_PRICE+1));
         int passengersCount = random.nextInt(1, MAX_PASSENGERS+1);
         LocalDateTime dateTime = selectRandomLocalDateTime(MIN_DATE, MAX_DATE);
         Category category = selectRandom(CATEGORIES);
@@ -57,8 +58,7 @@ public class TestDataGenerator {
     }
 
     public DrivingLicence createTestDrivingLicence() {
-        LocalDate to = selectRandomLocalDateTime(MIN_DATE, MAX_DATE).toLocalDate();
-        return new DrivingLicence(to);
+        return new DrivingLicence(MAX_DATE);
     }
 
     private <T> T selectRandom(List<T> data) {

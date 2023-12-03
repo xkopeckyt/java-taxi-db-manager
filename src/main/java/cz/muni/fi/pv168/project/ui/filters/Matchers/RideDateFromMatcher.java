@@ -13,7 +13,7 @@ public class RideDateFromMatcher extends EntityMatcher<Ride> {
 
     @Override
     public boolean evaluate(Ride ride) {
-        var dateTime = ride.getDateTime();
+        var dateTime = ride.getRideDateTime();
         return dateTime.isAfter(dateFrom) || dateTime.isEqual(dateFrom);
     }
 }

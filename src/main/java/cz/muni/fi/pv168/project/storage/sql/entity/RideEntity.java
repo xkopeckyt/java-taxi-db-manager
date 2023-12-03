@@ -2,14 +2,15 @@ package cz.muni.fi.pv168.project.storage.sql.entity;
 
 import cz.muni.fi.pv168.project.model.Currency;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public record RideEntity(
         Integer id,
-        float distance,
+        BigDecimal distance,
         LocalDateTime dateTime,
-        float price,
+        BigDecimal price,
         Currency originalCurrency,
         int categoryId,
         int passengersCount,
@@ -17,9 +18,9 @@ public record RideEntity(
 
     public RideEntity(
             Integer id,
-            float distance,
+            BigDecimal distance,
             LocalDateTime dateTime,
-            float price,
+            BigDecimal price,
             Currency originalCurrency,
             int categoryId,
             int passengersCount,
@@ -35,9 +36,9 @@ public record RideEntity(
     }
 
     public RideEntity(
-            float distance,
+            BigDecimal distance,
             LocalDateTime dateTime,
-            float price,
+            BigDecimal price,
             Currency originalCurrency,
             int categoryId,
             int passengersCount,

@@ -42,10 +42,10 @@ public class CsvExporter implements BatchExporter {
     private String serializeRide(Ride ride) {
         return String.join(SEPARATOR,
                 ride.getGuid(),
-                ride.getDateTime().toString(),
-                Float.toString(ride.getDistance()),
+                ride.getRideDateTime().toString(),
+                ride.getDistance().toString(),
                 Integer.toString(ride.getPassengersCount()),
-                Float.toString(ride.getPrice()),
+                ride.getPrice().toString(),
                 ride.getOriginalCurrency().toString(),
                 ride.getCategory().toString(),
                 ride.getCategory().getGuid());
