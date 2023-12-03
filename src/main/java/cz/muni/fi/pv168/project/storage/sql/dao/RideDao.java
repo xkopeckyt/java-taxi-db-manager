@@ -27,9 +27,9 @@ public class RideDao implements DataAccessObject<RideEntity>{
                 var statement = connection.use().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setLong(1, newRide.id());
-            statement.setFloat(2, newRide.distance());
+            statement.setBigDecimal(2, newRide.distance());
             statement.setTimestamp(3, Timestamp.valueOf(newRide.dateTime()));
-            statement.setFloat(4, newRide.price());
+            statement.setBigDecimal(4, newRide.price());
             statement.setString(5, newRide.originalCurrency().toString());
             statement.setInt(6, newRide.categoryId());
             statement.setInt(7, newRide.passengersCount());
@@ -71,9 +71,9 @@ public class RideDao implements DataAccessObject<RideEntity>{
                 var connection = connections.get();
                 var statement = connection.use().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
-            statement.setFloat(1, entity.distance());
+            statement.setBigDecimal(1, entity.distance());
             statement.setTimestamp(2, Timestamp.valueOf(entity.dateTime()));
-            statement.setFloat(3, entity.price());
+            statement.setBigDecimal(3, entity.price());
             statement.setString(4, entity.originalCurrency().toString());
             statement.setInt(5, entity.categoryId());
             statement.setInt(6, entity.passengersCount());
@@ -242,9 +242,9 @@ public class RideDao implements DataAccessObject<RideEntity>{
     private static RideEntity rideFromResultSet(ResultSet resultSet) throws SQLException{
         return new RideEntity(
                 resultSet.getInt("id"),
-                resultSet.getFloat("distance"),
+                resultSet.getBigDecimal("distance"),
                 resultSet.getTimestamp("dateTime").toLocalDateTime(),
-                resultSet.getFloat("price"),
+                resultSet.getBigDecimal("price"),
                 Currency.valueOf(resultSet.getString("originalCurrency")),
                 resultSet.getInt("categoryId"),
                 resultSet.getInt("passengersCount"),
