@@ -58,6 +58,14 @@ public final class RidesTableFilter {
         ridesCompoundMatcher.setDateToMatcher(new RideDateToMatcher(selectedItem));
     }
 
+    public void filterPriceFrom(Float selectedItem) {
+        ridesCompoundMatcher.setPriceFromMatcher(new RidePriceFromMatcher(selectedItem));
+    }
+
+    public void filterPriceTo(Float selectedItem) {
+        ridesCompoundMatcher.setPriceToMatcher(new RidePriceToMatcher(selectedItem));
+    }
+
     private static class RidesCompoundMatcher extends EntityMatcher<Ride> {
 
         private final TableRowSorter<RidesTableModel> rowSorter;
@@ -67,6 +75,8 @@ public final class RidesTableFilter {
         private EntityMatcher<Ride> distanceToMatcher = EntityMatchers.all();
         private EntityMatcher<Ride> dateFromMatcher = EntityMatchers.all();
         private EntityMatcher<Ride> dateToMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> priceFromMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> priceToMatcher = EntityMatchers.all();
 
         private RidesCompoundMatcher(TableRowSorter<RidesTableModel> rowSorter) {
             this.rowSorter = rowSorter;
@@ -102,10 +112,21 @@ public final class RidesTableFilter {
             rowSorter.sort();
         }
 
+        public void setPriceFromMatcher(EntityMatcher<Ride> priceFromMatcher){
+            this.priceFromMatcher = priceFromMatcher;
+            rowSorter.sort();
+        }
+
+        public void setPriceToMatcher(EntityMatcher<Ride> priceToMatcher){
+            this.priceToMatcher = priceToMatcher;
+            rowSorter.sort();
+        }
+
         @Override
         public boolean evaluate(Ride ride) {
             return Stream.of(currencyMatcher, categoryMatcher, distanceFromMatcher,
-                            distanceToMatcher, dateFromMatcher, dateToMatcher)
+                            distanceToMatcher, dateFromMatcher, dateToMatcher,
+                            priceFromMatcher, priceToMatcher)
                     .allMatch(m -> m.evaluate(ride));
         }
     }

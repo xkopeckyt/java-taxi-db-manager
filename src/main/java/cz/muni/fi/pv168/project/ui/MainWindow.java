@@ -120,8 +120,8 @@ public class MainWindow {
     }
 
     private void setActionListeners(RidesTableFilter ridesTableFilter, JTextField distanceFrom, JTextField distanceTo,
-                                    JDateTimePicker dateFrom, JDateTimePicker dateTo,
-                                    JTable ridesTable, JPanel statisticsPanel) {
+                                    JDateTimePicker dateFrom, JDateTimePicker dateTo, JTextField priceFrom,
+                                    JTextField priceTo, JTable ridesTable, JPanel statisticsPanel) {
         distanceFrom.addActionListener(e -> {
             var distanceFromText = distanceFrom.getText();
             if (!distanceFromText.isEmpty()) {
@@ -153,9 +153,30 @@ public class MainWindow {
             ridesTableFilter.filterDateTo(Objects.requireNonNullElseGet(dateTime, () -> LocalDateTime.MAX.minusDays(1)));
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
+
+        priceFrom.addActionListener(e -> {
+            var priceFromText = priceFrom.getText();
+            if (!priceFromText.isEmpty()) {
+                ridesTableFilter.filterPriceFrom(Float.parseFloat(priceFromText));
+            } else {
+                ridesTableFilter.filterPriceFrom(Float.MIN_VALUE);
+            }
+            updateStatisticsPanel(statisticsPanel, ridesTable, false);
+        });
+
+        priceTo.addActionListener(e -> {
+            var priceToText = priceTo.getText();
+            if (!priceToText.isEmpty()) {
+                ridesTableFilter.filterPriceTo(Float.parseFloat(priceToText));
+            } else {
+                ridesTableFilter.filterPriceTo(Float.MAX_VALUE);
+            }
+            updateStatisticsPanel(statisticsPanel, ridesTable, false);
+        });
     }
 
-    private void setFocusListeners(JTextField distanceFrom, JTextField distanceTo) {
+    private void setFocusListeners(JTextField distanceFrom, JTextField distanceTo,
+                                   JTextField priceFrom, JTextField priceTo) {
         var textFocusListener = new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -171,11 +192,14 @@ public class MainWindow {
 
         distanceFrom.addFocusListener(textFocusListener);
         distanceTo.addFocusListener(textFocusListener);
+        priceFrom.addFocusListener(textFocusListener);
+        priceTo.addFocusListener(textFocusListener);
     }
 
 
     public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox currency,
-                              JDateTimePicker dateFrom, JDateTimePicker dateTo, JList category) {
+                              JDateTimePicker dateFrom, JDateTimePicker dateTo,
+                              JTextField priceFrom, JTextField priceTo, JList category) {
         distanceFrom.setText(null);
         distanceFrom.postActionEvent();
         distanceTo.setText(null);
@@ -184,6 +208,10 @@ public class MainWindow {
         category.setSelectedIndex(0);
         dateFrom.resetPicker();
         dateTo.resetPicker();
+        priceFrom.setText(null);
+        priceFrom.postActionEvent();
+        priceTo.setText(null);
+        priceTo.postActionEvent();
     }
     private static JComboBox<Either<SpecialCurrencyValues, Currency>> createCurrencyFilter(
             RidesTableFilter ridesTableFilter, JTable ridesTable, JPanel statisticsPanel) {
@@ -374,34 +402,43 @@ public class MainWindow {
         var distanceToFilter = new JTextField();
         var dateFromPicker = new JDateTimePicker();
         var dateToPicker = new JDateTimePicker();
+        var priceFromFilter = new JTextField();
+        var priceToFilter = new JTextField();
         var resetFiltersButton = new JButton("Reset Filters");
 
         distanceFromFilter.setPreferredSize(new Dimension(60,20));
         distanceToFilter.setPreferredSize(new Dimension(60, 20));
         dateFromPicker.setPreferredSize(new Dimension(140, 20));
         dateToPicker.setPreferredSize(new Dimension(140, 20));
+        priceFromFilter.setPreferredSize(new Dimension(60,20));
+        priceToFilter.setPreferredSize(new Dimension(60, 20));
         scroll.setPreferredSize(new Dimension(140, 60));
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromPicker, dateToPicker,
-                ridesTable, statisticsPanel);
-        setFocusListeners(distanceFromFilter, distanceToFilter);
+                priceFromFilter, priceToFilter, ridesTable, statisticsPanel);
+        setFocusListeners(distanceFromFilter, distanceToFilter, priceFromFilter, priceToFilter);
         resetFiltersButton.addActionListener(e ->
         {
             resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
-                    dateFromPicker, dateToPicker, categoryFilter);
+                    dateFromPicker, dateToPicker, priceFromFilter, priceToFilter,
+                    categoryFilter);
             dateFromPicker.setLocalDateTime(null);
             dateToPicker.setLocalDateTime(null);
         });
 
         gbc.gridy = 1;
         toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
-                new JLabel("Date to:"), dateToPicker,
+                new JLabel("to:"), dateToPicker,
                 new JLabel("Category:"), scroll), gbc);
 
         gbc.gridy = 2;
         toolbarPanel.add(createFilterToolbar(new JLabel("Distance from:"), distanceFromFilter,
-                new JLabel("Distance to:"), distanceToFilter,
-                new JLabel("Currency:"), currencyFilter, resetFiltersButton), gbc);
+                new JLabel("to:"), distanceToFilter,
+                new JLabel("Currency:"), currencyFilter), gbc);
+        gbc.gridy = 3;
+        toolbarPanel.add(createFilterToolbar(new JLabel("Price from:"), priceFromFilter,
+                new JLabel("to:"), priceToFilter,
+                resetFiltersButton), gbc);
 
         return toolbarPanel;
     }
