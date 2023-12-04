@@ -7,17 +7,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 
-/**
- * Connection handler which is aware of active transaction on managed connection
- */
 class ConnectionHandlerImpl implements ConnectionHandler {
 
     private final Connection connection;
 
-    /**
-     * Creates new handler over given connection
-     * @param connection database connection
-     */
     ConnectionHandlerImpl(Connection connection) {
         this.connection = Objects.requireNonNull(connection, "Missing connection object");
     }
@@ -31,7 +24,6 @@ class ConnectionHandlerImpl implements ConnectionHandler {
     public void close() {
         try {
             if (connection.getAutoCommit()) {
-                // Not transaction, connection can be closed
                 connection.close();
             }
         } catch (SQLException e) {
