@@ -67,7 +67,7 @@ public final class RidesTableFilter {
     }
 
     public void filterPassengerFromCount(int selectedItem) {
-        ridesCompoundMatcher.setPassengerCountFromMatcher(new RidePassengerCuntFromMatcher(selectedItem));
+        ridesCompoundMatcher.setPassengerCountFromMatcher(new RidePassengerCountFromMatcher(selectedItem));
     }
 
     public void filterPassengerToCount(int selectedItem) {
