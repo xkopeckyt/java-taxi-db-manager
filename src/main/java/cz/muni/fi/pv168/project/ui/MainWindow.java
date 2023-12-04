@@ -38,9 +38,9 @@ import java.util.*;
 import java.util.List;
 
 public class MainWindow {
-    private static final int WIDTH = 670;
+    private static final int WIDTH = 950;
     private static final int HEIGHT = 600;
-    private static final int MIN_WIDTH = 670;
+    private static final int MIN_WIDTH = 950;
     private static final int MIN_HEIGHT = 400;
     private final JFrame frame;
     private final Action newRideAction;
@@ -115,7 +115,6 @@ public class MainWindow {
 
         frame.add(createToolBar(ridesTable, categoryListModel, statisticsPanel, actionToolbar), BorderLayout.BEFORE_FIRST_LINE);
         frame.add(tabbedPane, BorderLayout.CENTER);
-
         frame.pack();
     }
 
@@ -428,16 +427,15 @@ public class MainWindow {
 
         gbc.gridy = 1;
         toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
-                new JLabel("to:"), dateToPicker,
-                new JLabel("Category:"), scroll), gbc);
+                new JLabel("Date to:"), dateToPicker,
+                new JLabel("Category:"), scroll,
+                new JLabel("Currency:"), currencyFilter), gbc);
 
         gbc.gridy = 2;
         toolbarPanel.add(createFilterToolbar(new JLabel("Distance from:"), distanceFromFilter,
-                new JLabel("to:"), distanceToFilter,
-                new JLabel("Currency:"), currencyFilter), gbc);
-        gbc.gridy = 3;
-        toolbarPanel.add(createFilterToolbar(new JLabel("Price from:"), priceFromFilter,
-                new JLabel("to:"), priceToFilter,
+                new JLabel("Distance to:"), distanceToFilter,
+                new JLabel("Price from:"), priceFromFilter,
+                new JLabel("Price to:"), priceToFilter,
                 resetFiltersButton), gbc);
 
         return toolbarPanel;
