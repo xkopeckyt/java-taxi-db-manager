@@ -119,8 +119,8 @@ public class MainWindow {
     }
 
     private void setActionListeners(RidesTableFilter ridesTableFilter, JTextField distanceFrom, JTextField distanceTo,
-                                    JDateTimePicker dateFrom, JDateTimePicker dateTo, JTextField priceFrom,
-                                    JTextField priceTo, JTable ridesTable, JPanel statisticsPanel) {
+                                    JDateTimePicker dateFrom, JDateTimePicker dateTo, JTextField priceFrom, JTextField priceTo,
+                                    JTable ridesTable, JPanel statisticsPanel, JSpinner countFrom, JSpinner countTo) {
         distanceFrom.addActionListener(e -> {
             var distanceFromText = distanceFrom.getText();
             if (!distanceFromText.isEmpty()) {
@@ -172,6 +172,9 @@ public class MainWindow {
             }
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
+
+        countFrom.addChangeListener(e -> ridesTableFilter.filterPassengerFromCount((int) countFrom.getValue()));
+        countTo.addChangeListener(e -> ridesTableFilter.filterPassengerToCount((int) countTo.getValue()));
     }
 
     private void setFocusListeners(JTextField distanceFrom, JTextField distanceTo,
@@ -197,8 +200,8 @@ public class MainWindow {
 
 
     public void resetFilters (JTextField distanceFrom, JTextField distanceTo, JComboBox currency,
-                              JDateTimePicker dateFrom, JDateTimePicker dateTo,
-                              JTextField priceFrom, JTextField priceTo, JList category) {
+                              JDateTimePicker dateFrom, JDateTimePicker dateTo, JTextField priceFrom,
+                              JTextField priceTo, JList category, JSpinner countFrom, JSpinner countTo) {
         distanceFrom.setText(null);
         distanceFrom.postActionEvent();
         distanceTo.setText(null);
@@ -211,6 +214,8 @@ public class MainWindow {
         priceFrom.postActionEvent();
         priceTo.setText(null);
         priceTo.postActionEvent();
+        countFrom.setValue(0);
+        countTo.setValue(Integer.MAX_VALUE);
     }
     private static JComboBox<Either<SpecialCurrencyValues, Currency>> createCurrencyFilter(
             RidesTableFilter ridesTableFilter, JTable ridesTable, JPanel statisticsPanel) {
@@ -403,6 +408,8 @@ public class MainWindow {
         var dateToPicker = new JDateTimePicker();
         var priceFromFilter = new JTextField();
         var priceToFilter = new JTextField();
+        var passengerCountFromFilter = new JSpinner();
+        var passengerCountToFilter = new JSpinner();
         var resetFiltersButton = new JButton("Reset Filters");
 
         distanceFromFilter.setPreferredSize(new Dimension(60,20));
@@ -412,15 +419,18 @@ public class MainWindow {
         priceFromFilter.setPreferredSize(new Dimension(60,20));
         priceToFilter.setPreferredSize(new Dimension(60, 20));
         scroll.setPreferredSize(new Dimension(140, 60));
+        passengerCountFromFilter.setPreferredSize(new Dimension(60, 20));
+        passengerCountToFilter.setPreferredSize(new Dimension(60, 20));
+        passengerCountToFilter.setValue(Integer.MAX_VALUE);
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromPicker, dateToPicker,
-                priceFromFilter, priceToFilter, ridesTable, statisticsPanel);
+                priceFromFilter, priceToFilter, ridesTable, statisticsPanel, passengerCountFromFilter, passengerCountToFilter);
         setFocusListeners(distanceFromFilter, distanceToFilter, priceFromFilter, priceToFilter);
         resetFiltersButton.addActionListener(e ->
         {
             resetFilters(distanceFromFilter, distanceToFilter, currencyFilter,
                     dateFromPicker, dateToPicker, priceFromFilter, priceToFilter,
-                    categoryFilter);
+                    categoryFilter, passengerCountFromFilter, passengerCountToFilter);
             dateFromPicker.setLocalDateTime(null);
             dateToPicker.setLocalDateTime(null);
         });
@@ -429,14 +439,16 @@ public class MainWindow {
         toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
                 new JLabel("Date to:"), dateToPicker,
                 new JLabel("Category:"), scroll,
-                new JLabel("Currency:"), currencyFilter), gbc);
+                new JLabel("Currency:"), currencyFilter,
+                resetFiltersButton), gbc);
 
         gbc.gridy = 2;
         toolbarPanel.add(createFilterToolbar(new JLabel("Distance from:"), distanceFromFilter,
                 new JLabel("Distance to:"), distanceToFilter,
                 new JLabel("Price from:"), priceFromFilter,
                 new JLabel("Price to:"), priceToFilter,
-                resetFiltersButton), gbc);
+                new JLabel("Passengers from:"), passengerCountFromFilter,
+                new JLabel("Passengers to:"), passengerCountToFilter), gbc);
 
         return toolbarPanel;
     }

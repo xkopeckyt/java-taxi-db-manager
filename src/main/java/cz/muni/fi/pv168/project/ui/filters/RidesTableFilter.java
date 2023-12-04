@@ -66,6 +66,14 @@ public final class RidesTableFilter {
         ridesCompoundMatcher.setPriceToMatcher(new RidePriceToMatcher(selectedItem));
     }
 
+    public void filterPassengerFromCount(int selectedItem) {
+        ridesCompoundMatcher.setPassengerCountFromMatcher(new RidePassengerCuntFromMatcher(selectedItem));
+    }
+
+    public void filterPassengerToCount(int selectedItem) {
+        ridesCompoundMatcher.setPassengerCountToMatcher(new RidePassengerCountToMatcher(selectedItem));
+    }
+
     private static class RidesCompoundMatcher extends EntityMatcher<Ride> {
 
         private final TableRowSorter<RidesTableModel> rowSorter;
@@ -77,6 +85,8 @@ public final class RidesTableFilter {
         private EntityMatcher<Ride> dateToMatcher = EntityMatchers.all();
         private EntityMatcher<Ride> priceFromMatcher = EntityMatchers.all();
         private EntityMatcher<Ride> priceToMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> passengerCountFromMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> passengerCountToMatcher = EntityMatchers.all();
 
         private RidesCompoundMatcher(TableRowSorter<RidesTableModel> rowSorter) {
             this.rowSorter = rowSorter;
@@ -122,11 +132,21 @@ public final class RidesTableFilter {
             rowSorter.sort();
         }
 
+        public void setPassengerCountFromMatcher(EntityMatcher<Ride> passengerCountFromMatcher) {
+            this.passengerCountFromMatcher = passengerCountFromMatcher;
+            rowSorter.sort();
+        }
+
+        public void setPassengerCountToMatcher(EntityMatcher<Ride> passengerCountToMatcher) {
+            this.passengerCountToMatcher = passengerCountToMatcher;
+            rowSorter.sort();
+        }
+
         @Override
         public boolean evaluate(Ride ride) {
             return Stream.of(currencyMatcher, categoryMatcher, distanceFromMatcher,
                             distanceToMatcher, dateFromMatcher, dateToMatcher,
-                            priceFromMatcher, priceToMatcher)
+                            priceFromMatcher, priceToMatcher, passengerCountFromMatcher, passengerCountToMatcher)
                     .allMatch(m -> m.evaluate(ride));
         }
     }
