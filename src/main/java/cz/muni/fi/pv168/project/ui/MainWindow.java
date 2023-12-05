@@ -74,7 +74,7 @@ public class MainWindow {
         showRideAction = new ShowRideAction(ridesPanel.getTable());
         editRideAction = new EditRideAction(ridesPanel.getTable(), categoryListModel, licence, templates);
         deleteRideAction = new DeleteRideAction(ridesPanel.getTable());
-        importDataAction = new ImportDataAction(ridesTableModel, dependencyProvider.getImportService(), ridesPanel.getTable());
+        importDataAction = new ImportDataAction(ridesTableModel, dependencyProvider.getImportService(), this::refresh);
         exportDataAction = new ExportDataAction(ridesPanel.getTable(), dependencyProvider.getExportService());
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
         editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesPanel.getTable());

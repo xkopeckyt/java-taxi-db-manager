@@ -63,7 +63,7 @@ public class CsvImporter implements BatchImporter {
                 Currency.valueOf(ride[5]),
                 category,
                 Integer.parseInt(ride[3]),
-                ride[6]
+                ride[0]
         );
     }
 

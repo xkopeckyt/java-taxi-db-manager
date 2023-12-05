@@ -1,6 +1,9 @@
 package cz.muni.fi.pv168.project.ui.actions;
 
 import cz.muni.fi.pv168.project.business.service.export.ImportService;
+import cz.muni.fi.pv168.project.business.service.export.batch.BatchImporter;
+import cz.muni.fi.pv168.project.business.service.export.batch.BatchOperationException;
+import cz.muni.fi.pv168.project.business.service.export.format.FormatMapping;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
@@ -13,14 +16,14 @@ import java.io.File;
 public class ImportDataAction extends AbstractAction {
     private final RidesTableModel ridesTableModel;
     private final ImportService importService;
-    private final Component parent;
+    private final Runnable callabck;
 
 
-    public ImportDataAction(RidesTableModel ridesTableModel, ImportService importService, Component parent) {
+    public ImportDataAction(RidesTableModel ridesTableModel, ImportService importService, Runnable callabck) {
         super("Import Data", Icons.IMPORT_ICON);
         this.ridesTableModel = ridesTableModel;
         this.importService = importService;
-        this.parent = parent;
+        this.callabck = callabck;
         putValue(SHORT_DESCRIPTION, "Import rides");
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);
     }
@@ -30,16 +33,24 @@ public class ImportDataAction extends AbstractAction {
         var fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 
-        int dialogResult = fileChooser.showOpenDialog(parent);
+        int dialogResult = fileChooser.showOpenDialog(null);
         String importMessage;
         if (dialogResult == JFileChooser.APPROVE_OPTION) {
             File importFile = fileChooser.getSelectedFile();
-
-            importService.importData(importFile.getAbsolutePath());
             importMessage = "Import was done";
+            try {
+                importService.importData(importFile.getAbsolutePath());
+            } catch (BatchOperationException ex) {
+                importMessage = "Import was unsuccessful because wrong file format was chosen.";
+            } catch (ArrayIndexOutOfBoundsException ex) {
+                importMessage = "Data in .csv file are not correctly formatted";
+            } catch (Exception ex) {
+                importMessage = "Data was not imported due to unknown error";
+            }
         } else {
-            importMessage = "Could not import that file";
+            importMessage = "Import was cancelled";
         }
-        JOptionPane.showMessageDialog(parent, importMessage);
+        JOptionPane.showMessageDialog(null, importMessage);
+        callabck.run();
     }
 }
