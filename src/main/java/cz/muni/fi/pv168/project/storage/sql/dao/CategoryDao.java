@@ -3,6 +3,7 @@ package cz.muni.fi.pv168.project.storage.sql.dao;
 import cz.muni.fi.pv168.project.storage.DataStorageException;
 import cz.muni.fi.pv168.project.storage.sql.db.ConnectionHandler;
 import cz.muni.fi.pv168.project.storage.sql.entity.CategoryEntity;
+import org.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,15 +22,14 @@ public class CategoryDao implements DataAccessObject<CategoryEntity>{
 
     @Override
     public CategoryEntity create(CategoryEntity newCategory) {
-        var sql = "INSERT INTO Category (id, name, guid) VALUES (?, ?);";
+        var sql = "INSERT INTO Category (name, guid) VALUES (?, ?);";
 
         try (
                 var connection = connections.get();
                 var statement = connection.use().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
-            statement.setInt(1, newCategory.id());
-            statement.setString(2, newCategory.name());
-            statement.setString(3, newCategory.guid());
+            statement.setString(1, newCategory.name());
+            statement.setString(2, newCategory.guid());
             statement.executeUpdate();
 
             try (ResultSet keyResultSet = statement.getGeneratedKeys()) {
@@ -43,8 +43,9 @@ public class CategoryDao implements DataAccessObject<CategoryEntity>{
                 if (keyResultSet.next()) {
                     throw new DataStorageException("Multiple keys returned for: " + newCategory);
                 }
-
-                return findById(categoryId).orElseThrow();
+                var category = findById(categoryId).orElseThrow();
+                Logger.debug(category.toString());
+                return category;
             }
         } catch (SQLException ex) {
             throw new DataStorageException("Failed to store: " + newCategory, ex);
@@ -213,7 +214,7 @@ public class CategoryDao implements DataAccessObject<CategoryEntity>{
 
     private static CategoryEntity categoryFromResultSet(ResultSet resultSet) throws SQLException{
         return new CategoryEntity(
-                resultSet.getInt("id"),
+                resultSet.getLong("id"),
                 resultSet.getString("name"),
                 resultSet.getString("guid")
         );

@@ -1,14 +1,14 @@
 package cz.muni.fi.pv168.project.ui;
 
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Currency;
+import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.actions.*;
-import cz.muni.fi.pv168.project.ui.export.CsvImporter;
-import cz.muni.fi.pv168.project.ui.export.GenericExportService;
-import cz.muni.fi.pv168.project.ui.export.GenericImportService;
-import cz.muni.fi.pv168.project.ui.export.CsvExporter;
+import cz.muni.fi.pv168.project.business.service.export.CsvImporter;
+import cz.muni.fi.pv168.project.business.service.export.GenericExportService;
+import cz.muni.fi.pv168.project.business.service.export.GenericImportService;
+import cz.muni.fi.pv168.project.business.service.export.CsvExporter;
 import cz.muni.fi.pv168.project.ui.filters.RidesTableFilter;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
@@ -17,11 +17,13 @@ import cz.muni.fi.pv168.project.ui.filters.components.FilterListModelBuilder;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
+import cz.muni.fi.pv168.project.ui.panels.RideTablePanel;
 import cz.muni.fi.pv168.project.ui.renderers.CategoryRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.CurrencyRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.SpecialFilterCategoryValuesRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.SpecialFilterCurrencyValuesRenderer;
 import cz.muni.fi.pv168.project.util.Either;
+import cz.muni.fi.pv168.project.wiring.DependencyProvider;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -53,28 +55,33 @@ public class MainWindow {
     private final Action editTechnicalLicenceAction;
     private final Action editCategoriesAction;
     private final Action aboutApplicationAction;
+    private final Action quitAction;
+    private final Action nuclearQuitAction;
+    private final RidesTableModel ridesTableModel;
+    private final CategoryListModel categoryListModel;
     private final Map<String, Ride> templates = new HashMap<>();
 
-    public MainWindow() {
+    public MainWindow(DependencyProvider dependencyProvider) {
         frame = createFrame();
         var testDataGenerator = new TestDataGenerator();
-        var categoryListModel = new CategoryListModel(testDataGenerator.getCategories());
-        var ridesTableModel = new RidesTableModel(testDataGenerator.createTestRides(10));
-        var ridesTable = createRidesTable(ridesTableModel, categoryListModel);
+        this.categoryListModel = new CategoryListModel(dependencyProvider.getCategoryCrudService());
+        this.ridesTableModel = new RidesTableModel(dependencyProvider.getRideCrudService());
+        var ridesPanel = new RideTablePanel(ridesTableModel, categoryListModel, this::changeActionState);
         var licence = testDataGenerator.createTestDrivingLicence();
-        var exportService = new GenericExportService(ridesTableModel, List.of(new CsvExporter()));
-        var importService = new GenericImportService(ridesTableModel, categoryListModel,List.of(new CsvImporter()));
 
-        newRideAction = new NewRideAction(ridesTable, testDataGenerator, categoryListModel, licence, templates);
-        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesTable, categoryListModel, licence, testDataGenerator, templates);
-        showRideAction = new ShowRideAction(ridesTable);
-        editRideAction = new EditRideAction(ridesTable, categoryListModel, licence, templates);
-        deleteRideAction = new DeleteRideAction(ridesTable);
-        importDataAction = new ImportDataAction(ridesTableModel, importService, ridesTable);
-        exportDataAction = new ExportDataAction(ridesTable, exportService);
+        newRideAction = new NewRideAction(ridesPanel.getTable(), categoryListModel, licence, templates);
+        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesPanel.getTable(), categoryListModel, licence, templates);
+        showRideAction = new ShowRideAction(ridesPanel.getTable());
+        editRideAction = new EditRideAction(ridesPanel.getTable(), categoryListModel, licence, templates);
+        deleteRideAction = new DeleteRideAction(ridesPanel.getTable());
+        importDataAction = new ImportDataAction(ridesTableModel, dependencyProvider.getImportService(), ridesPanel.getTable());
+        exportDataAction = new ExportDataAction(ridesPanel.getTable(), dependencyProvider.getExportService());
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
-        editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesTable);
+        editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesPanel.getTable());
         aboutApplicationAction = new AboutApplicationAction();
+        quitAction = new QuitAction();
+        nuclearQuitAction = new NuclearQuitAction(dependencyProvider.getDatabaseManager());
+
         changeActionState(0);
 
         frame.setJMenuBar(createMenuBar());
@@ -82,11 +89,11 @@ public class MainWindow {
         var tabbedPane = new JTabbedPane();
 
         JPanel mainPanel = new JPanel(new GridLayout(1,1));
-        ridesTable.setComponentPopupMenu(createRidesTablePopupMenu());
-        mainPanel.add(new JScrollPane(ridesTable)); //, BorderLayout.CENTER
+        ridesPanel.getTable().setComponentPopupMenu(createRidesTablePopupMenu());
+        mainPanel.add(new JScrollPane(ridesPanel.getTable())); //, BorderLayout.CENTER
 
         JPanel secondaryPanel = new JPanel(new GridLayout(1,1));
-        JPanel statisticsPanel = createStatisticsPanel(ridesTable);
+        JPanel statisticsPanel = createStatisticsPanel(ridesPanel.getTable());
         secondaryPanel.add(statisticsPanel);
         ridesTableModel.addTableModelListener(new TableModelListener() {
             @Override
@@ -94,7 +101,7 @@ public class MainWindow {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        updateStatisticsPanel(statisticsPanel, ridesTable, true);
+                        updateStatisticsPanel(statisticsPanel, ridesPanel.getTable(), true);
                     }
                 });
             }
@@ -113,9 +120,14 @@ public class MainWindow {
         tabbedPane.addTab("Rides (table)", mainPanel);
         tabbedPane.addTab("Statistics", secondaryPanel);
 
-        frame.add(createToolBar(ridesTable, categoryListModel, statisticsPanel, actionToolbar), BorderLayout.BEFORE_FIRST_LINE);
+        frame.add(createToolBar(ridesPanel.getTable(), categoryListModel, statisticsPanel, actionToolbar), BorderLayout.BEFORE_FIRST_LINE);
         frame.add(tabbedPane, BorderLayout.CENTER);
         frame.pack();
+    }
+
+    private void refresh() {
+        categoryListModel.refresh();
+        ridesTableModel.refresh();
     }
 
     private void setActionListeners(RidesTableFilter ridesTableFilter, JTextField distanceFrom, JTextField distanceTo,
@@ -257,16 +269,6 @@ public class MainWindow {
         return frame;
     }
 
-    private JTable createRidesTable(RidesTableModel model, ListModel<Category> categoryListModel) {
-        var table = new JTable(model, model.getColumnModel());
-        table.addComponentListener(model.getResizeListener());
-        table.setRowSorter(model.getRowSorter());
-        table.getSelectionModel().addListSelectionListener(this::rowSelectionChanged);
-        //var currencyJComboBox = new JComboBox<>(Currency.values());
-        //table.setDefaultEditor(Currency.class, new DefaultCellEditor(currencyJComboBox));
-        //table.setDefaultEditor(Category.class, new DefaultCellEditor(new JComboBox<>(new ComboBoxModelAdapter<>(categoryListModel))));
-        return table;
-    }
     private JPanel createStatisticsPanel(JTable ridesTable) {
         JPanel statisticsPanel  = new JPanel(new GridLayout(1,2));
         statisticsPanel.add(new JScrollPane(createStatisticPane("Global statistics", false, ridesTable)));
@@ -334,13 +336,24 @@ public class MainWindow {
 
     private JMenuBar createMenuBar() {
         var menuBar = new JMenuBar();
+        menuBar.add(createQuit());
+        /*
         menuBar.add(createNewRideMenu());
         menuBar.add(createDataMenu());
         menuBar.add(createTechnicalLicenceMenu());
         menuBar.add(createCategoryMenu());
+        */
         menuBar.add(Box.createHorizontalGlue());
         menuBar.add(createAboutMenu());
         return menuBar;
+    }
+
+    private JMenu createQuit() {
+        var menu = new JMenu("Quit");
+        menu.setMnemonic('q');
+        menu.add(quitAction);
+        menu.add(nuclearQuitAction);
+        return menu;
     }
 
     private JMenu createNewRideMenu() {
@@ -482,10 +495,6 @@ public class MainWindow {
         return toolbar;
     }
 
-    private void rowSelectionChanged(ListSelectionEvent listSelectionEvent) {
-        var selectionModel = (ListSelectionModel) listSelectionEvent.getSource();
-        changeActionState(selectionModel.getSelectedItemsCount());
-    }
 
     private void changeActionState(int count) {
         showRideAction.setEnabled(count == 1);

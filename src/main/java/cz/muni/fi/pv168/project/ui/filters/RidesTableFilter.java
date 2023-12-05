@@ -1,9 +1,9 @@
 package cz.muni.fi.pv168.project.ui.filters;
 
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Currency;
+import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.filters.Matchers.*;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
