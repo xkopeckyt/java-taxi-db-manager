@@ -1,7 +1,6 @@
 package cz.muni.fi.pv168.project.ui.model;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
 import cz.muni.fi.pv168.project.ui.sorters.*;
 
 import javax.swing.*;
@@ -114,18 +113,19 @@ public class CategoryTableModel extends AbstractTableModel {
     }
 
     public void deleteRow(int rowIndex) {
-        categoryModel.remove(rowIndex);
+        categoryModel.removeRow(rowIndex);
         fireTableRowsDeleted(rowIndex, rowIndex);
     }
 
     public void addRow(Category category) {
         int newRowIndex = categoryModel.getSize();
-        categoryModel.add(category);
+        categoryModel.addRow(category);
         fireTableRowsInserted(newRowIndex, newRowIndex);
     }
 
     public void updateRow(Category category) {
         int rowIndex = categoryModel.getIndex(category);
+        categoryModel.updateRow(category);
         fireTableRowsUpdated(rowIndex, rowIndex);
     }
 }

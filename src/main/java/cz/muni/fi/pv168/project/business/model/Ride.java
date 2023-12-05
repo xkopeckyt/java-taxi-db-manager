@@ -1,0 +1,118 @@
+package cz.muni.fi.pv168.project.business.model;
+
+import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+public class Ride extends Entity{
+    private static final UuidGuidProvider guidProvider = new UuidGuidProvider();
+    private static Currency globalCurrency = Currency.EUR;
+    private BigDecimal distance;
+    private LocalDateTime rideDateTime;
+    private BigDecimal price;
+    private Currency originalCurrency;
+    private Category category;
+    private int passengersCount;
+
+    public Ride(BigDecimal distance, LocalDateTime rideDateTime, BigDecimal price,
+                Currency originalCurrency, Category category, int passengersCount) {
+        super(guidProvider.newGuid());
+        setDistance(distance);
+        setRideDateTime(rideDateTime);
+        setPrice(price);
+        setOriginalCurrency(originalCurrency);
+        setCategory(category);
+        setPassengersCount(passengersCount);
+    }
+    public Ride(BigDecimal distance, LocalDateTime rideDateTime, BigDecimal price,
+                Currency originalCurrency, Category category, int passengersCount,
+                String guid) {
+        super(guid);
+        setDistance(distance);
+        setRideDateTime(rideDateTime);
+        setPrice(price);
+        setOriginalCurrency(originalCurrency);
+        setCategory(category);
+        setPassengersCount(passengersCount);
+    }
+
+    public static Ride emptyRide(Category category) {
+        return new Ride(BigDecimal.valueOf(0), LocalDateTime.now(), BigDecimal.valueOf(0),
+                Currency.CZK, category, 0);
+    }
+
+    public static Ride emptyRide(CategoryListModel categoryListModel) {
+        Category category;
+        if (categoryListModel.getSize() <= 0) {
+            var defaultCategory = Category.createDefaultCategory();
+            categoryListModel.addRow(defaultCategory);
+            category = defaultCategory;
+        } else {
+            category = categoryListModel.getElementAt(0);
+        }
+        return Ride.emptyRide(category);
+    }
+
+    public BigDecimal getDistance() {
+        return distance;
+    }
+
+    public void setDistance(BigDecimal distance) {
+        this.distance = distance;
+    }
+
+    public LocalDateTime getRideDateTime() {
+        return rideDateTime;
+    }
+
+    public void setRideDateTime(LocalDateTime rideDateTime) {
+        this.rideDateTime = Objects.requireNonNull(rideDateTime, "dateTime must not be null");
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public Currency getOriginalCurrency() {
+        return originalCurrency;
+    }
+
+    public void setOriginalCurrency(Currency originalCurrency) {
+        this.originalCurrency = originalCurrency;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = Objects.requireNonNull(category, "category must not be null");
+    }
+
+    public int getPassengersCount() {
+        return passengersCount;
+    }
+
+    public void setPassengersCount(int passengersCount) {
+        this.passengersCount = passengersCount;
+    }
+
+    public static Currency getGlobalCurrency() {
+        return globalCurrency;
+    }
+
+    public static void setGlobalCurrency(Currency globalCurrency) {
+        Ride.globalCurrency = globalCurrency;
+    }
+
+    @Override
+    public String toString() {
+        return rideDateTime.toString() + ": " + distance + " km," + price + ' ' + getGlobalCurrency().toString();
+    }
+}

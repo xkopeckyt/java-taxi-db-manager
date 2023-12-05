@@ -1,8 +1,6 @@
 package cz.muni.fi.pv168.project.ui.actions;
 
-import cz.muni.fi.pv168.project.ui.export.ImportService;
-import cz.muni.fi.pv168.project.ui.export.batch.BatchImporter;
-import cz.muni.fi.pv168.project.ui.export.format.FormatMapping;
+import cz.muni.fi.pv168.project.business.service.export.ImportService;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 

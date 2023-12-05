@@ -1,6 +1,6 @@
 package cz.muni.fi.pv168.project.ui.actions;
 
-import cz.muni.fi.pv168.project.model.DrivingLicence;
+import cz.muni.fi.pv168.project.business.model.DrivingLicence;
 import cz.muni.fi.pv168.project.ui.dialog.DrivingLicenceDialog;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 

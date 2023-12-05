@@ -3,9 +3,10 @@ package cz.muni.fi.pv168.project.storage.sql.entity.mapper;
 import cz.muni.fi.pv168.project.storage.sql.dao.DataAccessObject;
 import cz.muni.fi.pv168.project.storage.sql.entity.CategoryEntity;
 import cz.muni.fi.pv168.project.storage.sql.entity.RideEntity;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Ride;
+import org.tinylog.Logger;
 
-public class RideMapper {
+public class RideMapper implements EntityMapper<RideEntity, Ride> {
 
     private final DataAccessObject<CategoryEntity> categoryDao;
     private final CategoryMapper categoryMapper;
@@ -17,9 +18,10 @@ public class RideMapper {
         this.categoryMapper = categoryMapper;
     }
 
+    @Override
     public Ride mapToBusiness(RideEntity entity) {
         var category = categoryDao
-                .findById(entity.id())
+                .findById(entity.categoryId())
                 .map(categoryMapper::mapToBusiness)
                 .orElseThrow(() -> new RuntimeException("Category not found: " +
                         entity.categoryId()));
@@ -35,7 +37,8 @@ public class RideMapper {
         );
     }
 
-    public RideEntity mapNewRideToDatabase(Ride ride) {
+    @Override
+    public RideEntity mapNewEntityToDatabase(Ride ride) {
         CategoryEntity categoryEntity = categoryDao
                 .findByGuid(ride.getCategory().getGuid())
                 .orElseThrow(() -> new RuntimeException("Category not found with name: " +
@@ -52,7 +55,8 @@ public class RideMapper {
         );
     }
 
-    public RideEntity mapExistingRideToDatabase(Ride ride, Integer id) {
+    @Override
+    public RideEntity mapExistingEntityToDatabase(Ride ride, Long id) {
         CategoryEntity categoryEntity = categoryDao
                 .findByGuid(ride.getCategory().getGuid())
                 .orElseThrow(() -> new RuntimeException("Category not found with name: " +

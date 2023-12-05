@@ -1,28 +1,28 @@
 package cz.muni.fi.pv168.project.storage.sql.entity;
 
-import cz.muni.fi.pv168.project.model.Currency;
+import cz.muni.fi.pv168.project.business.model.Currency;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public record RideEntity(
-        Integer id,
+        Long id,
         BigDecimal distance,
         LocalDateTime dateTime,
         BigDecimal price,
         Currency originalCurrency,
-        int categoryId,
+        Long categoryId,
         int passengersCount,
         String guid) {
 
     public RideEntity(
-            Integer id,
+            Long id,
             BigDecimal distance,
             LocalDateTime dateTime,
             BigDecimal price,
             Currency originalCurrency,
-            int categoryId,
+            Long categoryId,
             int passengersCount,
             String guid) {
         this.id = id;
@@ -40,7 +40,7 @@ public record RideEntity(
             LocalDateTime dateTime,
             BigDecimal price,
             Currency originalCurrency,
-            int categoryId,
+            Long categoryId,
             int passengersCount,
             String guid) {
         this(null, distance, dateTime, price, originalCurrency, categoryId, passengersCount, guid);
