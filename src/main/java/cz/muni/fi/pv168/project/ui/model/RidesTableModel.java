@@ -1,12 +1,12 @@
 package cz.muni.fi.pv168.project.ui.model;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Currency;
+import cz.muni.fi.pv168.project.business.model.Ride;
+import cz.muni.fi.pv168.project.business.service.crud.CrudService;
 import cz.muni.fi.pv168.project.ui.renderers.DateTimeCellRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.FloatCellRenderer;
 import cz.muni.fi.pv168.project.ui.sorters.EnumComparator;
-import cz.muni.fi.pv168.project.ui.sorters.FloatComparator;
 import cz.muni.fi.pv168.project.ui.sorters.IntCompatator;
 
 import javax.swing.*;
@@ -34,10 +34,12 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
     );
     private static final float[] columnWidthPercentage = {0.28f, 0.1f, 0.1f, 0.13f, 0.14f, 0.25f};
 
-    private final List<Ride> rides;
+    private final CrudService<Ride> rideCrudService;
+    private List<Ride> rides;
 
-    public RidesTableModel(List<Ride> rides) {
-        this.rides = new ArrayList<>(rides);
+    public RidesTableModel(CrudService<Ride> rideCrudService) {
+        this.rideCrudService = rideCrudService;
+        this.rides = new ArrayList<>(rideCrudService.findAll());
     }
 
     public TableColumnModel getColumnModel() {
@@ -130,20 +132,32 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
     }
 
     public void deleteRow(int rowIndex) {
+        var employeeToBeDeleted = getEntity(rowIndex);
+        rideCrudService.deleteByGuid(employeeToBeDeleted.getGuid());
         rides.remove(rowIndex);
         fireTableRowsDeleted(rowIndex, rowIndex);
     }
 
     public void addRow(Ride ride) {
+        rideCrudService.create(ride)
+                .intoException();
         int newRowIndex = rides.size();
         rides.add(ride);
         fireTableRowsInserted(newRowIndex, newRowIndex);
     }
 
     public void updateRow(Ride ride) {
+        rideCrudService.update(ride)
+                .intoException();
         int rowIndex = rides.indexOf(ride);
         fireTableRowsUpdated(rowIndex, rowIndex);
     }
+
+    public void refresh() {
+        this.rides = new ArrayList<>(rideCrudService.findAll());
+        fireTableDataChanged();
+    }
+
     public BigDecimal totalPrice(List<Ride> rides){
         BigDecimal count = BigDecimal.valueOf(0);
         for(Ride ride : rides){

@@ -1,7 +1,7 @@
 package cz.muni.fi.pv168.project.ui.filters.Matchers;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Ride;
 
 public class RideCategoriesMatcher extends EntityMatcher<Ride> {
 
@@ -13,6 +13,6 @@ public class RideCategoriesMatcher extends EntityMatcher<Ride> {
 
     @Override
     public boolean evaluate(Ride ride) {
-        return ride.getCategory() == category;
+        return ride.getCategory().equals(category);
     }
 }

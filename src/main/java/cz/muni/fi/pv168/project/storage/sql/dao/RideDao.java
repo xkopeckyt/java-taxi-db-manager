@@ -2,7 +2,7 @@ package cz.muni.fi.pv168.project.storage.sql.dao;
 
 import cz.muni.fi.pv168.project.storage.DataStorageException;
 import cz.muni.fi.pv168.project.storage.sql.db.ConnectionHandler;
-import cz.muni.fi.pv168.project.model.Currency;
+import cz.muni.fi.pv168.project.business.model.Currency;
 import cz.muni.fi.pv168.project.storage.sql.entity.RideEntity;
 
 import java.sql.*;
@@ -19,21 +19,20 @@ public class RideDao implements DataAccessObject<RideEntity>{
     }
     @Override
     public RideEntity create(RideEntity newRide) {
-        var sql = "INSERT INTO Ride (id, distance, dateTime, price, originalCurrency, categoryId, " +
-                "passengersCount, guid) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+        var sql = "INSERT INTO Ride (distance, dateTime, price, originalCurrency, categoryId, " +
+                "passengersCount, guid) VALUES (?, ?, ?, ?, ?, ?, ?);";
 
         try (
                 var connection = connections.get();
                 var statement = connection.use().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
-            statement.setLong(1, newRide.id());
-            statement.setBigDecimal(2, newRide.distance());
-            statement.setTimestamp(3, Timestamp.valueOf(newRide.dateTime()));
-            statement.setBigDecimal(4, newRide.price());
-            statement.setString(5, newRide.originalCurrency().toString());
-            statement.setInt(6, newRide.categoryId());
-            statement.setInt(7, newRide.passengersCount());
-            statement.setString(8, newRide.guid());
+            statement.setBigDecimal(1, newRide.distance());
+            statement.setTimestamp(2, Timestamp.valueOf(newRide.dateTime()));
+            statement.setBigDecimal(3, newRide.price());
+            statement.setString(4, newRide.originalCurrency().toString());
+            statement.setLong(5, newRide.categoryId());
+            statement.setInt(6, newRide.passengersCount());
+            statement.setString(7, newRide.guid());
             statement.executeUpdate();
 
             try (ResultSet keyResultSet = statement.getGeneratedKeys()) {
@@ -75,8 +74,9 @@ public class RideDao implements DataAccessObject<RideEntity>{
             statement.setTimestamp(2, Timestamp.valueOf(entity.dateTime()));
             statement.setBigDecimal(3, entity.price());
             statement.setString(4, entity.originalCurrency().toString());
-            statement.setInt(5, entity.categoryId());
+            statement.setLong(5, entity.categoryId());
             statement.setInt(6, entity.passengersCount());
+            statement.setLong(7, entity.id());
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated == 0) {
                 throw new DataStorageException("Ride not found, id: " + entity.id());
@@ -241,12 +241,12 @@ public class RideDao implements DataAccessObject<RideEntity>{
 
     private static RideEntity rideFromResultSet(ResultSet resultSet) throws SQLException{
         return new RideEntity(
-                resultSet.getInt("id"),
+                resultSet.getLong("id"),
                 resultSet.getBigDecimal("distance"),
                 resultSet.getTimestamp("dateTime").toLocalDateTime(),
                 resultSet.getBigDecimal("price"),
                 Currency.valueOf(resultSet.getString("originalCurrency")),
-                resultSet.getInt("categoryId"),
+                resultSet.getLong("categoryId"),
                 resultSet.getInt("passengersCount"),
                 resultSet.getString("guid")
         );

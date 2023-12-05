@@ -1,8 +1,8 @@
 package cz.muni.fi.pv168.project.ui.actions;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.DrivingLicence;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.DrivingLicence;
+import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
@@ -36,7 +36,7 @@ public class EditRideAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         var ridesTableModel = (RidesTableModel)ridesTable.getModel();
         Ride ride = ridesTableModel.getEntity(ridesTable.getSelectedRow());
-        var result = RideDialog.showDialog("Edit Ride", ride, categoryListModel, licence, templates, false);
+        var result = RideDialog.showDialog("Edit Ride", ride, categoryListModel, licence, templates, true);
         if (result.isPresent() && licence.checkDate(result.get().getRideDateTime().toLocalDate())) {
             // Update the ride in the table model
             ridesTableModel.updateRow(result.get());

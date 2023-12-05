@@ -1,6 +1,6 @@
 package cz.muni.fi.pv168.project.data;
 
-import cz.muni.fi.pv168.project.model.*;
+import cz.muni.fi.pv168.project.business.model.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,11 +9,9 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.time.Month.DECEMBER;
 import static java.time.Month.JANUARY;
 import static java.time.temporal.ChronoUnit.DAYS;
 

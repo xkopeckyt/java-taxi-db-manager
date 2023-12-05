@@ -1,10 +1,14 @@
 package cz.muni.fi.pv168.project.ui.actions;
 
+import cz.muni.fi.pv168.project.business.model.Currency;
+import cz.muni.fi.pv168.project.business.service.crud.CategoryCrudService;
+import cz.muni.fi.pv168.project.business.service.crud.CrudService;
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.DrivingLicence;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.DrivingLicence;
+import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
+import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
@@ -13,25 +17,25 @@ import javax.swing.AbstractAction;
 import javax.swing.ListModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 
 
 public class NewRideAction extends AbstractAction {
     private final JTable ridesTable;
-    private final TestDataGenerator testDataGenerator;
-    private final ListModel<Category> categoryListModel;
+    private final CategoryListModel categoryListModel;
     private final DrivingLicence licence;
     private final Map<String, Ride> templates;
 
-    public NewRideAction(JTable ridesTable, TestDataGenerator testDataGenerator, ListModel<Category> categoryListModel,
+    public NewRideAction(JTable ridesTable, CategoryListModel categoryListModel,
                          DrivingLicence licence, Map<String, Ride> templates) {
         super("New Ride", Icons.NEW_ICON);
         putValue(SHORT_DESCRIPTION, "Show Create new ride Dialog");
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
 
         this.ridesTable = ridesTable;
-        this.testDataGenerator = testDataGenerator;
         this.categoryListModel = categoryListModel;
         this.licence = licence;
         this.templates = templates;
@@ -39,7 +43,8 @@ public class NewRideAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        var result = RideDialog.showDialog("New Ride", testDataGenerator.createTestRide(), categoryListModel, licence, templates, false);
+        var emptyRide = Ride.emptyRide(categoryListModel);
+        var result = RideDialog.showDialog("New Ride", emptyRide, categoryListModel, licence, templates, false);
         if (result.isPresent()) {
             var ridesTableModel = (RidesTableModel) ridesTable.getModel();
             ridesTableModel.addRow(result.get());

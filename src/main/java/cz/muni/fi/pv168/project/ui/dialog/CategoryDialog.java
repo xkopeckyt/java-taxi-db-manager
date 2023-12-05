@@ -1,6 +1,7 @@
 package cz.muni.fi.pv168.project.ui.dialog;
 
-import cz.muni.fi.pv168.project.model.Category;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.CategoryTableModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
@@ -8,9 +9,6 @@ import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 
 import static cz.muni.fi.pv168.project.ui.resources.Icons.DELETE_ICON;
@@ -72,7 +70,7 @@ public class CategoryDialog extends EntityDialog<Category> {
                             JOptionPane.WARNING_MESSAGE);
                 }
                 else{
-                    categoryListModel.add(result.get());
+                    categoryListModel.addRow(result.get());
                     int idx = categoryListModel.getIndex(result.get());
                     categoryTableModel.fireTableRowsInserted(idx, idx);
                     validInput = true;
@@ -90,8 +88,10 @@ public class CategoryDialog extends EntityDialog<Category> {
         var dialog = new CategoryNameDialog(category, categoryListModel);
         var result = dialog.show(categoryTable, "Rename category", OK_OPTION, null);
         if(result.isPresent()){
-            categoryTableModel.fireTableDataChanged();
-            ((RidesTableModel)ridesTable.getModel()).fireTableDataChanged();
+            categoryTableModel.updateRow(category);
+            var ridesTableModel = (RidesTableModel)ridesTable.getModel();
+            ridesTableModel.refresh();
+            ridesTableModel.fireTableDataChanged();
         }
     }
     private void deleteSelectedCategory() {
@@ -107,7 +107,7 @@ public class CategoryDialog extends EntityDialog<Category> {
             var row = rows[i];
             int modelIndex = categoryTable.convertRowIndexToModel(row);
             Category category = categoryTableModel.getEntity(modelIndex);
-            boolean used = ridesTableModel.getAllRides().stream().anyMatch(ride -> ride.getCategory() == category);
+            boolean used = ridesTableModel.getAllRides().stream().anyMatch(ride -> ride.getCategory().equals(category));
             if(used){
                 JOptionPane.showMessageDialog(null,
                         "The category: \"" + category.getName() + "\" is being used.", "Warning",

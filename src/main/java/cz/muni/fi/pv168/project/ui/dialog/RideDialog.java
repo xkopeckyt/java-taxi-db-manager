@@ -1,9 +1,9 @@
 package cz.muni.fi.pv168.project.ui.dialog;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.DrivingLicence;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Currency;
+import cz.muni.fi.pv168.project.business.model.DrivingLicence;
+import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.components.JStatusTextField;
 import cz.muni.fi.pv168.project.ui.listeners.AbstractFieldListener;
 import cz.muni.fi.pv168.project.ui.listeners.DecimalFieldListener;
@@ -62,6 +62,7 @@ public class RideDialog extends EntityDialog <Ride> {
         labelLicence.setForeground(Color.red);
         decimalFormat = new DecimalFormat();
         decimalFormat.setMaximumFractionDigits(decimalPlaces);
+        decimalFormat.setGroupingUsed(false);
 
         this.loadTemplateButton = new JButton("Load Templates");
         this.saveTemplateButton = new JButton("Save As Template");
@@ -174,12 +175,12 @@ public class RideDialog extends EntityDialog <Ride> {
     }
 
     private void setValues() {
-        priceField.setText((!templateMode) ? decimalFormat.format(ride.getPrice()) : "");
-        currencyModel.setSelectedItem((!templateMode) ? ride.getOriginalCurrency() : Currency.EUR);
-        distanceField.setText((!templateMode) ? decimalFormat.format(ride.getDistance()) : "");
-        datePicker.setLocalDateTime((!templateMode) ? ride.getRideDateTime() : LocalDateTime.now());
-        categoryModel.setSelectedItem((!templateMode) ? ride.getCategory() :categoryListModel.getElementAt(0));
-        passengersCountField.setText((!templateMode) ? String.valueOf(ride.getPassengersCount()) : "");
+        priceField.setText((templateMode) ? decimalFormat.format(ride.getPrice()) : "");
+        currencyModel.setSelectedItem((templateMode) ? ride.getOriginalCurrency() : Currency.EUR);
+        distanceField.setText((templateMode) ? decimalFormat.format(ride.getDistance()) : "");
+        datePicker.setLocalDateTime((templateMode) ? ride.getRideDateTime() : LocalDateTime.now());
+        categoryModel.setSelectedItem((templateMode) ? ride.getCategory() :categoryListModel.getElementAt(0));
+        passengersCountField.setText((templateMode) ? String.valueOf(ride.getPassengersCount()) : "");
     }
 
     private void addFields() {
