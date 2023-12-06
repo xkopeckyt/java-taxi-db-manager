@@ -10,6 +10,7 @@ import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
+import cz.muni.fi.pv168.project.ui.model.TemplateListModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
 import javax.swing.JTable;
@@ -27,10 +28,10 @@ public class NewRideAction extends AbstractAction {
     private final JTable ridesTable;
     private final CategoryListModel categoryListModel;
     private final DrivingLicence licence;
-    private final Map<String, Ride> templates;
+    private final TemplateListModel templates;
 
     public NewRideAction(JTable ridesTable, CategoryListModel categoryListModel,
-                         DrivingLicence licence, Map<String, Ride> templates) {
+                         DrivingLicence licence, TemplateListModel templates) {
         super("New Ride", Icons.NEW_ICON);
         putValue(SHORT_DESCRIPTION, "Show Create new ride Dialog");
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);

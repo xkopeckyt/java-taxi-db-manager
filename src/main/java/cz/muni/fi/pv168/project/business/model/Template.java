@@ -1,51 +1,51 @@
 package cz.muni.fi.pv168.project.business.model;
 
-import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Ride extends Entity{
+public class Template extends Entity{
+
     private static final UuidGuidProvider guidProvider = new UuidGuidProvider();
     private static Currency globalCurrency = Currency.EUR;
     private BigDecimal distance;
-    private LocalDateTime rideDateTime;
+    private LocalDateTime templateDateTime;
     private BigDecimal price;
     private Currency originalCurrency;
     private Category category;
     private int passengersCount;
+    private String name;
 
-    public Ride(BigDecimal distance, LocalDateTime rideDateTime, BigDecimal price,
-                Currency originalCurrency, Category category, int passengersCount) {
+    public Template(String name, BigDecimal distance, LocalDateTime templateDateTime,
+                    BigDecimal price, Currency originalCurrency, Category category, int passengersCount) {
         super(guidProvider.newGuid());
+        setName(name);
         setDistance(distance);
-        setRideDateTime(rideDateTime);
+        setTemplateDateTime(templateDateTime);
         setPrice(price);
         setOriginalCurrency(originalCurrency);
-        setCategory(category);
         setPassengersCount(passengersCount);
+        setCategory(category);
     }
-    public Ride(BigDecimal distance, LocalDateTime rideDateTime, BigDecimal price,
-                Currency originalCurrency, Category category, int passengersCount,
-                String guid) {
+
+    public Template(String guid, String name, BigDecimal distance, LocalDateTime templateDateTime,
+                    BigDecimal price, Currency originalCurrency, Category category, int passengersCount) {
         super(guid);
+        setName(name);
         setDistance(distance);
-        setRideDateTime(rideDateTime);
+        setTemplateDateTime(templateDateTime);
         setPrice(price);
         setOriginalCurrency(originalCurrency);
-        setCategory(category);
         setPassengersCount(passengersCount);
+        setCategory(category);
     }
 
-    public static Ride emptyRide(Category category) {
-        return new Ride(BigDecimal.valueOf(0), LocalDateTime.now(), BigDecimal.valueOf(0),
-                Currency.CZK, category, 0);
+    public static Currency getGlobalCurrency() {
+        return globalCurrency;
     }
 
-    public static Ride emptyRide(CategoryListModel categoryListModel) {
-        Category category = categoryListModel.getElementAt(0);
-        return Ride.emptyRide(category);
+    public static void setGlobalCurrency(Currency globalCurrency) {
+        Template.globalCurrency = globalCurrency;
     }
 
     public BigDecimal getDistance() {
@@ -56,12 +56,12 @@ public class Ride extends Entity{
         this.distance = distance;
     }
 
-    public LocalDateTime getRideDateTime() {
-        return rideDateTime;
+    public LocalDateTime getTemplateDateTime() {
+        return templateDateTime;
     }
 
-    public void setRideDateTime(LocalDateTime rideDateTime) {
-        this.rideDateTime = Objects.requireNonNull(rideDateTime, "dateTime must not be null");
+    public void setTemplateDateTime(LocalDateTime templateDateTime) {
+        this.templateDateTime = Objects.requireNonNull(templateDateTime, "dateTime must not be null");;
     }
 
     public BigDecimal getPrice() {
@@ -96,16 +96,16 @@ public class Ride extends Entity{
         this.passengersCount = passengersCount;
     }
 
-    public static Currency getGlobalCurrency() {
-        return globalCurrency;
+    public String getName() {
+        return name;
     }
 
-    public static void setGlobalCurrency(Currency globalCurrency) {
-        Ride.globalCurrency = globalCurrency;
+    public void setName(String name) {
+        this.name = Objects.requireNonNull(name, "name must not be null");
     }
 
     @Override
     public String toString() {
-        return rideDateTime.toString() + ": " + distance + " km," + price + ' ' + getGlobalCurrency().toString();
+        return getName();
     }
 }

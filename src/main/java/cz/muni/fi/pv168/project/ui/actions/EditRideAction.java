@@ -5,6 +5,7 @@ import cz.muni.fi.pv168.project.business.model.DrivingLicence;
 import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
+import cz.muni.fi.pv168.project.ui.model.TemplateListModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
 import javax.swing.AbstractAction;
@@ -19,8 +20,8 @@ public class EditRideAction extends AbstractAction {
     private final JTable ridesTable;
     private final ListModel<Category> categoryListModel;
     private final DrivingLicence licence;
-    private final Map<String, Ride> templates;
-    public EditRideAction(JTable ridesTable, ListModel<Category> categoryListModel, DrivingLicence licence, Map<String, Ride> templates) {
+    private final TemplateListModel templates;
+    public EditRideAction(JTable ridesTable, ListModel<Category> categoryListModel, DrivingLicence licence, TemplateListModel templates) {
         super("Edit Ride", Icons.EDIT_ICON);
         putValue(SHORT_DESCRIPTION, "Show Edit Ride Dialog");
         putValue(MNEMONIC_KEY, KeyEvent.VK_E);
@@ -36,7 +37,7 @@ public class EditRideAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         var ridesTableModel = (RidesTableModel)ridesTable.getModel();
         Ride ride = ridesTableModel.getEntity(ridesTable.getSelectedRow());
-        var result = RideDialog.showDialog("Edit Ride", ride, categoryListModel, licence, templates, true);
+        var result = RideDialog.showDialog("Edit Ride", ride, categoryListModel, licence, templates, false);
         if (result.isPresent() && licence.checkDate(result.get().getRideDateTime().toLocalDate())) {
             // Update the ride in the table model
             ridesTableModel.updateRow(result.get());

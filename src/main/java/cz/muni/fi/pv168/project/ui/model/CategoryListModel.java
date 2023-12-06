@@ -14,6 +14,9 @@ public class CategoryListModel extends AbstractListModel<Category> {
     public CategoryListModel(CrudService<Category> categoryCrudService) {
         this.categories = new ArrayList<>(categoryCrudService.findAll());
         this.categoryCrudService = categoryCrudService;
+        if (getSize() <= 0) {
+            addRow(Category.createDefaultCategory());
+        }
     }
 
     @Override

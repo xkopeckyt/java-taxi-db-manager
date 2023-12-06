@@ -19,9 +19,9 @@ public class BigDecimalValidator extends PropertyValidator<BigDecimal> {
         var result = new ValidationResult();
         int comparison = number.compareTo(BigDecimal.ZERO);
         if (comparison == 0 && !canBeZero) {
-            result.add("'%s' is zero".formatted(number.toString()));
+            result.add("%s cannot be zero".formatted(this.name));
         } else if (comparison < 0 && !canBeNegative) {
-            result.add("'%s' less than zero".formatted(number.toString()));
+            result.add("%s cannot be less than zero, but is '%s'".formatted(this.name, number.toString()));
         }
         return result;
     }

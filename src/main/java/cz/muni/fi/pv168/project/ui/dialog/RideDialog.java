@@ -4,12 +4,15 @@ import cz.muni.fi.pv168.project.business.model.Category;
 import cz.muni.fi.pv168.project.business.model.Currency;
 import cz.muni.fi.pv168.project.business.model.DrivingLicence;
 import cz.muni.fi.pv168.project.business.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Template;
 import cz.muni.fi.pv168.project.ui.components.JStatusTextField;
 import cz.muni.fi.pv168.project.ui.listeners.AbstractFieldListener;
 import cz.muni.fi.pv168.project.ui.listeners.DecimalFieldListener;
 import cz.muni.fi.pv168.project.ui.listeners.IntegerFieldListener;
+import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.ComboBoxModelAdapter;
+import cz.muni.fi.pv168.project.ui.model.TemplateListModel;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -17,7 +20,6 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.text.DecimalFormat;
 import java.util.Optional;
 
@@ -38,25 +40,23 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JButton resetButton;
     private boolean validDate = true;
     private final JLabel labelLicence;
-    private final boolean editMode;
     private boolean templateMode;
     private final JButton okButton;
-    private final Map<String, Ride> templates;
+    private final TemplateListModel templateListModel;
     private final DrivingLicence licence;
     private final ListModel<Category> categoryListModel;
     private final DecimalFormat decimalFormat;
     public final int decimalPlaces = 2;
 
     public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence,
-                      boolean editMode, JButton okButton, Map<String, Ride> templates, boolean templateMode) {
+                      JButton okButton, TemplateListModel templateListModel, boolean templateMode) {
         this.templateMode = templateMode;
-        this.editMode = editMode;
         this.okButton = okButton;
         this.ride = ride;
         this.categoryListModel = categoryModel;
         this.categoryModel = new ComboBoxModelAdapter<>(categoryListModel);
         this.categoryComboBox = new JComboBox<>(this.categoryModel);
-        this.templates = templates;
+        this.templateListModel = templateListModel;
         this.licence = licence;
         this.labelLicence = new JLabel(" ");
         labelLicence.setForeground(Color.red);
@@ -111,13 +111,17 @@ public class RideDialog extends EntityDialog <Ride> {
         };
 
         loadTemplateButton.addActionListener(e -> {
-            if (!templates.isEmpty()) {
-                var loadTemplatesDialog = new LoadTemplateDialog(templates.keySet());
+            if (!(templateListModel.getSize() == 0)) {
+                var loadTemplatesDialog = new LoadTemplateDialog(templateListModel.getNames());
                 var loadResult = loadTemplatesDialog.show(new JTable(), "Load Template", OK_CANCEL_OPTION, null);
                 loadResult.ifPresent(s -> {
-                    ride = templates.get(s);
-                    templateMode = true;
-                    setValues();
+                    var template = templateListModel.getTemplate(s);
+                    priceField.setText( decimalFormat.format(template.getPrice()));
+                    currencyModel.setSelectedItem(template.getOriginalCurrency());
+                    distanceField.setText(decimalFormat.format(template.getDistance()));
+                    datePicker.setLocalDateTime(template.getTemplateDateTime());
+                    categoryModel.setSelectedItem(template.getCategory());
+                    passengersCountField.setText(String.valueOf(template.getPassengersCount()));
                 });
             } else {
                 var emptyTemplatesDialog = new EmptyTemplateDialog();
@@ -126,18 +130,17 @@ public class RideDialog extends EntityDialog <Ride> {
         });
 
         saveTemplateButton.addActionListener(e ->  {
-            var templateResult = SaveTemplateDialog.showDialog(templates);
+            var template = new Template("",
+                    ((!distanceField.getText().isEmpty()) ? textToBigDecimal(distanceField.getText()) : BigDecimal.ZERO),
+                    datePicker.getLocalDateTime(),
+                    ((!priceField.getText().isEmpty()) ? textToBigDecimal(priceField.getText()) : BigDecimal.ZERO),
+                    (Currency) currencyModel.getSelectedItem(),
+                    (Category) categoryModel.getSelectedItem(),
+                    ((!passengersCountField.getText().isEmpty()) ? Integer.parseInt(passengersCountField.getText()) : 0));
+            var templateDialog = new TemplateNameDialog();
+            var templateResult = templateDialog.show(new JTable(), "Template name", OK_CANCEL_OPTION, null);
             templateResult.ifPresent(s ->
-                templates.put(s,
-                    new Ride(textToBigDecimal(distanceField.getText()),
-                            (datePicker.getLocalDateTime() == null) ? LocalDateTime.now() : datePicker.getLocalDateTime(),
-                            textToBigDecimal(priceField.getText()),
-                            (Currency) currencyModel.getSelectedItem(),
-                            (Category) categoryComboBox.getSelectedItem(),
-                            (!passengersCountField.getText().isEmpty()) ? Integer.parseInt(passengersCountField.getText()) : 0
-                    )
-                )
-            );
+                templateListModel.addRow(template));
         });
 
         datePicker.addActionListener(e -> checkFormValidity());
@@ -171,19 +174,22 @@ public class RideDialog extends EntityDialog <Ride> {
     }
 
     public static Optional<Ride> showDialog(String name, Ride template, ListModel<Category> categoryListModel,
-                                            DrivingLicence licence, Map<String, Ride> templates, boolean templateMode) {
+                                            DrivingLicence licence, TemplateListModel templates, boolean templateMode) {
         var okButton = DialogUtils.createButton("Ok");
-        var dialog = new RideDialog(template, categoryListModel, licence, false, okButton, templates, templateMode);
+        var dialog = new RideDialog(template, categoryListModel, licence, okButton, templates, templateMode);
         return dialog.show(null, name, OK_CANCEL_OPTION, new Object[]{ okButton, "Cancel"});
     }
 
     private void setValues() {
-        priceField.setText((templateMode) ? decimalFormat.format(ride.getPrice()) : "");
-        currencyModel.setSelectedItem((templateMode) ? ride.getOriginalCurrency() : Currency.EUR);
-        distanceField.setText((templateMode) ? decimalFormat.format(ride.getDistance()) : "");
-        datePicker.setLocalDateTime((templateMode) ? ride.getRideDateTime() : LocalDateTime.now());
-        categoryModel.setSelectedItem((templateMode) ? ride.getCategory() :categoryListModel.getElementAt(0));
-        passengersCountField.setText((templateMode) ? String.valueOf(ride.getPassengersCount()) : "");
+        priceField.setText(!(ride == null) ? decimalFormat.format(ride.getPrice()) : "");
+        currencyModel.setSelectedItem(!(ride == null) ? ride.getOriginalCurrency() : Currency.EUR);
+        distanceField.setText(!(ride == null) ? decimalFormat.format(ride.getDistance()) : "");
+        datePicker.setLocalDateTime(!(ride == null) ? ride.getRideDateTime() : LocalDateTime.now());
+        categoryModel.setSelectedItem(!(ride == null) ? ride.getCategory() :categoryListModel.getElementAt(0));
+        passengersCountField.setText(!(ride == null) ? String.valueOf(ride.getPassengersCount()) : "");
+        if (templateMode) {
+            ride = Ride.emptyRide((CategoryListModel) categoryListModel);
+        }
     }
 
     private void addFields() {
@@ -195,11 +201,11 @@ public class RideDialog extends EntityDialog <Ride> {
         addLabel(labelLicence);
         add("Category:", categoryComboBox);
         add("Passengers count:", passengersCountField);
-        if(!editMode) {
+        if(templateMode) {
+            addButton(resetButton);
+        } else{
             addButton(loadTemplateButton);
             addButton(saveTemplateButton);
-        } else{
-            addButton(resetButton);
         }
     }
 

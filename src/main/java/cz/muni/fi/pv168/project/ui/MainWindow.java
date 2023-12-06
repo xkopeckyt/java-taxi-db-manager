@@ -5,10 +5,6 @@ import cz.muni.fi.pv168.project.business.model.Category;
 import cz.muni.fi.pv168.project.business.model.Currency;
 import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.actions.*;
-import cz.muni.fi.pv168.project.business.service.export.CsvImporter;
-import cz.muni.fi.pv168.project.business.service.export.GenericExportService;
-import cz.muni.fi.pv168.project.business.service.export.GenericImportService;
-import cz.muni.fi.pv168.project.business.service.export.CsvExporter;
 import cz.muni.fi.pv168.project.ui.filters.RidesTableFilter;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
@@ -17,6 +13,7 @@ import cz.muni.fi.pv168.project.ui.filters.components.FilterListModelBuilder;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
+import cz.muni.fi.pv168.project.ui.model.TemplateListModel;
 import cz.muni.fi.pv168.project.ui.panels.RideTablePanel;
 import cz.muni.fi.pv168.project.ui.renderers.CategoryRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.CurrencyRenderer;
@@ -26,7 +23,6 @@ import cz.muni.fi.pv168.project.util.Either;
 import cz.muni.fi.pv168.project.wiring.DependencyProvider;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableRowSorter;
@@ -37,7 +33,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.List;
 
 public class MainWindow {
     private static final int WIDTH = 950;
@@ -54,30 +49,33 @@ public class MainWindow {
     private final Action exportDataAction;
     private final Action editTechnicalLicenceAction;
     private final Action editCategoriesAction;
+    private final Action editTemplatesAction;
     private final Action aboutApplicationAction;
     private final Action quitAction;
     private final Action nuclearQuitAction;
     private final RidesTableModel ridesTableModel;
     private final CategoryListModel categoryListModel;
-    private final Map<String, Ride> templates = new HashMap<>();
+    private final TemplateListModel templateListModel;
 
     public MainWindow(DependencyProvider dependencyProvider) {
         frame = createFrame();
         var testDataGenerator = new TestDataGenerator();
         this.categoryListModel = new CategoryListModel(dependencyProvider.getCategoryCrudService());
         this.ridesTableModel = new RidesTableModel(dependencyProvider.getRideCrudService());
+        this.templateListModel = new TemplateListModel(dependencyProvider.getTemplateCrudService());
         var ridesPanel = new RideTablePanel(ridesTableModel, categoryListModel, this::changeActionState);
         var licence = testDataGenerator.createTestDrivingLicence();
 
-        newRideAction = new NewRideAction(ridesPanel.getTable(), categoryListModel, licence, templates);
-        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesPanel.getTable(), categoryListModel, licence, templates);
+        newRideAction = new NewRideAction(ridesPanel.getTable(), categoryListModel, licence, templateListModel);
+        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesPanel.getTable(), categoryListModel, licence, templateListModel);
         showRideAction = new ShowRideAction(ridesPanel.getTable());
-        editRideAction = new EditRideAction(ridesPanel.getTable(), categoryListModel, licence, templates);
+        editRideAction = new EditRideAction(ridesPanel.getTable(), categoryListModel, licence, templateListModel);
         deleteRideAction = new DeleteRideAction(ridesPanel.getTable());
         importDataAction = new ImportDataAction(ridesTableModel, dependencyProvider.getImportService(), this::refresh);
         exportDataAction = new ExportDataAction(ridesPanel.getTable(), dependencyProvider.getExportService());
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
-        editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesPanel.getTable());
+        editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesPanel.getTable(), this::refresh);
+        editTemplatesAction = new EditTemplatesAction(templateListModel, categoryListModel, licence);
         aboutApplicationAction = new AboutApplicationAction();
         quitAction = new QuitAction();
         nuclearQuitAction = new NuclearQuitAction(dependencyProvider.getDatabaseManager());
@@ -128,6 +126,7 @@ public class MainWindow {
     private void refresh() {
         categoryListModel.refresh();
         ridesTableModel.refresh();
+        templateListModel.refresh();
     }
 
     private void setActionListeners(RidesTableFilter ridesTableFilter, JTextField distanceFrom, JTextField distanceTo,
@@ -414,7 +413,7 @@ public class MainWindow {
 
         var currencyFilter = createCurrencyFilter(ridesTableFilter, ridesTable, statisticsPanel);
         var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel, ridesTable, statisticsPanel);// tu sa vytvara ten filter
-        var scroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
+        var categoryScroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
         var distanceFromFilter = new JTextField();
         var distanceToFilter = new JTextField();
         var dateFromPicker = new JDateTimePicker();
@@ -425,16 +424,17 @@ public class MainWindow {
         var passengerCountToFilter = new JSpinner();
         var resetFiltersButton = new JButton("Reset Filters");
 
-        distanceFromFilter.setPreferredSize(new Dimension(60,20));
-        distanceToFilter.setPreferredSize(new Dimension(60, 20));
-        dateFromPicker.setPreferredSize(new Dimension(140, 20));
-        dateToPicker.setPreferredSize(new Dimension(140, 20));
-        priceFromFilter.setPreferredSize(new Dimension(60,20));
-        priceToFilter.setPreferredSize(new Dimension(60, 20));
-        scroll.setPreferredSize(new Dimension(140, 60));
-        passengerCountFromFilter.setPreferredSize(new Dimension(60, 20));
-        passengerCountToFilter.setPreferredSize(new Dimension(60, 20));
-        passengerCountToFilter.setValue(Integer.MAX_VALUE);
+        distanceFromFilter.setPreferredSize(new Dimension(60,25));
+        distanceToFilter.setPreferredSize(new Dimension(60, 25));
+        dateFromPicker.setPreferredSize(new Dimension(140, 25));
+        dateToPicker.setPreferredSize(new Dimension(140, 25));
+        priceFromFilter.setPreferredSize(new Dimension(60,25));
+        priceToFilter.setPreferredSize(new Dimension(60, 25));
+        categoryScroll.setPreferredSize(new Dimension(140, 60));
+        currencyFilter.setPreferredSize(new Dimension(80, 25));
+        passengerCountFromFilter.setPreferredSize(new Dimension(60, 25));
+        passengerCountToFilter.setPreferredSize(new Dimension(60, 25));
+        passengerCountToFilter.setValue(100);
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromPicker, dateToPicker,
                 priceFromFilter, priceToFilter, ridesTable, statisticsPanel, passengerCountFromFilter, passengerCountToFilter);
@@ -451,7 +451,7 @@ public class MainWindow {
         gbc.gridy = 1;
         toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
                 new JLabel("Date to:"), dateToPicker,
-                new JLabel("Category:"), scroll,
+                new JLabel("Category:"), categoryScroll,
                 new JLabel("Currency:"), currencyFilter,
                 resetFiltersButton), gbc);
 
@@ -478,6 +478,7 @@ public class MainWindow {
         toolbar.add(exportDataAction);
         toolbar.addSeparator();
         toolbar.add(editCategoriesAction);
+        toolbar.add(editTemplatesAction);
         toolbar.addSeparator();
         toolbar.add(editTechnicalLicenceAction);
         return toolbar;
