@@ -31,10 +31,11 @@ public class GenericImportService implements ImportService {
 
     @Override
     public void importData(String filePath) {
-        rideCrudService.deleteAll();
-        categoryCrudService.deleteAll();
 
         var batch = getImporter(filePath).importBatch(filePath);
+
+        rideCrudService.deleteAll();
+        categoryCrudService.deleteAll();
 
         batch.categories().forEach(this::createCategory);
         batch.rides().forEach(this::createRide);
