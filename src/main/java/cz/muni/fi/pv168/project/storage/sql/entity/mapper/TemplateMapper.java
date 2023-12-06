@@ -28,6 +28,7 @@ public class TemplateMapper implements EntityMapper<TemplateEntity, Template> {
                         entity.categoryId()));
 
         return new Template(
+                entity.guid(),
                 entity.name(),
                 entity.distance(),
                 entity.dateTime(),

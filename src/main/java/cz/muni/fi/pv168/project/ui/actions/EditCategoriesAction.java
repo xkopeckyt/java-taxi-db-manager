@@ -16,17 +16,19 @@ import static javax.swing.JOptionPane.OK_OPTION;
 public class EditCategoriesAction extends AbstractAction {
     private final CategoryListModel categoryListModel;
     private final JTable ridesTable;
-    public EditCategoriesAction(CategoryListModel categoryListModel, JTable ridesTable) {
+    private final Runnable callback;
+    public EditCategoriesAction(CategoryListModel categoryListModel, JTable ridesTable, Runnable callback) {
         super("Edit Categories", Icons.SELECT_ICON);
         putValue(SHORT_DESCRIPTION, "Add, rename, delete Categories");
         putValue(MNEMONIC_KEY, KeyEvent.VK_E);
         this.categoryListModel = categoryListModel;
         this.ridesTable = ridesTable;
+        this.callback = callback;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        var dialog = new CategoryDialog(categoryListModel, ridesTable);
+        var dialog = new CategoryDialog(categoryListModel, ridesTable, callback);
         var model = new CategoryTableModel(categoryListModel);
         dialog.show(new JTable(model, model.getColumnModel()), "Edit Categories", OK_CANCEL_OPTION, null);
     }

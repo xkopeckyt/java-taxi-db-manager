@@ -28,8 +28,9 @@ public class CategoryDialog extends EntityDialog<Category> {
     private final CategoryListModel categoryListModel;
     private final CategoryTableModel categoryTableModel;
     private final JTable ridesTable;
+    private final Runnable callback;
 
-    public CategoryDialog(CategoryListModel categoryModel, JTable ridesTable){
+    public CategoryDialog(CategoryListModel categoryModel, JTable ridesTable, Runnable callback){
         this.categoryListModel = categoryModel;
         this.ridesTable = ridesTable;
         frame = createFrame();
@@ -38,6 +39,7 @@ public class CategoryDialog extends EntityDialog<Category> {
         this.categoryTable.setRowSorter(categoryTableModel.getRowSorter());
         this.categoryTable.addComponentListener(categoryTableModel.getResizeListener());
         this.categoryTable.getSelectionModel().addListSelectionListener(this::rowSelectionChanged);
+        this.callback = callback;
 
         this.newCategory = new JButton("New");
         this.renameCategory = new JMenuItem("Rename", EDIT_ICON);
@@ -117,6 +119,7 @@ public class CategoryDialog extends EntityDialog<Category> {
             categoryTableModel.deleteRow(modelIndex);
         }
         categoryTableModel.fireTableDataChanged();
+        callback.run();
     }
 
 

@@ -46,7 +46,7 @@ public class NewRideFromTemplateAction extends AbstractAction {
                 var template = templates.getTemplate(loadResult.get());
                 var ride = new Ride(template.getDistance(), template.getTemplateDateTime(), template.getPrice(),
                         template.getOriginalCurrency(), template.getCategory(), template.getPassengersCount());
-                var addRideDialogResult = RideDialog.showDialog("Add Ride", ride, categoryListModel, licence, templates, true);
+                var addRideDialogResult = RideDialog.showDialog("Add Ride", ride, categoryListModel, licence, templates, false);
                 if (addRideDialogResult.isPresent()) {
                     var ridesTableModel = (RidesTableModel) ridesTable.getModel();
                     ridesTableModel.addRow(addRideDialogResult.get());

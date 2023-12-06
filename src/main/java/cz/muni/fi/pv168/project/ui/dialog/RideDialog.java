@@ -20,7 +20,6 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.text.DecimalFormat;
 import java.util.Optional;
 
@@ -41,8 +40,7 @@ public class RideDialog extends EntityDialog <Ride> {
     private final JButton resetButton;
     private boolean validDate = true;
     private final JLabel labelLicence;
-    private final boolean editMode;
-    private boolean saveLoadButtons;
+    private boolean templateMode;
     private final JButton okButton;
     private final TemplateListModel templateListModel;
     private final DrivingLicence licence;
@@ -51,9 +49,8 @@ public class RideDialog extends EntityDialog <Ride> {
     public final int decimalPlaces = 2;
 
     public RideDialog(Ride ride, ListModel<Category> categoryModel, DrivingLicence licence,
-                      boolean editMode, JButton okButton, TemplateListModel templateListModel, boolean saveLoadButtons) {
-        this.saveLoadButtons = saveLoadButtons;
-        this.editMode = editMode;
+                      JButton okButton, TemplateListModel templateListModel, boolean templateMode) {
+        this.templateMode = templateMode;
         this.okButton = okButton;
         this.ride = ride;
         this.categoryListModel = categoryModel;
@@ -140,7 +137,7 @@ public class RideDialog extends EntityDialog <Ride> {
                     (Currency) currencyModel.getSelectedItem(),
                     (Category) categoryModel.getSelectedItem(),
                     ((!passengersCountField.getText().isEmpty()) ? Integer.parseInt(passengersCountField.getText()) : 0));
-            var templateDialog = new TemplateNameDialog(template, templateListModel, categoryListModel, licence);
+            var templateDialog = new TemplateNameDialog();
             var templateResult = templateDialog.show(new JTable(), "Template name", OK_CANCEL_OPTION, null);
             templateResult.ifPresent(s ->
                 templateListModel.addRow(template));
@@ -179,7 +176,7 @@ public class RideDialog extends EntityDialog <Ride> {
     public static Optional<Ride> showDialog(String name, Ride template, ListModel<Category> categoryListModel,
                                             DrivingLicence licence, TemplateListModel templates, boolean templateMode) {
         var okButton = DialogUtils.createButton("Ok");
-        var dialog = new RideDialog(template, categoryListModel, licence, false, okButton, templates, templateMode);
+        var dialog = new RideDialog(template, categoryListModel, licence, okButton, templates, templateMode);
         return dialog.show(null, name, OK_CANCEL_OPTION, new Object[]{ okButton, "Cancel"});
     }
 
@@ -190,7 +187,7 @@ public class RideDialog extends EntityDialog <Ride> {
         datePicker.setLocalDateTime(!(ride == null) ? ride.getRideDateTime() : LocalDateTime.now());
         categoryModel.setSelectedItem(!(ride == null) ? ride.getCategory() :categoryListModel.getElementAt(0));
         passengersCountField.setText(!(ride == null) ? String.valueOf(ride.getPassengersCount()) : "");
-        if (!saveLoadButtons) {
+        if (templateMode) {
             ride = Ride.emptyRide((CategoryListModel) categoryListModel);
         }
     }
@@ -204,11 +201,11 @@ public class RideDialog extends EntityDialog <Ride> {
         addLabel(labelLicence);
         add("Category:", categoryComboBox);
         add("Passengers count:", passengersCountField);
-        if(saveLoadButtons) {
+        if(templateMode) {
+            addButton(resetButton);
+        } else{
             addButton(loadTemplateButton);
             addButton(saveTemplateButton);
-        } else{
-            addButton(resetButton);
         }
     }
 

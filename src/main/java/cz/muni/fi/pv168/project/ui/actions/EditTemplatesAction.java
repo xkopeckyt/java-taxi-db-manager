@@ -9,6 +9,7 @@ import cz.muni.fi.pv168.project.ui.resources.Icons;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 
@@ -19,8 +20,9 @@ public class EditTemplatesAction extends AbstractAction {
     private final DrivingLicence licence;
 
     public EditTemplatesAction(TemplateListModel templates, ListModel<Category> categoryListModel, DrivingLicence licence) {
-        super("Edit templates", Icons.NEW_TEMPLATE_ICON);
+        super("Edit templates", Icons.TEMPLATES_ICON);
         putValue(SHORT_DESCRIPTION, "Add, rename, delete Templates");
+        putValue(MNEMONIC_KEY, KeyEvent.VK_T);
         this.templates = templates;
         this.categoryListModel = categoryListModel;
         this.licence = licence;

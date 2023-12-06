@@ -44,14 +44,7 @@ public class Ride extends Entity{
     }
 
     public static Ride emptyRide(CategoryListModel categoryListModel) {
-        Category category;
-        if (categoryListModel.getSize() <= 0) {
-            var defaultCategory = Category.createDefaultCategory();
-            categoryListModel.addRow(defaultCategory);
-            category = defaultCategory;
-        } else {
-            category = categoryListModel.getElementAt(0);
-        }
+        Category category = categoryListModel.getElementAt(0);
         return Ride.emptyRide(category);
     }
 

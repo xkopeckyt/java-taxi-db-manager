@@ -45,7 +45,7 @@ public class NewRideAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         var emptyRide = Ride.emptyRide(categoryListModel);
-        var result = RideDialog.showDialog("New Ride", emptyRide, categoryListModel, licence, templates, true);
+        var result = RideDialog.showDialog("New Ride", emptyRide, categoryListModel, licence, templates, false);
         if (result.isPresent()) {
             var ridesTableModel = (RidesTableModel) ridesTable.getModel();
             ridesTableModel.addRow(result.get());

@@ -41,6 +41,7 @@ public class TemplatesDialog extends EntityDialog<Template> {
         this.categoryListModel = categoryListModel;
         this.licence = licence;
         frame = createFrame();
+
         this.templateTableModel = new TemplateTableModel(templeModel);
         this.templatesTable = new JTable(templateTableModel, templateTableModel.getColumnModel());
         this.templatesTable.setRowSorter(templateTableModel.getRowSorter());
@@ -83,33 +84,28 @@ public class TemplatesDialog extends EntityDialog<Template> {
     }
 
     private void createNewTemplate(){
-        boolean validInput = false;
+        boolean finished = false;
         var template = getNewTemplate();
         if (template == null) {
             return;
         }
 
-        while(!validInput) {
-
-            var dialog = new TemplateNameDialog(template, templateListModel,  categoryListModel, licence);
-            var result = dialog.show(templatesTable, "New template", OK_CANCEL_OPTION, null);
+        while(!finished) {
+            var dialog = new TemplateNameDialog();
+            var result = dialog.show(templatesTable, "Template Name", OK_CANCEL_OPTION, null);
             if (result.isPresent()) {
-                String templateName = result.get().getName();
-                if(templateListModel.isNameUsed(templateName)){
-                    JOptionPane.showMessageDialog(null,
-                            "The Template name: \"" + templateName + "\" is already used.", "Warning",
-                            JOptionPane.WARNING_MESSAGE);
-                }
-                else{
-                    templateListModel.addRow(result.get());
-                    int idx = templateListModel.getIndex(result.get());
+                String templateName = result.get();
+                if(templateListModel.isNameUsed(templateName)) {
+                    notifyUsedName(templateName);
+                } else {
+                    template.setName(templateName);
+                    templateListModel.addRow(template);
+                    int idx = templateListModel.getIndex(template);
                     templateTableModel.fireTableRowsInserted(idx, idx);
-                    validInput = true;
+                    finished = true;
                 }
-
-            }
-            else{
-                validInput = true;
+            } else {
+                finished = true;
             }
         }
     }
@@ -117,11 +113,30 @@ public class TemplatesDialog extends EntityDialog<Template> {
     private void renameSelectedTemplate(){
         int row = templatesTable.getSelectedRow();
         Template template = templateListModel.getElementAt(row);
-        var dialog = new TemplateNameDialog(template, templateListModel, categoryListModel, licence);
-        var result = dialog.show(templatesTable, "Rename category", OK_OPTION, null);
-        if(result.isPresent()){
-            templateTableModel.updateRow(template);
+
+        boolean finished = false;
+        while(!finished) {
+            var dialog = new TemplateNameDialog(template.getName());
+            var result = dialog.show(templatesTable, "Rename Template", OK_OPTION, null);
+            if (result.isPresent()) {
+                String templateName = result.get();
+                if (templateListModel.isNameUsed(templateName)) {
+                    notifyUsedName(templateName);
+                } else {
+                    template.setName(templateName);
+                    templateTableModel.updateRow(template);
+                    finished = true;
+                }
+            } else {
+                finished = true;
+            }
         }
+    }
+
+    private void notifyUsedName(String name) {
+        JOptionPane.showMessageDialog(null,
+                "The Template name: \"" + name + "\" is already used.", "Warning",
+                JOptionPane.WARNING_MESSAGE);
     }
 
     private void deleteSelectedTemplate() {
@@ -153,11 +168,11 @@ public class TemplatesDialog extends EntityDialog<Template> {
 
     private Template getNewTemplate() {
         var rideDialogResult = RideDialog.showDialog("New template", null, categoryListModel, licence,
-                templateListModel, false);
+                templateListModel, true);
         if (rideDialogResult.isPresent()) {
             var ride = rideDialogResult.get();
             return new Template(
-                    "123",
+                    "",
                     ride.getDistance(),
                     ride.getRideDateTime(),
                     ride.getPrice(),

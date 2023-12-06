@@ -66,7 +66,7 @@ public class TemplateDao implements DataAccessObject<TemplateEntity>{
     public TemplateEntity update(TemplateEntity entity) {
         var sql = """
                 UPDATE Template
-                SET name = ?
+                SET name = ?,
                     distance = ?,
                     dateTime = ?,
                     price = ?,

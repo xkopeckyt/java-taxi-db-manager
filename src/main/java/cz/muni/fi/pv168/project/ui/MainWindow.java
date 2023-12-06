@@ -74,7 +74,7 @@ public class MainWindow {
         importDataAction = new ImportDataAction(ridesTableModel, dependencyProvider.getImportService(), this::refresh);
         exportDataAction = new ExportDataAction(ridesPanel.getTable(), dependencyProvider.getExportService());
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
-        editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesPanel.getTable());
+        editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesPanel.getTable(), this::refresh);
         editTemplatesAction = new EditTemplatesAction(templateListModel, categoryListModel, licence);
         aboutApplicationAction = new AboutApplicationAction();
         quitAction = new QuitAction();
@@ -126,6 +126,7 @@ public class MainWindow {
     private void refresh() {
         categoryListModel.refresh();
         ridesTableModel.refresh();
+        templateListModel.refresh();
     }
 
     private void setActionListeners(RidesTableFilter ridesTableFilter, JTextField distanceFrom, JTextField distanceTo,
@@ -412,7 +413,7 @@ public class MainWindow {
 
         var currencyFilter = createCurrencyFilter(ridesTableFilter, ridesTable, statisticsPanel);
         var categoryFilter = createCategoryFilter(ridesTableFilter, categoryListModel, ridesTable, statisticsPanel);// tu sa vytvara ten filter
-        var scroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
+        var categoryScroll = new JScrollPane(categoryFilter);// tu sa vytvara scroll
         var distanceFromFilter = new JTextField();
         var distanceToFilter = new JTextField();
         var dateFromPicker = new JDateTimePicker();
@@ -423,16 +424,17 @@ public class MainWindow {
         var passengerCountToFilter = new JSpinner();
         var resetFiltersButton = new JButton("Reset Filters");
 
-        distanceFromFilter.setPreferredSize(new Dimension(60,20));
-        distanceToFilter.setPreferredSize(new Dimension(60, 20));
-        dateFromPicker.setPreferredSize(new Dimension(140, 20));
-        dateToPicker.setPreferredSize(new Dimension(140, 20));
-        priceFromFilter.setPreferredSize(new Dimension(60,20));
-        priceToFilter.setPreferredSize(new Dimension(60, 20));
-        scroll.setPreferredSize(new Dimension(140, 60));
-        passengerCountFromFilter.setPreferredSize(new Dimension(60, 20));
-        passengerCountToFilter.setPreferredSize(new Dimension(60, 20));
-        passengerCountToFilter.setValue(Integer.MAX_VALUE);
+        distanceFromFilter.setPreferredSize(new Dimension(60,25));
+        distanceToFilter.setPreferredSize(new Dimension(60, 25));
+        dateFromPicker.setPreferredSize(new Dimension(140, 25));
+        dateToPicker.setPreferredSize(new Dimension(140, 25));
+        priceFromFilter.setPreferredSize(new Dimension(60,25));
+        priceToFilter.setPreferredSize(new Dimension(60, 25));
+        categoryScroll.setPreferredSize(new Dimension(140, 60));
+        currencyFilter.setPreferredSize(new Dimension(80, 25));
+        passengerCountFromFilter.setPreferredSize(new Dimension(60, 25));
+        passengerCountToFilter.setPreferredSize(new Dimension(60, 25));
+        passengerCountToFilter.setValue(100);
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromPicker, dateToPicker,
                 priceFromFilter, priceToFilter, ridesTable, statisticsPanel, passengerCountFromFilter, passengerCountToFilter);
@@ -449,7 +451,7 @@ public class MainWindow {
         gbc.gridy = 1;
         toolbarPanel.add(createFilterToolbar(new JLabel("Date from:"), dateFromPicker,
                 new JLabel("Date to:"), dateToPicker,
-                new JLabel("Category:"), scroll,
+                new JLabel("Category:"), categoryScroll,
                 new JLabel("Currency:"), currencyFilter,
                 resetFiltersButton), gbc);
 

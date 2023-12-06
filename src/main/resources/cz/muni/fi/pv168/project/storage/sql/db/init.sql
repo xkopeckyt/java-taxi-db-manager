@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS "Template"
     `dateTime`          TIMESTAMP NOT NULL,
     `price`             FLOAT NOT NULL,
     `originalCurrency`  VARCHAR(50) NOT NULL,
-    `categoryId`        BIGINT REFERENCES "Category"(`id`),
+    `categoryId`        BIGINT REFERENCES "Category"(`id`) ON DELETE CASCADE,
     `passengersCount`   INT NOT NULL,
     `guid`              VARCHAR      NOT NULL UNIQUE,
     `createdAt`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
