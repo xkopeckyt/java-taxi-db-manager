@@ -157,7 +157,7 @@ public class TemplatesDialog extends EntityDialog<Template> {
         if (rideDialogResult.isPresent()) {
             var ride = rideDialogResult.get();
             return new Template(
-                    "",
+                    "123",
                     ride.getDistance(),
                     ride.getRideDateTime(),
                     ride.getPrice(),

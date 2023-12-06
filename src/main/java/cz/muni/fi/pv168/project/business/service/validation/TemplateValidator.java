@@ -13,8 +13,6 @@ public class TemplateValidator implements Validator<Template> {
     @Override
     public ValidationResult validate(Template template) {
         var validators = List.of(
-               extracting(Template::getDistance, new BigDecimalValidator(false, true, "Distance name")),
-                extracting(Template::getPrice, new BigDecimalValidator(false, true, "Price name")),
                 extracting(Template::getName, new StringLengthValidator(1, 50, "Template name"))
         );
 

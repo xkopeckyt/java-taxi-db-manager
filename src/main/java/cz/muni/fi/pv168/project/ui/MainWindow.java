@@ -5,10 +5,6 @@ import cz.muni.fi.pv168.project.business.model.Category;
 import cz.muni.fi.pv168.project.business.model.Currency;
 import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.actions.*;
-import cz.muni.fi.pv168.project.business.service.export.CsvImporter;
-import cz.muni.fi.pv168.project.business.service.export.GenericExportService;
-import cz.muni.fi.pv168.project.business.service.export.GenericImportService;
-import cz.muni.fi.pv168.project.business.service.export.CsvExporter;
 import cz.muni.fi.pv168.project.ui.filters.RidesTableFilter;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
@@ -27,7 +23,6 @@ import cz.muni.fi.pv168.project.util.Either;
 import cz.muni.fi.pv168.project.wiring.DependencyProvider;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableRowSorter;
@@ -38,7 +33,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.List;
 
 public class MainWindow {
     private static final int WIDTH = 950;
