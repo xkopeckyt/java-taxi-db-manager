@@ -17,6 +17,7 @@ import cz.muni.fi.pv168.project.ui.filters.components.FilterListModelBuilder;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.JDateTimePicker;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
+import cz.muni.fi.pv168.project.ui.model.TemplateListModel;
 import cz.muni.fi.pv168.project.ui.panels.RideTablePanel;
 import cz.muni.fi.pv168.project.ui.renderers.CategoryRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.CurrencyRenderer;
@@ -54,30 +55,33 @@ public class MainWindow {
     private final Action exportDataAction;
     private final Action editTechnicalLicenceAction;
     private final Action editCategoriesAction;
+    private final Action editTemplatesAction;
     private final Action aboutApplicationAction;
     private final Action quitAction;
     private final Action nuclearQuitAction;
     private final RidesTableModel ridesTableModel;
     private final CategoryListModel categoryListModel;
-    private final Map<String, Ride> templates = new HashMap<>();
+    private final TemplateListModel templateListModel;
 
     public MainWindow(DependencyProvider dependencyProvider) {
         frame = createFrame();
         var testDataGenerator = new TestDataGenerator();
         this.categoryListModel = new CategoryListModel(dependencyProvider.getCategoryCrudService());
         this.ridesTableModel = new RidesTableModel(dependencyProvider.getRideCrudService());
+        this.templateListModel = new TemplateListModel(dependencyProvider.getTemplateCrudService());
         var ridesPanel = new RideTablePanel(ridesTableModel, categoryListModel, this::changeActionState);
         var licence = testDataGenerator.createTestDrivingLicence();
 
-        newRideAction = new NewRideAction(ridesPanel.getTable(), categoryListModel, licence, templates);
-        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesPanel.getTable(), categoryListModel, licence, templates);
+        newRideAction = new NewRideAction(ridesPanel.getTable(), categoryListModel, licence, templateListModel);
+        newRideFromTemplateAction = new NewRideFromTemplateAction(ridesPanel.getTable(), categoryListModel, licence, templateListModel);
         showRideAction = new ShowRideAction(ridesPanel.getTable());
-        editRideAction = new EditRideAction(ridesPanel.getTable(), categoryListModel, licence, templates);
+        editRideAction = new EditRideAction(ridesPanel.getTable(), categoryListModel, licence, templateListModel);
         deleteRideAction = new DeleteRideAction(ridesPanel.getTable());
         importDataAction = new ImportDataAction(ridesTableModel, dependencyProvider.getImportService(), this::refresh);
         exportDataAction = new ExportDataAction(ridesPanel.getTable(), dependencyProvider.getExportService());
         editTechnicalLicenceAction = new EditTechnicalLicenceAction(licence, frame);
         editCategoriesAction = new EditCategoriesAction(categoryListModel, ridesPanel.getTable());
+        editTemplatesAction = new EditTemplatesAction(templateListModel, categoryListModel, licence);
         aboutApplicationAction = new AboutApplicationAction();
         quitAction = new QuitAction();
         nuclearQuitAction = new NuclearQuitAction(dependencyProvider.getDatabaseManager());
@@ -478,6 +482,7 @@ public class MainWindow {
         toolbar.add(exportDataAction);
         toolbar.addSeparator();
         toolbar.add(editCategoriesAction);
+        toolbar.add(editTemplatesAction);
         toolbar.addSeparator();
         toolbar.add(editTechnicalLicenceAction);
         return toolbar;
