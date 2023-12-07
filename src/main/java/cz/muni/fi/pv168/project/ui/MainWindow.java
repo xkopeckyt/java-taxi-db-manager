@@ -184,8 +184,10 @@ public class MainWindow {
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
-        countFrom.addChangeListener(e -> ridesTableFilter.filterPassengerFromCount((int) countFrom.getValue()));
-        countTo.addChangeListener(e -> ridesTableFilter.filterPassengerToCount((int) countTo.getValue()));
+        countFrom.addChangeListener(e -> {ridesTableFilter.filterPassengerFromCount((int) countFrom.getValue());
+        updateStatisticsPanel(statisticsPanel, ridesTable, false);});
+        countTo.addChangeListener(e -> {ridesTableFilter.filterPassengerToCount((int) countTo.getValue());
+        updateStatisticsPanel(statisticsPanel, ridesTable, false);});
     }
 
     private void setFocusListeners(JTextField distanceFrom, JTextField distanceTo,
