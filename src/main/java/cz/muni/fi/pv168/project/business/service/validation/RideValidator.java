@@ -15,7 +15,7 @@ public class RideValidator implements Validator<Ride> {
     @Override
     public ValidationResult validate(Ride model) {
         var validators = List.of(
-                extracting(Ride::getDistance, new BigDecimalValidator(false, false, "Distance")),
+                extracting(Ride::getDistance, new BigDecimalValidator(false, true, "Distance")),
                 extracting(Ride::getPrice, new BigDecimalValidator(false, true, "Price"))
         );
 
