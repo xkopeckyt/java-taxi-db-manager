@@ -84,7 +84,7 @@ public class RideDialog extends EntityDialog <Ride> {
     private void checkValidDate() {
         validDate = licence.checkDate(datePicker.getLocalDate());
         setBackground(datePicker.getEditor(), validDate);
-        labelLicence.setText(validDate ? " " : "Licence is invalid this day");
+        labelLicence.setText((validDate || datePicker.getLocalDate() == null) ? " " : "Licence is invalid this day");
     }
 
     public void addListeners() {
@@ -184,7 +184,8 @@ public class RideDialog extends EntityDialog <Ride> {
                             datePicker.getLocalDate() != null && validDate);
         saveTemplateButton.setEnabled((distanceField.isValid() || distanceField.getText().isEmpty())
                                         && (priceField.isValid() || priceField.getText().isEmpty())
-                                        && (passengersCountField.isValid() || passengersCountField.getText().isEmpty()));
+                                        && (passengersCountField.isValid() || passengersCountField.getText().isEmpty())
+                                        && datePicker.getLocalDateTime() != null);
     }
 
     private void setBackground(JComponent comp, boolean isValid) {
