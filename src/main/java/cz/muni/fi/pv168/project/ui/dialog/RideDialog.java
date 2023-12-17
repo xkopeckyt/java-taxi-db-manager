@@ -84,7 +84,7 @@ public class RideDialog extends EntityDialog <Ride> {
     private void checkValidDate() {
         validDate = licence.checkDate(datePicker.getLocalDate());
         setBackground(datePicker.getEditor(), validDate);
-        labelLicence.setText(validDate ? " " : "Licence is invalid this day");
+        labelLicence.setText((validDate || datePicker.getLocalDate() == null) ? " " : "Licence is invalid this day");
     }
 
     public void addListeners() {
@@ -137,10 +137,7 @@ public class RideDialog extends EntityDialog <Ride> {
                     (Currency) currencyModel.getSelectedItem(),
                     (Category) categoryModel.getSelectedItem(),
                     ((!passengersCountField.getText().isEmpty()) ? Integer.parseInt(passengersCountField.getText()) : 0));
-            var templateDialog = new TemplateNameDialog();
-            var templateResult = templateDialog.show(new JTable(), "Template name", OK_CANCEL_OPTION, null);
-            templateResult.ifPresent(s ->
-                templateListModel.addRow(template));
+            saveTemplate(template);
         });
 
         datePicker.addActionListener(e -> checkFormValidity());
@@ -148,6 +145,31 @@ public class RideDialog extends EntityDialog <Ride> {
         addListenersToField(passengersCountField, new IntegerFieldListener(passengersCountField), listener);
         addListenersToField(distanceField, new DecimalFieldListener(distanceField), listener);
         addListenersToField(priceField, new DecimalFieldListener(priceField), listener);
+    }
+
+    private void saveTemplate(Template template) {
+        var finished = false;
+        while (!finished) {
+            var templateDialog = new TemplateNameDialog();
+            var templateResult = templateDialog.show(new JTable(), "Template name", OK_CANCEL_OPTION, null);
+            if (templateResult.isPresent()) {
+                String templateName = templateResult.get();
+                if (templateListModel.isNameUsed(templateName)) {
+                    templateUsedName(templateName);
+                } else {
+                    template.setName(templateName);
+                    templateListModel.addRow(template);
+                    finished = true;
+                }
+            } else {
+                finished = true;
+            }
+        }
+    }
+    private void templateUsedName(String name) {
+        JOptionPane.showMessageDialog(null,
+                "The Template name: \"" + name + "\" is already used.", "Warning",
+                JOptionPane.WARNING_MESSAGE);
     }
 
     private void addListenersToField(JStatusTextField field, AbstractFieldListener fieldLis, DocumentListener docLis) {
@@ -162,7 +184,8 @@ public class RideDialog extends EntityDialog <Ride> {
                             datePicker.getLocalDate() != null && validDate);
         saveTemplateButton.setEnabled((distanceField.isValid() || distanceField.getText().isEmpty())
                                         && (priceField.isValid() || priceField.getText().isEmpty())
-                                        && (passengersCountField.isValid() || passengersCountField.getText().isEmpty()));
+                                        && (passengersCountField.isValid() || passengersCountField.getText().isEmpty())
+                                        && datePicker.getLocalDateTime() != null);
     }
 
     private void setBackground(JComponent comp, boolean isValid) {
