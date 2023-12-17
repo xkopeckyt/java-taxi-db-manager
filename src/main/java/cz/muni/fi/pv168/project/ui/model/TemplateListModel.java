@@ -73,12 +73,13 @@ public class TemplateListModel extends AbstractListModel<Template> {
         return false;
     }
 
-    public void clearCategories() {
+    public void clearTemplates() {
         templates.clear();
         templateCrudService.deleteAll();
     }
 
     public void refresh() {
+        System.out.println(templateCrudService.findAll().size());
         this.templates = new ArrayList<>(templateCrudService.findAll());
         fireContentsChanged(this, 0, getSize() - 1);
     }
