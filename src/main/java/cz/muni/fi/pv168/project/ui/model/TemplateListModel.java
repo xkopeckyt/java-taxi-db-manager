@@ -73,7 +73,7 @@ public class TemplateListModel extends AbstractListModel<Template> {
         return false;
     }
 
-    public void clearCategories() {
+    public void clearTemplates() {
         templates.clear();
         templateCrudService.deleteAll();
     }

@@ -50,9 +50,9 @@ public class CsvImporter implements BatchImporter {
 
     private Ride parseRide(String line) {
         var ride = line.split(SEPARATOR);
-        Category category = getCategoryByName(ride[6]);
+        Category category = getCategoryByName(ride[7]);
         if (category == null) {
-            category = new Category(ride[6], ride[7]);
+            category = new Category(ride[7], ride[6]);
             categories.add(category);
         }
 
