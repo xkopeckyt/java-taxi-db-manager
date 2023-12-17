@@ -79,7 +79,6 @@ public class TemplateListModel extends AbstractListModel<Template> {
     }
 
     public void refresh() {
-        System.out.println(templateCrudService.findAll().size());
         this.templates = new ArrayList<>(templateCrudService.findAll());
         fireContentsChanged(this, 0, getSize() - 1);
     }
