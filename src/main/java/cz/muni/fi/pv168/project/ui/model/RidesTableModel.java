@@ -29,7 +29,7 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
             Column.readonly("Price", BigDecimal.class, Ride::getPrice, new FloatCellRenderer(2)),
             Column.readonly("Distance", BigDecimal.class, Ride::getDistance, new FloatCellRenderer(2)),
             Column.readonly("Currency", Currency.class, Ride::getOriginalCurrency),
-            Column.readonly("Passengers", int.class, Ride::getPassengersCount),
+            Column.readonly("Passengers", Integer.class, Ride::getPassengersCount),
             Column.readonly("Category", Category.class, Ride::getCategory)
     );
     private static final float[] columnWidthPercentage = {0.28f, 0.1f, 0.1f, 0.13f, 0.14f, 0.25f};
