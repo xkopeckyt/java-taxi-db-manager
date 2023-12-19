@@ -436,7 +436,7 @@ public class MainWindow {
         currencyFilter.setPreferredSize(new Dimension(80, 25));
         passengerCountFromFilter.setPreferredSize(new Dimension(60, 25));
         passengerCountToFilter.setPreferredSize(new Dimension(60, 25));
-        passengerCountToFilter.setValue(100);
+        passengerCountToFilter.setValue(Integer.MAX_VALUE);
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromPicker, dateToPicker,
                 priceFromFilter, priceToFilter, ridesTable, statisticsPanel, passengerCountFromFilter, passengerCountToFilter);
