@@ -228,7 +228,7 @@ public class MainWindow {
         priceTo.setText(null);
         priceTo.postActionEvent();
         countFrom.setValue(0);
-        countTo.setValue(Integer.MAX_VALUE);
+        countTo.setValue(100);
     }
     private static JComboBox<Either<SpecialCurrencyValues, Currency>> createCurrencyFilter(
             RidesTableFilter ridesTableFilter, JTable ridesTable, JPanel statisticsPanel) {
@@ -436,7 +436,7 @@ public class MainWindow {
         currencyFilter.setPreferredSize(new Dimension(80, 25));
         passengerCountFromFilter.setPreferredSize(new Dimension(60, 25));
         passengerCountToFilter.setPreferredSize(new Dimension(60, 25));
-        passengerCountToFilter.setValue(Integer.MAX_VALUE);
+        passengerCountToFilter.setValue(100);
 
         setActionListeners(ridesTableFilter, distanceFromFilter, distanceToFilter, dateFromPicker, dateToPicker,
                 priceFromFilter, priceToFilter, ridesTable, statisticsPanel, passengerCountFromFilter, passengerCountToFilter);
