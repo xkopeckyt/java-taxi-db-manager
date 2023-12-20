@@ -11,12 +11,16 @@ public class RideDistanceFromMatcher extends EntityMatcher<Ride> {
         this.distanceFrom = distanceFrom;
     }
 
-    public RideDistanceFromMatcher(float distanceFrom) {
+    public RideDistanceFromMatcher(Float distanceFrom) {
+        if (distanceFrom == null) {
+            this.distanceFrom = null;
+            return;
+        }
         this.distanceFrom = BigDecimal.valueOf(distanceFrom);
     }
 
     @Override
     public boolean evaluate(Ride ride) {
-        return ride.getDistance().compareTo(distanceFrom) >= 0;
+        return distanceFrom == null || ride.getDistance().compareTo(distanceFrom) >= 0;
     }
 }

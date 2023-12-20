@@ -133,22 +133,14 @@ public class MainWindow {
                                     JDateTimePicker dateFrom, JDateTimePicker dateTo, JTextField priceFrom, JTextField priceTo,
                                     JTable ridesTable, JPanel statisticsPanel, JSpinner countFrom, JSpinner countTo) {
         distanceFrom.addActionListener(e -> {
-            var distanceFromText = distanceFrom.getText();
-            if (!distanceFromText.isEmpty()) {
-                ridesTableFilter.filterDistanceFrom(Float.parseFloat(distanceFromText));
-            } else {
-                ridesTableFilter.filterDistanceFrom(Float.MIN_VALUE);
-            }
+            Float value = stringToFloat(distanceFrom.getText(), distanceFrom);
+            ridesTableFilter.filterDistanceFrom(value);
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
         distanceTo.addActionListener(e -> {
-            var distanceToText = distanceTo.getText();
-            if (!distanceToText.isEmpty()) {
-                ridesTableFilter.filterDistanceTo(Float.parseFloat(distanceToText));
-            } else {
-                ridesTableFilter.filterDistanceTo(Float.MAX_VALUE);
-            }
+            Float value = stringToFloat(distanceTo.getText(), distanceTo);
+            ridesTableFilter.filterDistanceTo(value);
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
@@ -165,22 +157,14 @@ public class MainWindow {
         });
 
         priceFrom.addActionListener(e -> {
-            var priceFromText = priceFrom.getText();
-            if (!priceFromText.isEmpty()) {
-                ridesTableFilter.filterPriceFrom(Float.parseFloat(priceFromText));
-            } else {
-                ridesTableFilter.filterPriceFrom(Float.MIN_VALUE);
-            }
+            Float value = stringToFloat(priceFrom.getText(), priceFrom);
+            ridesTableFilter.filterPriceFrom(value);
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
         priceTo.addActionListener(e -> {
-            var priceToText = priceTo.getText();
-            if (!priceToText.isEmpty()) {
-                ridesTableFilter.filterPriceTo(Float.parseFloat(priceToText));
-            } else {
-                ridesTableFilter.filterPriceTo(Float.MAX_VALUE);
-            }
+            Float value = stringToFloat(priceTo.getText(), priceTo);
+            ridesTableFilter.filterPriceTo(value);
             updateStatisticsPanel(statisticsPanel, ridesTable, false);
         });
 
@@ -188,6 +172,19 @@ public class MainWindow {
         updateStatisticsPanel(statisticsPanel, ridesTable, false);});
         countTo.addChangeListener(e -> {ridesTableFilter.filterPassengerToCount((int) countTo.getValue());
         updateStatisticsPanel(statisticsPanel, ridesTable, false);});
+    }
+
+    private Float stringToFloat(String str, JComponent comp) {
+        comp.setBackground(Color.white);
+        if (str == null || str.isEmpty()) {
+            return null;
+        }
+        try {
+            return Float.parseFloat(str);
+        } catch (Exception ex) {
+            comp.setBackground(Color.red);
+            return null;
+        }
     }
 
     private void setFocusListeners(JTextField distanceFrom, JTextField distanceTo,
