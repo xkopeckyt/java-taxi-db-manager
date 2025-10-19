@@ -1,8 +1,7 @@
 package cz.muni.fi.pv168.project.ui.dialog;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.model.CategoryListModel;
 import cz.muni.fi.pv168.project.ui.model.CategoryTableModel;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
@@ -20,6 +19,7 @@ import static javax.swing.JOptionPane.OK_OPTION;
 public class CategoryDialog extends EntityDialog<Category> {
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
+
     private final JTable categoryTable;
     private final JButton newCategory;
     private final JMenuItem renameCategory;
@@ -28,7 +28,9 @@ public class CategoryDialog extends EntityDialog<Category> {
     private final CategoryListModel categoryListModel;
     private final CategoryTableModel categoryTableModel;
     private final JTable ridesTable;
-    public CategoryDialog(CategoryListModel categoryModel, JTable ridesTable){
+    private final Runnable callback;
+
+    public CategoryDialog(CategoryListModel categoryModel, JTable ridesTable, Runnable callback){
         this.categoryListModel = categoryModel;
         this.ridesTable = ridesTable;
         frame = createFrame();
@@ -37,6 +39,7 @@ public class CategoryDialog extends EntityDialog<Category> {
         this.categoryTable.setRowSorter(categoryTableModel.getRowSorter());
         this.categoryTable.addComponentListener(categoryTableModel.getResizeListener());
         this.categoryTable.getSelectionModel().addListSelectionListener(this::rowSelectionChanged);
+        this.callback = callback;
 
         this.newCategory = new JButton("New");
         this.renameCategory = new JMenuItem("Rename", EDIT_ICON);
@@ -57,28 +60,66 @@ public class CategoryDialog extends EntityDialog<Category> {
     }
 
     private void createNewCategory(){
-        var dialog = new CategoryNameDialog(null);
-        var result = dialog.show(categoryTable, "New category", OK_CANCEL_OPTION, null);
-        if(result.isPresent()){
-            categoryListModel.add(result.get());
-            int idx = categoryListModel.getIndex(result.get());
-            categoryTableModel.fireTableRowsInserted(idx, idx);
+        boolean validInput = false;
+        while(!validInput) {
+            var dialog = new CategoryNameDialog(null, categoryListModel);
+            var result = dialog.show(categoryTable, "New category", OK_CANCEL_OPTION, null);
+            if (result.isPresent()) {
+                String categoryName = result.get().getName();
+                if(categoryListModel.isNameUsed(categoryName)){
+                    JOptionPane.showMessageDialog(null,
+                            "The category name: \"" + categoryName + "\" is already used.", "Warning",
+                            JOptionPane.WARNING_MESSAGE);
+                }
+                else{
+                    categoryListModel.addRow(result.get());
+                    int idx = categoryListModel.getIndex(result.get());
+                    categoryTableModel.fireTableRowsInserted(idx, idx);
+                    validInput = true;
+                }
+
+            }
+            else{
+                validInput = true;
+            }
         }
     }
     private void renameSelectedCategory(){
         int row = categoryTable.getSelectedRow();
         Category category = categoryListModel.getElementAt(row);
-        var dialog = new CategoryNameDialog(category);
+        var dialog = new CategoryNameDialog(category, categoryListModel);
         var result = dialog.show(categoryTable, "Rename category", OK_OPTION, null);
-        categoryTableModel.fireTableDataChanged();
-        ((RidesTableModel)ridesTable.getModel()).fireTableDataChanged();
+        if(result.isPresent()){
+            categoryTableModel.updateRow(category);
+            var ridesTableModel = (RidesTableModel)ridesTable.getModel();
+            ridesTableModel.refresh();
+            ridesTableModel.fireTableDataChanged();
+        }
     }
     private void deleteSelectedCategory() {
+        RidesTableModel ridesTableModel = (RidesTableModel) ridesTable.getModel();
         int[] rows = categoryTable.getSelectedRows();
-        for(int i = rows.length - 1; i >= 0; i--){
-            categoryListModel.remove(rows[i]);
+        for (int i = rows.length - 1; i >= 0; i--) {
+            if (categoryListModel.getSize() == 1) {
+                JOptionPane.showMessageDialog(null,
+                        "There has to be at least one category.", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+                continue;
+            }
+            var row = rows[i];
+            int modelIndex = categoryTable.convertRowIndexToModel(row);
+            Category category = categoryTableModel.getEntity(modelIndex);
+            boolean used = ridesTableModel.getAllRides().stream().anyMatch(ride -> ride.getCategory().equals(category));
+            if(used){
+                JOptionPane.showMessageDialog(null,
+                        "The category: \"" + category.getName() + "\" is being used.", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+                continue;
+            }
+            categoryTableModel.deleteRow(modelIndex);
         }
         categoryTableModel.fireTableDataChanged();
+        callback.run();
     }
 
 

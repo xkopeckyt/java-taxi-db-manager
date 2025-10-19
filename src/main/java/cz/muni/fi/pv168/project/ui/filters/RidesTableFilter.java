@@ -1,9 +1,9 @@
 package cz.muni.fi.pv168.project.ui.filters;
 
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Currency;
+import cz.muni.fi.pv168.project.business.model.Ride;
 import cz.muni.fi.pv168.project.ui.filters.Matchers.*;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCategoryValues;
 import cz.muni.fi.pv168.project.ui.filters.Values.SpecialCurrencyValues;
@@ -58,6 +58,22 @@ public final class RidesTableFilter {
         ridesCompoundMatcher.setDateToMatcher(new RideDateToMatcher(selectedItem));
     }
 
+    public void filterPriceFrom(Float selectedItem) {
+        ridesCompoundMatcher.setPriceFromMatcher(new RidePriceFromMatcher(selectedItem));
+    }
+
+    public void filterPriceTo(Float selectedItem) {
+        ridesCompoundMatcher.setPriceToMatcher(new RidePriceToMatcher(selectedItem));
+    }
+
+    public void filterPassengerFromCount(int selectedItem) {
+        ridesCompoundMatcher.setPassengerCountFromMatcher(new RidePassengerCountFromMatcher(selectedItem));
+    }
+
+    public void filterPassengerToCount(int selectedItem) {
+        ridesCompoundMatcher.setPassengerCountToMatcher(new RidePassengerCountToMatcher(selectedItem));
+    }
+
     private static class RidesCompoundMatcher extends EntityMatcher<Ride> {
 
         private final TableRowSorter<RidesTableModel> rowSorter;
@@ -67,6 +83,10 @@ public final class RidesTableFilter {
         private EntityMatcher<Ride> distanceToMatcher = EntityMatchers.all();
         private EntityMatcher<Ride> dateFromMatcher = EntityMatchers.all();
         private EntityMatcher<Ride> dateToMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> priceFromMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> priceToMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> passengerCountFromMatcher = EntityMatchers.all();
+        private EntityMatcher<Ride> passengerCountToMatcher = EntityMatchers.all();
 
         private RidesCompoundMatcher(TableRowSorter<RidesTableModel> rowSorter) {
             this.rowSorter = rowSorter;
@@ -102,10 +122,31 @@ public final class RidesTableFilter {
             rowSorter.sort();
         }
 
+        public void setPriceFromMatcher(EntityMatcher<Ride> priceFromMatcher){
+            this.priceFromMatcher = priceFromMatcher;
+            rowSorter.sort();
+        }
+
+        public void setPriceToMatcher(EntityMatcher<Ride> priceToMatcher){
+            this.priceToMatcher = priceToMatcher;
+            rowSorter.sort();
+        }
+
+        public void setPassengerCountFromMatcher(EntityMatcher<Ride> passengerCountFromMatcher) {
+            this.passengerCountFromMatcher = passengerCountFromMatcher;
+            rowSorter.sort();
+        }
+
+        public void setPassengerCountToMatcher(EntityMatcher<Ride> passengerCountToMatcher) {
+            this.passengerCountToMatcher = passengerCountToMatcher;
+            rowSorter.sort();
+        }
+
         @Override
         public boolean evaluate(Ride ride) {
             return Stream.of(currencyMatcher, categoryMatcher, distanceFromMatcher,
-                            distanceToMatcher, dateFromMatcher, dateToMatcher)
+                            distanceToMatcher, dateFromMatcher, dateToMatcher,
+                            priceFromMatcher, priceToMatcher, passengerCountFromMatcher, passengerCountToMatcher)
                     .allMatch(m -> m.evaluate(ride));
         }
     }

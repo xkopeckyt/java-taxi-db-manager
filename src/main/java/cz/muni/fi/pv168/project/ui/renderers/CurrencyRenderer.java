@@ -1,10 +1,8 @@
 package cz.muni.fi.pv168.project.ui.renderers;
 
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.ui.resources.Icons;
+import cz.muni.fi.pv168.project.business.model.Currency;
 
 import javax.swing.*;
-import java.util.Map;
 
 public final class CurrencyRenderer extends AbstractRenderer<Currency> {
 

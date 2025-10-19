@@ -1,61 +1,62 @@
 package cz.muni.fi.pv168.project.ui.actions;
 
 import cz.muni.fi.pv168.project.data.TestDataGenerator;
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.DrivingLicence;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.DrivingLicence;
+import cz.muni.fi.pv168.project.business.model.Ride;
+import cz.muni.fi.pv168.project.ui.dialog.EmptyTemplateDialog;
+import cz.muni.fi.pv168.project.ui.dialog.LoadTemplateDialog;
 import cz.muni.fi.pv168.project.ui.dialog.RideDialog;
 import cz.muni.fi.pv168.project.ui.model.RidesTableModel;
+import cz.muni.fi.pv168.project.ui.model.TemplateListModel;
 import cz.muni.fi.pv168.project.ui.resources.Icons;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Map;
+
 import static javax.swing.JOptionPane.*;
 
 public class NewRideFromTemplateAction extends AbstractAction {
     private final JTable ridesTable;
     private final ListModel<Category> categoryListModel;
     private final DrivingLicence licence;
-    TestDataGenerator testDataGenerator;
+    private final TemplateListModel templates;
 
     public NewRideFromTemplateAction(JTable ridesTable, ListModel<Category> categoryListModel,
-                                     DrivingLicence licence, TestDataGenerator testDataGenerator) {
-        super("New Ride from Template", Icons.NEW_ICON);
+                                     DrivingLicence licence, TemplateListModel templates) {
+        super("New Ride from Template", Icons.NEW_TEMPLATE_ICON);
         putValue(SHORT_DESCRIPTION, "Show Create new ride Dialog with chosen Template");
         putValue(MNEMONIC_KEY, KeyEvent.VK_T);
-        this.testDataGenerator = testDataGenerator;
 
         this.ridesTable = ridesTable;
         this.categoryListModel = categoryListModel;
         this.licence = licence;
+        this.templates = templates;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(null);
+        if (!(templates.getSize() == 0)) {
+            var loadTemplatesDialog = new LoadTemplateDialog(templates.getNames());
+            var loadResult = loadTemplatesDialog.show(new JTable(), "Load Template", OK_CANCEL_OPTION, null);
 
-        if (result == JFileChooser.APPROVE_OPTION) {
-            var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-            var rideDialog = new RideDialog(testDataGenerator.createTestRide(), categoryListModel, licence, false);
-            var rideResult = rideDialog.show(ridesTable, "New Ride", OK_CANCEL_OPTION, null);
-
-            if (rideResult.isPresent() && licence.checkDate(rideResult.get().getDateTime())) {
-                ridesTableModel.addRow(rideResult.get());
-            } else {
-                System.out.println(this.getClass().getName());
+            if (loadResult.isPresent()) {
+                var template = templates.getTemplate(loadResult.get());
+                var ride = new Ride(template.getDistance(), template.getTemplateDateTime(), template.getPrice(),
+                        template.getOriginalCurrency(), template.getCategory(), template.getPassengersCount());
+                var addRideDialogResult = RideDialog.showDialog("Add Ride", ride, categoryListModel, licence, templates, false);
+                if (addRideDialogResult.isPresent()) {
+                    var ridesTableModel = (RidesTableModel) ridesTable.getModel();
+                    ridesTableModel.addRow(addRideDialogResult.get());
+                }
             }
-            /*if (templateResult.isPresent() && rideTemplates.size() != 0) {
-            var ridesTableModel = (RidesTableModel) ridesTable.getModel();
-            if (!licence.checkDate(templateResult.get().getDateTime())) {
-                var wrongDateDialog = new WrongDateDialog(templateResult.get().getDateTime());
-                wrongDateDialog.show(new JTable(), "Invalid date");
-            }
-            var rideDialog = new RideDialog(templateResult.get(), categoryListModel, rideTemplates, licence);
-            var rideResult = rideDialog.show(ridesTable, "New Ride");
-            if (rideResult.isPresent() && licence.checkDate(rideResult.get().getDateTime())) {
-                ridesTableModel.addRow(rideResult.get());
-            }*/
+        } else {
+            var dialog = new EmptyTemplateDialog();
+            dialog.show(new JTable(), "Empty Templates", OK_OPTION, new Object[]{"OK"});
         }
+
+
     }
 }

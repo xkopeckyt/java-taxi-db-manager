@@ -1,6 +1,6 @@
 package cz.muni.fi.pv168.project.ui.filters.Matchers;
 
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Ride;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +13,7 @@ public class RideDateFromMatcher extends EntityMatcher<Ride> {
 
     @Override
     public boolean evaluate(Ride ride) {
-        return ride.getDateTime().isAfter(dateFrom.minusDays(1));
+        var dateTime = ride.getRideDateTime();
+        return dateTime.isAfter(dateFrom) || dateTime.isEqual(dateFrom);
     }
 }

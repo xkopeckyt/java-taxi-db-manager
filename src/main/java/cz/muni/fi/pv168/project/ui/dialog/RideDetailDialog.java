@@ -1,6 +1,6 @@
 package cz.muni.fi.pv168.project.ui.dialog;
 
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Ride;
 
 import javax.swing.*;
 
@@ -27,7 +27,7 @@ public class RideDetailDialog extends EntityDialog <Ride> {
         currencyField.setEditable(false);
         distanceField.setText(String.valueOf(ride.getDistance()));
         distanceField.setEditable(false);
-        dateTimeField.setText(String.valueOf(ride.getDateTime()));
+        dateTimeField.setText(String.valueOf(ride.getRideDateTime()));
         dateTimeField.setEditable(false);
         categoryField.setText(String.valueOf(ride.getCategory()));
         categoryField.setEditable(false);

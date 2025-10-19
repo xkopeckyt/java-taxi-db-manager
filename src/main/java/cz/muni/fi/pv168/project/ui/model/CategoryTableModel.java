@@ -1,7 +1,6 @@
 package cz.muni.fi.pv168.project.ui.model;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
 import cz.muni.fi.pv168.project.ui.sorters.*;
 
 import javax.swing.*;
@@ -13,18 +12,20 @@ import java.util.List;
 import java.util.Map;
 
 public class CategoryTableModel extends AbstractTableModel {
-    private CategoryListModel categoryModel;
     private static final Map<Class<?>, Comparator<?>> COMPARATORS = Map.ofEntries(
-            Map.entry(long.class, new LongComparator()),
             Map.entry(String.class, new StringComparator())
     );
     private static final List<Column<Category, ?>> COLUMNS = List.of(
-            Column.readonly("ID", Long.class, Category::getId),
             Column.readonly("Name", String.class, Category::getName)
     );
+    private static final float[] columnWidthPercentage = {0.05f, 0.8f};
+
+    private final CategoryListModel categoryModel;
+
     public CategoryTableModel(CategoryListModel categoryModel){
         this.categoryModel = categoryModel;
     }
+
     public TableColumnModel getColumnModel() {
         var tableColumnModel = new DefaultTableColumnModel();
         for (int i = 0; i < COLUMNS.size(); i++) {
@@ -73,26 +74,19 @@ public class CategoryTableModel extends AbstractTableModel {
             column.setPreferredWidth(pWidth);
         }
     }
-    float[] columnWidthPercentage = {0.05f, 0.8f};
+
     @Override
     public int getRowCount() {
         return categoryModel.getSize();
     }
     @Override
     public int getColumnCount() {
-        return COLUMNS.size();  // ID and Name
+        return COLUMNS.size();
     }
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         var category = getEntity(rowIndex);
-        switch(columnIndex){
-            case 0:
-                return category.getId();
-            case 1:
-                return category.getName();
-            default:
-                throw new IllegalArgumentException("Invalid column index: " + columnIndex);
-        }
+        return COLUMNS.get(columnIndex).getValue(category);
     }
     @Override
     public String getColumnName(int columnIndex) {
@@ -119,18 +113,19 @@ public class CategoryTableModel extends AbstractTableModel {
     }
 
     public void deleteRow(int rowIndex) {
-        categoryModel.remove(rowIndex);
+        categoryModel.removeRow(rowIndex);
         fireTableRowsDeleted(rowIndex, rowIndex);
     }
 
     public void addRow(Category category) {
         int newRowIndex = categoryModel.getSize();
-        categoryModel.add(category);
+        categoryModel.addRow(category);
         fireTableRowsInserted(newRowIndex, newRowIndex);
     }
 
     public void updateRow(Category category) {
         int rowIndex = categoryModel.getIndex(category);
+        categoryModel.updateRow(category);
         fireTableRowsUpdated(rowIndex, rowIndex);
     }
 }

@@ -1,40 +1,45 @@
 package cz.muni.fi.pv168.project.ui.model;
 
-import cz.muni.fi.pv168.project.model.Category;
-import cz.muni.fi.pv168.project.model.Currency;
-import cz.muni.fi.pv168.project.model.Ride;
+import cz.muni.fi.pv168.project.business.model.Category;
+import cz.muni.fi.pv168.project.business.model.Currency;
+import cz.muni.fi.pv168.project.business.model.Ride;
+import cz.muni.fi.pv168.project.business.service.crud.CrudService;
 import cz.muni.fi.pv168.project.ui.renderers.DateTimeCellRenderer;
 import cz.muni.fi.pv168.project.ui.renderers.FloatCellRenderer;
 import cz.muni.fi.pv168.project.ui.sorters.EnumComparator;
-import cz.muni.fi.pv168.project.ui.sorters.FloatComparator;
 import cz.muni.fi.pv168.project.ui.sorters.IntCompatator;
 
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class RidesTableModel extends AbstractTableModel implements EntityTableModel<Ride>{
-    private final List<Ride> rides;
     private static final Map<Class<?>, Comparator<?>> COMPARATORS = Map.ofEntries(
-            Map.entry(float.class, new FloatComparator()),
             Map.entry(int.class, new IntCompatator()),
             Map.entry(Enum.class, new EnumComparator())
     );
 
     private static final List<Column<Ride, ?>> COLUMNS = List.of(
-            Column.readonly("Date & Time", LocalDateTime.class, Ride::getDateTime, new DateTimeCellRenderer()),
-            Column.readonly("Distance", float.class, Ride::getDistance, new FloatCellRenderer(2)),
-            Column.readonly("Price", float.class, Ride::getPrice, new FloatCellRenderer(2)),
+            Column.readonly("Date & Time", LocalDateTime.class, Ride::getRideDateTime, new DateTimeCellRenderer()),
+            Column.readonly("Price", BigDecimal.class, Ride::getPrice, new FloatCellRenderer(2)),
+            Column.readonly("Distance", BigDecimal.class, Ride::getDistance, new FloatCellRenderer(2)),
             Column.readonly("Currency", Currency.class, Ride::getOriginalCurrency),
-            Column.readonly("Passengers", int.class, Ride::getPassengersCount),
+            Column.readonly("Passengers", Integer.class, Ride::getPassengersCount),
             Column.readonly("Category", Category.class, Ride::getCategory)
     );
+    private static final float[] columnWidthPercentage = {0.28f, 0.1f, 0.1f, 0.13f, 0.14f, 0.25f};
 
-    public RidesTableModel(List<Ride> rides) {
-        this.rides = new ArrayList<>(rides);
+    private final CrudService<Ride> rideCrudService;
+    private List<Ride> rides;
+
+    public RidesTableModel(CrudService<Ride> rideCrudService) {
+        this.rideCrudService = rideCrudService;
+        this.rides = new ArrayList<>(rideCrudService.findAll());
     }
 
     public TableColumnModel getColumnModel() {
@@ -73,10 +78,10 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
         };
     }
 
-    float[] columnWidthPercentage = {0.28f, 0.1f, 0.1f, 0.13f, 0.14f, 0.25f};
-
     private void resizeColumns(ComponentEvent e) {
-        if (!(e.getSource() instanceof JTable table)) throw new RuntimeException("nope");
+        if (!(e.getSource() instanceof JTable table)) {
+            throw new RuntimeException("nope");
+        }
         TableColumn column;
         TableColumnModel jTableColumnModel = table.getColumnModel();
         int tW = jTableColumnModel.getTotalColumnWidth();
@@ -127,23 +132,73 @@ public class RidesTableModel extends AbstractTableModel implements EntityTableMo
     }
 
     public void deleteRow(int rowIndex) {
+        var employeeToBeDeleted = getEntity(rowIndex);
+        rideCrudService.deleteByGuid(employeeToBeDeleted.getGuid());
         rides.remove(rowIndex);
         fireTableRowsDeleted(rowIndex, rowIndex);
     }
 
     public void addRow(Ride ride) {
+        rideCrudService.create(ride)
+                .intoException();
         int newRowIndex = rides.size();
         rides.add(ride);
         fireTableRowsInserted(newRowIndex, newRowIndex);
     }
 
     public void updateRow(Ride ride) {
+        rideCrudService.update(ride)
+                .intoException();
         int rowIndex = rides.indexOf(ride);
         fireTableRowsUpdated(rowIndex, rowIndex);
+    }
+
+    public void refresh() {
+        this.rides = new ArrayList<>(rideCrudService.findAll());
+        fireTableDataChanged();
+    }
+
+    public BigDecimal totalPrice(List<Ride> rides){
+        BigDecimal count = BigDecimal.valueOf(0);
+        for(Ride ride : rides){
+            count = count.add(ride.getPrice());
+        }
+        return count;
+    }
+    public BigDecimal totalDistance(List<Ride> rides){
+        BigDecimal distance = BigDecimal.valueOf(0);
+        for(Ride ride : rides){
+            distance = distance.add(ride.getDistance());
+        }
+        return distance;
+    }
+    public BigDecimal averageDistance(List<Ride> rides){
+        if(rides.isEmpty()){
+            return BigDecimal.valueOf(0);
+        }
+        return totalDistance(rides).divide(BigDecimal.valueOf(rides.size()), new MathContext(2));
+    }
+    public BigDecimal averagePrice(List<Ride> rides){
+        if(rides.isEmpty()){
+            return BigDecimal.valueOf(0);
+        }
+        return totalPrice(rides).divide(BigDecimal.valueOf(rides.size()), new MathContext(2));
+    }
+
+    public void deleteAll() {
+        int lastIndex = rides.size() - 1;
+        rides.clear();
+        if (lastIndex >= 0) {
+            fireTableRowsDeleted(0, lastIndex);
+        }
     }
 
     @Override
     public Ride getEntity(int rowIndex) {
         return rides.get(rowIndex);
+    }
+
+    public List<Ride> getAllRides() {
+        return new ArrayList<Ride>(rides);
     }
 }
